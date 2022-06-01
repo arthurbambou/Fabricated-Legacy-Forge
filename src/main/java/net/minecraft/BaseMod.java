@@ -35,13 +35,13 @@ public abstract class BaseMod implements BaseModProxy {
     public final boolean doTickInGame(TickType tick, boolean tickEnd, Object... data) {
         Minecraft mc = FMLClientHandler.instance().getClient();
         boolean hasWorld = mc.world != null;
-        return tickEnd && (tick == TickType.RENDER || tick == TickType.CLIENT) && hasWorld ? this.onTickInGame((Float)data[0], mc) : true;
+        return tickEnd && (tick == TickType.RENDER || tick == TickType.CLIENT) && hasWorld ? this.onTickInGame((float)data[0], mc) : true;
     }
 
     public final boolean doTickInGUI(TickType tick, boolean tickEnd, Object... data) {
         Minecraft mc = FMLClientHandler.instance().getClient();
         boolean hasWorld = mc.world != null;
-        return !tickEnd || tick != TickType.RENDER && (tick != TickType.CLIENT || !hasWorld) ? true : this.onTickInGUI((Float)data[0], mc, mc.currentScreen);
+        return !tickEnd || tick != TickType.RENDER && (tick != TickType.CLIENT || !hasWorld) ? true : this.onTickInGUI((float)data[0], mc, mc.currentScreen);
     }
 
     public int addFuel(int id, int metadata) {

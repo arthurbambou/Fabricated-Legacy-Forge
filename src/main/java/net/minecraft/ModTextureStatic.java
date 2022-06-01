@@ -9,12 +9,12 @@ import net.minecraft.client.class_534;
 import org.lwjgl.opengl.GL11;
 
 public class ModTextureStatic extends FMLTextureFX {
-    private boolean oldanaglyph;
-    private int[] pixels;
-    private String targetTex;
+    private boolean oldanaglyph = false;
+    private int[] pixels = null;
+    private String targetTex = null;
     private int storedSize;
-    private BufferedImage overrideData;
-    private int needApply;
+    private BufferedImage overrideData = null;
+    private int needApply = 2;
 
     public ModTextureStatic(int icon, int target, BufferedImage image) {
         this(icon, 1, target, image);
@@ -26,11 +26,6 @@ public class ModTextureStatic extends FMLTextureFX {
 
     public ModTextureStatic(int icon, int size, String target, BufferedImage image) {
         super(icon);
-        this.oldanaglyph = false;
-        this.pixels = null;
-        this.targetTex = null;
-        this.overrideData = null;
-        this.needApply = 2;
         class_534 re = FMLClientHandler.instance().getClient().field_3813;
         this.targetTex = target;
         this.storedSize = size;
@@ -78,10 +73,10 @@ public class ModTextureStatic extends FMLTextureFX {
 
         for(int idx = 0; idx < this.pixels.length; ++idx) {
             int i = idx * 4;
-            int a = this.pixels[idx] >> 24 & 255;
-            int r = this.pixels[idx] >> 16 & 255;
-            int g = this.pixels[idx] >> 8 & 255;
-            int b = this.pixels[idx] >> 0 & 255;
+            int a = this.pixels[idx] >> 24 & 0xFF;
+            int r = this.pixels[idx] >> 16 & 0xFF;
+            int g = this.pixels[idx] >> 8 & 0xFF;
+            int b = this.pixels[idx] >> 0 & 0xFF;
             if (this.field_2154) {
                 r = g = b = (r + g + b) / 3;
             }
