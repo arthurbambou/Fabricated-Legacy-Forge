@@ -21,7 +21,7 @@ public class FMLInjectionData {
     public FMLInjectionData() {
     }
 
-    static void build(File mcHome, ClassLoader classLoader) {
+    static void build(File mcHome, RelaunchClassLoader classLoader) {
         minecraftHome = mcHome;
         InputStream stream = classLoader.getResourceAsStream("fmlversion.properties");
         Properties properties = new Properties();
@@ -29,7 +29,7 @@ public class FMLInjectionData {
             try {
                 properties.load(stream);
             } catch (IOException var5) {
-                FMLRelaunchLog.log(Level.SEVERE, var5, "Could not get FML version information - corrupted installation detected!");
+                FMLRelaunchLog.log(Level.SEVERE, var5, "Could not get FML version information - corrupted installation detected!", new Object[0]);
             }
         }
 

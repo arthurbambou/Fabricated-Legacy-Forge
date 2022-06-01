@@ -9,27 +9,25 @@ public class ReflectionHelper {
 
     public static Field findField(Class<?> clazz, String... fieldNames) {
         Exception failed = null;
-        for (String fieldName : fieldNames)
-        {
-            try
-            {
+
+        for(String fieldName : fieldNames) {
+            try {
                 Field f = clazz.getDeclaredField(fieldName);
                 f.setAccessible(true);
                 return f;
-            }
-            catch (Exception e)
-            {
-                failed = e;
+            } catch (Exception var8) {
+                failed = var8;
             }
         }
-        throw new UnableToFindFieldException(fieldNames, failed);
+
+        throw new ReflectionHelper.UnableToFindFieldException(fieldNames, failed);
     }
 
     public static <T, E> T getPrivateValue(Class<? super E> classToAccess, E instance, int fieldIndex) {
         try {
             Field f = classToAccess.getDeclaredFields()[fieldIndex];
             f.setAccessible(true);
-            return (T) f.get(instance);
+            return (T)f.get(instance);
         } catch (Exception var4) {
             throw new ReflectionHelper.UnableToAccessFieldException(new String[0], var4);
         }
@@ -37,7 +35,7 @@ public class ReflectionHelper {
 
     public static <T, E> T getPrivateValue(Class<? super E> classToAccess, E instance, String... fieldNames) {
         try {
-            return (T) findField(classToAccess, fieldNames).get(instance);
+            return (T)findField(classToAccess, fieldNames).get(instance);
         } catch (Exception var4) {
             throw new ReflectionHelper.UnableToAccessFieldException(fieldNames, var4);
         }
@@ -61,48 +59,34 @@ public class ReflectionHelper {
         }
     }
 
-    public static Class<? super Object> getClass(ClassLoader loader, String... classNames) {
+    public static Class<?> getClass(ClassLoader loader, String... classNames) {
         Exception err = null;
-        for (String className : classNames)
-        {
-            try
-            {
-                return (Class<? super Object>) Class.forName(className, false, loader);
-            }
-            catch (Exception e)
-            {
-                err = e;
+
+        for(String className : classNames) {
+            try {
+                return Class.forName(className, false, loader);
+            } catch (Exception var8) {
+                err = var8;
             }
         }
 
-        throw new UnableToFindClassException(classNames, err);
+        throw new ReflectionHelper.UnableToFindClassException(classNames, err);
     }
 
     public static <E> Method findMethod(Class<? super E> clazz, E instance, String[] methodNames, Class<?>... methodTypes) {
         Exception failed = null;
-        for (String methodName : methodNames)
-        {
-            try
-            {
+
+        for(String methodName : methodNames) {
+            try {
                 Method m = clazz.getDeclaredMethod(methodName, methodTypes);
                 m.setAccessible(true);
                 return m;
-            }
-            catch (Exception e)
-            {
-                failed = e;
+            } catch (Exception var10) {
+                failed = var10;
             }
         }
-        throw new UnableToFindMethodException(methodNames, failed);
-    }
 
-    public static class UnableToFindFieldException extends RuntimeException {
-        private String[] fieldNameList;
-
-        public UnableToFindFieldException(String[] fieldNameList, Exception e) {
-            super(e);
-            this.fieldNameList = fieldNameList;
-        }
+        throw new ReflectionHelper.UnableToFindMethodException(methodNames, failed);
     }
 
     public static class UnableToAccessFieldException extends RuntimeException {
@@ -120,6 +104,15 @@ public class ReflectionHelper {
         public UnableToFindClassException(String[] classNames, Exception err) {
             super(err);
             this.classNames = classNames;
+        }
+    }
+
+    public static class UnableToFindFieldException extends RuntimeException {
+        private String[] fieldNameList;
+
+        public UnableToFindFieldException(String[] fieldNameList, Exception e) {
+            super(e);
+            this.fieldNameList = fieldNameList;
         }
     }
 

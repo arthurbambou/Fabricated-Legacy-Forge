@@ -1,13 +1,17 @@
 package cpw.mods.fml.relauncher;
 
 import cpw.mods.fml.common.FMLLog;
-
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.Box;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 
 public class Downloader extends JOptionPane implements IDownloadDisplay {
     private JDialog container;
@@ -51,9 +55,9 @@ public class Downloader extends JOptionPane implements IDownloadDisplay {
 
             }
         });
-        this.container = new JDialog((Window) null, "Hello", Dialog.ModalityType.MODELESS);
+        this.container = new JDialog(null, "Hello", ModalityType.MODELESS);
         this.container.setResizable(false);
-        this.container.setLocationRelativeTo((Component) null);
+        this.container.setLocationRelativeTo(null);
         this.container.add(this);
         this.updateUI();
         this.container.pack();
