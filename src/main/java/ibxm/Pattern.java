@@ -1,61 +1,63 @@
-
 package ibxm;
 
 public class Pattern {
-    public int num_rows;
-
-    private int data_offset, note_index;
+    public int num_rows = 1;
+    private int data_offset;
+    private int note_index;
     private byte[] pattern_data;
 
     public Pattern() {
-        num_rows = 1;
-        set_pattern_data( new byte[ 0 ] );
+        this.set_pattern_data(new byte[0]);
     }
 
-    public void set_pattern_data( byte[] data ) {
-        if( data != null ) {
-            pattern_data = data;
+    public void set_pattern_data(byte[] data) {
+        if (data != null) {
+            this.pattern_data = data;
         }
-        data_offset = 0;
-        note_index = 0;
+
+        this.data_offset = 0;
+        this.note_index = 0;
     }
 
-    public void get_note( int[] note, int index ) {
-        if( index < note_index ) {
-            note_index = 0;
-            data_offset = 0;
+    public void get_note(int[] note, int index) {
+        if (index < this.note_index) {
+            this.note_index = 0;
+            this.data_offset = 0;
         }
-        while( note_index <= index ) {
-            data_offset = next_note( data_offset, note );
-            note_index += 1;
+
+        while(this.note_index <= index) {
+            this.data_offset = this.next_note(this.data_offset, note);
+            ++this.note_index;
         }
+
     }
 
-    public int next_note( int data_offset, int[] note ) {
-        int bitmask, field;
-        if( data_offset < 0 ) {
-            data_offset = pattern_data.length;
+    public int next_note(int data_offset, int[] note) {
+        if (data_offset < 0) {
+            data_offset = this.pattern_data.length;
         }
-        bitmask = 0x80;
-        if( data_offset < pattern_data.length ) {
-            bitmask = pattern_data[ data_offset ] & 0xFF;
+
+        int bitmask = 128;
+        if (data_offset < this.pattern_data.length) {
+            bitmask = this.pattern_data[data_offset] & 255;
         }
-        if( ( bitmask & 0x80 ) == 0x80 ) {
-            data_offset += 1;
+
+        if ((bitmask & 128) == 128) {
+            ++data_offset;
         } else {
-            bitmask = 0x1F;
+            bitmask = 31;
         }
-        for( field = 0; field < 5; field++ ) {
-            note[ field ] = 0;
-            if( ( bitmask & 0x01 ) == 0x01 ) {
-                if( data_offset < pattern_data.length ) {
-                    note[ field ] = pattern_data[ data_offset ] & 0xFF;
-                    data_offset += 1;
-                }
+
+        for(int field = 0; field < 5; ++field) {
+            note[field] = 0;
+            if ((bitmask & 1) == 1 && data_offset < this.pattern_data.length) {
+                note[field] = this.pattern_data[data_offset] & 255;
+                ++data_offset;
             }
-            bitmask = bitmask >> 1;
+
+            bitmask >>= 1;
         }
+
         return data_offset;
     }
 }
-

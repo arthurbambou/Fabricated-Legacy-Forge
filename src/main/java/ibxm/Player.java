@@ -1,131 +1,131 @@
-
 package ibxm;
 
-import java.io.*;
-import javax.sound.sampled.*;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 
 public class Player {
     private Thread play_thread;
-    private IBXM ibxm;
+    private IBXM ibxm = new IBXM(48000);
     private Module module;
-    private int song_duration, play_position;
-    private boolean running, loop;
+    private int song_duration;
+    private int play_position;
+    private boolean running;
+    private boolean loop;
     private byte[] output_buffer;
     private SourceDataLine output_line;
 
-    /**
-     Simple command-line test player.
-     */
-    public static void main( String[] args ) throws Exception {
-        if( args.length < 1 ) {
-            System.err.println( "Usage: java ibxm.Player <module file>" );
-            System.exit( 0 );
+    public static void main(String[] args) throws Exception {
+        if (args.length < 1) {
+            System.err.println("Usage: java ibxm.Player <module file>");
+            System.exit(0);
         }
-        FileInputStream file_input_stream = new FileInputStream( args[ 0 ] );
+
+        FileInputStream file_input_stream = new FileInputStream(args[0]);
         Player player = new Player();
-        player.set_module( Player.load_module( file_input_stream ) );
+        player.set_module(load_module(file_input_stream));
         file_input_stream.close();
         player.play();
     }
 
-    /**
-     Decode the data in the specified InputStream into a Module instance.
-     @param input an InputStream containing the module file to be decoded.
-     @throws IllegalArgumentException if the data is not recognised as a module file.
-     */
-    public static Module load_module( InputStream input ) throws IllegalArgumentException, IOException {
-        DataInputStream data_input_stream = new DataInputStream( input );
-        /* Check if data is in XM format.*/
-        byte[] xm_header = new byte[ 60 ];
-        data_input_stream.readFully( xm_header );
-        if( FastTracker2.is_xm( xm_header ) )
-            return FastTracker2.load_xm( xm_header, data_input_stream );
-        /* Check if data is in ScreamTracker 3 format.*/
-        byte[] s3m_header = new byte[ 96 ];
-        System.arraycopy( xm_header, 0, s3m_header, 0, 60 );
-        data_input_stream.readFully( s3m_header, 60, 36 );
-        if( ScreamTracker3.is_s3m( s3m_header ) )
-            return ScreamTracker3.load_s3m( s3m_header, data_input_stream );
-        /* Check if data is in ProTracker format.*/
-        byte[] mod_header = new byte[ 1084 ];
-        System.arraycopy( s3m_header, 0, mod_header, 0, 96 );
-        data_input_stream.readFully( mod_header, 96, 988 );
-        return ProTracker.load_mod( mod_header, data_input_stream );
-    }
-
-    /**
-     Instantiate a new Player.
-     */
-    public Player() throws LineUnavailableException {
-        ibxm = new IBXM( 48000 );
-        set_loop( true );
-        output_line = AudioSystem.getSourceDataLine( new AudioFormat( 48000, 16, 2, true, true ) );
-        output_buffer = new byte[ 1024 * 4 ];
-    }
-
-    /**
-     Set the Module instance to be played.
-     */
-    public void set_module( Module m ) {
-        if( m != null ) module = m;
-        stop();
-        ibxm.set_module( module );
-        song_duration = ibxm.calculate_song_duration();
-    }
-
-    /**
-     If loop is true, playback will continue indefinitely,
-     otherwise the module will play through once and stop.
-     */
-    public void set_loop( boolean loop ) {
-        this.loop = loop;
-    }
-
-    /**
-     Open the audio device and begin playback.
-     If a module is already playing it will be restarted.
-     */
-    public void play() {
-        stop();
-        play_thread = new Thread( new Driver() );
-        play_thread.start();
-    }
-
-    /**
-     Stop playback and close the audio device.
-     */
-    public void stop() {
-        running = false;
-        if( play_thread != null ) {
-            try {
-                play_thread.join();
-            } catch( InterruptedException ie ) {}
+    public static Module load_module(InputStream input) throws IllegalArgumentException, IOException {
+        DataInputStream data_input_stream = new DataInputStream(input);
+        byte[] xm_header = new byte[60];
+        data_input_stream.readFully(xm_header);
+        if (FastTracker2.is_xm(xm_header)) {
+            return FastTracker2.load_xm(xm_header, data_input_stream);
+        } else {
+            byte[] s3m_header = new byte[96];
+            System.arraycopy(xm_header, 0, s3m_header, 0, 60);
+            data_input_stream.readFully(s3m_header, 60, 36);
+            if (ScreamTracker3.is_s3m(s3m_header)) {
+                return ScreamTracker3.load_s3m(s3m_header, data_input_stream);
+            } else {
+                byte[] mod_header = new byte[1084];
+                System.arraycopy(s3m_header, 0, mod_header, 0, 96);
+                data_input_stream.readFully(mod_header, 96, 988);
+                return ProTracker.load_mod(mod_header, data_input_stream);
+            }
         }
     }
 
-    private class Driver implements Runnable {
-        public void run() {
-            if( running ) return;
+    public Player() throws LineUnavailableException {
+        this.set_loop(true);
+        this.output_line = AudioSystem.getSourceDataLine(new AudioFormat(48000.0F, 16, 2, true, true));
+        this.output_buffer = new byte[4096];
+    }
+
+    public void set_module(Module m) {
+        if (m != null) {
+            this.module = m;
+        }
+
+        this.stop();
+        this.ibxm.set_module(this.module);
+        this.song_duration = this.ibxm.calculate_song_duration();
+    }
+
+    public void set_loop(boolean loop) {
+        this.loop = loop;
+    }
+
+    public void play() {
+        this.stop();
+        this.play_thread = new Thread(new Player.Driver());
+        this.play_thread.start();
+    }
+
+    public void stop() {
+        this.running = false;
+        if (this.play_thread != null) {
             try {
-                output_line.open();
-                output_line.start();
-                play_position = 0;
-                running = true;
-                while( running ) {
-                    int frames = song_duration - play_position;
-                    if( frames > 1024 ) frames = 1024;
-                    ibxm.get_audio( output_buffer, frames );
-                    output_line.write( output_buffer, 0, frames * 4 );
-                    play_position += frames;
-                    if( play_position >= song_duration ) {
-                        play_position = 0;
-                        if( !loop ) running = false;
+                this.play_thread.join();
+            } catch (InterruptedException var2) {
+            }
+        }
+
+    }
+
+    private class Driver implements Runnable {
+        private Driver() {
+        }
+
+        public void run() {
+            if (!Player.this.running) {
+                try {
+                    Player.this.output_line.open();
+                    Player.this.output_line.start();
+                    Player.this.play_position = 0;
+                    Player.this.running = true;
+
+                    while(Player.this.running) {
+                        int frames = Player.this.song_duration - Player.this.play_position;
+                        if (frames > 1024) {
+                            frames = 1024;
+                        }
+
+                        Player.this.ibxm.get_audio(Player.this.output_buffer, frames);
+                        Player.this.output_line.write(Player.this.output_buffer, 0, frames * 4);
+                        Player.this.play_position += frames;
+                        if (Player.this.play_position >= Player.this.song_duration) {
+                            Player.this.play_position = 0;
+                            if (!Player.this.loop) {
+                                Player.this.running = false;
+                            }
+                        }
                     }
+
+                    Player.this.output_line.drain();
+                    Player.this.output_line.close();
+                } catch (LineUnavailableException var2) {
+                    var2.printStackTrace();
                 }
-                output_line.drain();
-                output_line.close();
-            } catch( LineUnavailableException lue ) {
-                lue.printStackTrace();
+
             }
         }
     }
