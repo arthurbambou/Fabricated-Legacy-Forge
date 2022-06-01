@@ -10,6 +10,7 @@ accessible field net/minecraft/entity/EntityType ID_CLASS_MAP Ljava/util/Map;
 accessible field net/minecraft/entity/EntityType CLASS_NAME_MAP Ljava/util/Map;
 
 accessible field net/minecraft/client/class_534 packManager Lnet/minecraft/client/texture/TexturePackManager;
+accessible field net/minecraft/client/class_534 field_1978 Ljava/util/List;
 
 accessible field net/minecraft/client/render/entity/EntityRenderDispatcher renderers Ljava/util/Map;
 
@@ -45,7 +46,6 @@ accessible field net/minecraft/client/class_535 field_2034 I
 accessible field net/minecraft/client/class_535 field_2035 I
 accessible field net/minecraft/client/class_535 field_2036 I
 accessible field net/minecraft/client/class_535 field_2037 I
-
 accessible field net/minecraft/client/class_535 field_2050 Z
 accessible field net/minecraft/client/class_535 field_2051 Z
 accessible field net/minecraft/client/class_535 field_2058 Z
@@ -61,7 +61,6 @@ accessible field net/minecraft/client/class_535 field_2016 Z
 accessible field net/minecraft/client/class_535 field_2018 Z
 accessible field net/minecraft/client/class_535 field_2019 Z
 accessible field net/minecraft/client/class_535 field_2020 Z
-
 accessible field net/minecraft/client/class_535 field_2059 F
 accessible field net/minecraft/client/class_535 field_2060 F
 accessible field net/minecraft/client/class_535 field_2061 F
@@ -101,7 +100,6 @@ accessible field net/minecraft/client/class_535 field_2046 F
 accessible field net/minecraft/client/class_535 field_2005 F
 accessible field net/minecraft/client/class_535 field_2006 F
 accessible field net/minecraft/client/class_535 field_2007 F
-
 accessible method net/minecraft/client/class_535 method_1487 (Lnet/minecraft/block/Block;III)Z
 extendable method net/minecraft/client/class_535 method_1487 (Lnet/minecraft/block/Block;III)Z
 accessible method net/minecraft/client/class_535 method_1488 (Lnet/minecraft/block/Block;III)Z
@@ -128,11 +126,22 @@ accessible method net/minecraft/client/class_535 method_1433 (IIII)I
 extendable method net/minecraft/client/class_535 method_1433 (IIII)I
 accessible method net/minecraft/client/class_535 method_1437 (Lnet/minecraft/block/CocoaBlock;III)Z
 extendable method net/minecraft/client/class_535 method_1437 (Lnet/minecraft/block/CocoaBlock;III)Z
-
-accessible field net/minecraft/client/class_534 field_1978 Ljava/util/List;
+accessible method net/minecraft/client/class_535 method_4318 (Lnet/minecraft/block/FlowerPotBlock;III)Z
+extendable method net/minecraft/client/class_535 method_4318 (Lnet/minecraft/block/FlowerPotBlock;III)Z
+accessible method net/minecraft/client/class_535 method_4314 (Lnet/minecraft/block/AnvilBlock;III)Z
+extendable method net/minecraft/client/class_535 method_4314 (Lnet/minecraft/block/AnvilBlock;III)Z
+accessible method net/minecraft/client/class_535 method_4316 (Lnet/minecraft/block/AnvilBlock;IIIIZ)Z
+extendable method net/minecraft/client/class_535 method_4316 (Lnet/minecraft/block/AnvilBlock;IIIIZ)Z
+accessible method net/minecraft/client/class_535 method_4315 (Lnet/minecraft/block/AnvilBlock;IIIIFFFFZZI)F
+extendable method net/minecraft/client/class_535 method_4315 (Lnet/minecraft/block/AnvilBlock;IIIIFFFFZZI)F
+accessible method net/minecraft/client/class_535 method_4317 (Lnet/minecraft/block/BeaconBlock;III)Z
+extendable method net/minecraft/client/class_535 method_4317 (Lnet/minecraft/block/BeaconBlock;III)Z
 
 accessible field net/minecraft/client/render/entity/PlayerEntityRenderer field_2136 [Ljava/lang/String;
 mutable field net/minecraft/client/render/entity/PlayerEntityRenderer field_2136 [Ljava/lang/String;
+
+accessible field net/minecraft/client/render/entity/BipedEntityRenderer field_5195 [Ljava/lang/String;
+mutable field net/minecraft/client/render/entity/BipedEntityRenderer field_5195 [Ljava/lang/String;
 
 accessible field net/minecraft/util/Language _translations Ljava/util/Properties;
 accessible field net/minecraft/util/Language code Ljava/lang/String;
@@ -160,6 +169,7 @@ accessible method net/minecraft/block/ChestBlock method_289 (Lnet/minecraft/worl
 
 accessible field net/minecraft/entity/mob/MobEntity field_3296 I
 accessible field net/minecraft/entity/mob/MobEntity goals Lnet/minecraft/entity/ai/goal/GoalSelector;
+accessible field net/minecraft/entity/mob/MobEntity field_3350 Z
 
 extendable method net/minecraft/entity/ai/goal/CatSitOnBlockGoal method_2763 (Lnet/minecraft/world/World;III)Z
 extendable method net/minecraft/entity/ai/goal/CatSitOnBlockGoal method_2764 ()Z
@@ -168,8 +178,6 @@ accessible class net/minecraft/util/crash/provider/MinecraftVersionProvider
 accessible method net/minecraft/util/crash/provider/MinecraftVersionProvider <init> (Lnet/minecraft/util/crash/CrashReport;)V
 
 accessible field net/minecraft/entity/passive/AnimalEntity loveTicks I
-
-accessible field net/minecraft/entity/mob/MobEntity field_3350 Z
 
 accessible method net/minecraft/world/level/LevelGeneratorType <init> (ILjava/lang/String;)V
 accessible method net/minecraft/world/level/LevelGeneratorType <init> (ILjava/lang/String;I)V
@@ -184,6 +192,7 @@ accessible field net/minecraft/entity/passive/VillagerEntity field_3947 Ljava/ut
 accessible class net/minecraft/client/class_424
 
 ### Forge
+# Synthetic method
 accessible method net/minecraft/block/class_174 method_360 (Lnet/minecraft/block/class_174;)I
 
 accessible field net/minecraft/client/render/Tessellator field_1965 I
@@ -193,10 +202,14 @@ accessible field net/minecraft/client/render/Tessellator field_1968 D
 mutable field net/minecraft/client/render/Tessellator INSTANCE Lnet/minecraft/client/render/Tessellator;
 accessible field net/minecraft/client/render/Tessellator field_1970 Z
 
+accessible method net/minecraft/item/PickaxeItem <init> (ILnet/minecraft/item/ToolMaterial;)V
 # +final
 accessible field net/minecraft/item/PickaxeItem field_4382 [Lnet/minecraft/block/Block;
+
+accessible method net/minecraft/item/AxeItem <init> (ILnet/minecraft/item/ToolMaterial;)V
 # +final
 accessible field net/minecraft/item/AxeItem field_4207 [Lnet/minecraft/block/Block;
+
 # +final
 accessible field net/minecraft/item/ShovelItem field_4396 [Lnet/minecraft/block/Block;
 
@@ -230,7 +243,8 @@ accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientPitch
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientXVelocity D
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientYVelocity D
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientZVelocity D
-
+accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity field_5383 Lnet/minecraft/util/Tickable;
+accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity field_5384 Z
 extendable method net/minecraft/entity/vehicle/AbstractMinecartEntity method_3063 ()Z
 
 accessible method net/minecraft/block/Block <init> (ILnet/minecraft/block/Material;)V
@@ -243,7 +257,6 @@ accessible method net/minecraft/block/Block method_462 (I)Lnet/minecraft/block/B
 accessible method net/minecraft/block/Block method_393 (F)Lnet/minecraft/block/Block;
 accessible method net/minecraft/block/Block setUnbreakable ()Lnet/minecraft/block/Block;
 accessible method net/minecraft/block/Block setTickRandomly (Z)Lnet/minecraft/block/Block;
-accessible method net/minecraft/block/Block disableStats ()Lnet/minecraft/block/Block;
 
 accessible field net/minecraft/server/ServerPacketListener floatingTicks I
 
@@ -253,9 +266,6 @@ accessible field net/minecraft/block/BaseLeavesBlock fancyGraphics Z
 
 accessible method net/minecraft/item/Item setMaxDamage (I)Lnet/minecraft/item/Item;
 extendable method net/minecraft/item/Item method_3378 (Lnet/minecraft/item/ItemStack;)I
-
-accessible method net/minecraft/item/AxeItem <init> (ILnet/minecraft/item/ToolMaterial;)V
-accessible method net/minecraft/item/PickaxeItem <init> (ILnet/minecraft/item/ToolMaterial;)V
 
 accessible class net/minecraft/block/class_174
 accessible method net/minecraft/block/class_174 method_360 (Lnet/minecraft/block/class_174;)I
@@ -289,24 +299,26 @@ accessible field net/minecraft/structure/class_49 field_89 [Lnet/minecraft/util/
 
 #method net/minecraft/server/PlayerWorldManager method_2107 (IIZ)Lnet/minecraft/server/class_793;
 
+mutable field net/minecraft/world/World villageState Lnet/minecraft/village/VillageState;
+
 ### Fabricated Forge
-accessible class net/minecraft/client/class_470
-accessible class net/minecraft/client/class_416
-accessible class net/minecraft/client/class_417
-accessible class net/minecraft/server/class_793
-accessible class net/minecraft/server/dedicated/class_772
-accessible class net/minecraft/util/class_797
-accessible class net/minecraft/structure/class_8
-accessible class net/minecraft/structure/class_7
-accessible class net/minecraft/structure/class_31
-accessible class net/minecraft/structure/class_25
-accessible class net/minecraft/util/LogFormatter
-accessible class net/minecraft/world/chunk/class_1206
-
-extendable method net/minecraft/client/gui/widget/ListWidget renderHoleBackground (IIII)V
-
-accessible method net/minecraft/server/dedicated/MinecraftDedicatedServer populateCrashReport (Lnet/minecraft/util/crash/CrashReport;)Lnet/minecraft/util/crash/CrashReport;
-accessible method net/minecraft/server/dedicated/MinecraftDedicatedServer tick ()V
-
-accessible method net/minecraft/server/integrated/IntegratedServer setupWorld ()V
-accessible method net/minecraft/server/integrated/IntegratedServer populateCrashReport (Lnet/minecraft/util/crash/CrashReport;)Lnet/minecraft/util/crash/CrashReport;
+#accessible class net/minecraft/client/class_470
+#accessible class net/minecraft/client/class_416
+#accessible class net/minecraft/client/class_417
+#accessible class net/minecraft/server/class_793
+#accessible class net/minecraft/server/dedicated/class_772
+#accessible class net/minecraft/util/class_797
+#accessible class net/minecraft/structure/class_8
+#accessible class net/minecraft/structure/class_7
+#accessible class net/minecraft/structure/class_31
+#accessible class net/minecraft/structure/class_25
+#accessible class net/minecraft/util/LogFormatter
+#accessible class net/minecraft/world/chunk/class_1206
+#
+#extendable method net/minecraft/client/gui/widget/ListWidget renderHoleBackground (IIII)V
+#
+#accessible method net/minecraft/server/dedicated/MinecraftDedicatedServer populateCrashReport (Lnet/minecraft/util/crash/CrashReport;)Lnet/minecraft/util/crash/CrashReport;
+#accessible method net/minecraft/server/dedicated/MinecraftDedicatedServer tick ()V
+#
+#accessible method net/minecraft/server/integrated/IntegratedServer setupWorld ()V
+#accessible method net/minecraft/server/integrated/IntegratedServer populateCrashReport (Lnet/minecraft/util/crash/CrashReport;)Lnet/minecraft/util/crash/CrashReport;
