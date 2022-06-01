@@ -2,12 +2,11 @@ package net.minecraft;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.client.FMLTextureFX;
-import net.minecraft.client.class_534;
-import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import net.minecraft.client.class_534;
+import org.lwjgl.opengl.GL11;
 
 public class ModTextureAnimation extends FMLTextureFX {
     private final int tickRate;

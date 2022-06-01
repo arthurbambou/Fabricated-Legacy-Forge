@@ -3,17 +3,16 @@ package net.minecraft;
 import cpw.mods.fml.client.TextureFXManager;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLLog;
+import java.awt.Dimension;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.client.class_534;
 import net.minecraft.client.class_535;
 import net.minecraft.client.class_584;
 import net.minecraft.client.texture.ITexturePack;
-import net.minecraft.world.WorldView;
-
-import java.awt.*;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.minecraft.world.BlockView;
 
 public class FMLRenderAccessLibrary {
     public FMLRenderAccessLibrary() {
@@ -51,7 +50,7 @@ public class FMLRenderAccessLibrary {
         TextureFXManager.instance().onTexturePackChange(engine, texturePack, textureFXList);
     }
 
-    public static boolean renderWorldBlock(class_535 renderer, WorldView world, int x, int y, int z, Block block, int modelId) {
+    public static boolean renderWorldBlock(class_535 renderer, BlockView world, int x, int y, int z, Block block, int modelId) {
         return RenderingRegistry.instance().renderWorldBlock(renderer, world, x, y, z, block, modelId);
     }
 

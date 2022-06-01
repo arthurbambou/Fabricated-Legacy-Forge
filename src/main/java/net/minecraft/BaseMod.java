@@ -5,6 +5,8 @@ import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.asm.SideOnly;
 import cpw.mods.fml.common.modloader.BaseModProxy;
+import java.util.Map;
+import java.util.Random;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.class_469;
@@ -23,11 +25,8 @@ import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerPacketListener;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-
-import java.util.Map;
-import java.util.Random;
 
 public abstract class BaseMod implements BaseModProxy {
     public BaseMod() {
@@ -127,7 +126,7 @@ public abstract class BaseMod implements BaseModProxy {
     }
 
     @SideOnly(Side.CLIENT)
-    public boolean renderWorldBlock(class_535 renderer, WorldView world, int x, int y, int z, Block block, int modelID) {
+    public boolean renderWorldBlock(class_535 renderer, BlockView world, int x, int y, int z, Block block, int modelID) {
         return false;
     }
 

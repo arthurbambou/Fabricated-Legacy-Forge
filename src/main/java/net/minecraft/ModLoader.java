@@ -6,7 +6,11 @@ import cpw.mods.fml.client.TextureFXManager;
 import cpw.mods.fml.client.modloader.ModLoaderClientHelper;
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.*;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.ObfuscationReflectionHelper;
+import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.asm.SideOnly;
 import cpw.mods.fml.common.modloader.ModLoaderHelper;
 import cpw.mods.fml.common.modloader.ModLoaderModContainer;
@@ -16,12 +20,19 @@ import cpw.mods.fml.common.network.Player;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import fr.catcore.fabricatedforge.mixininterface.IPacketListener;
-import fr.catcore.fabricatedforge.forged.ReflectionUtils;
+import java.awt.image.BufferedImage;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 import net.minecraft.advancement.Achievement;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.*;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.class_469;
+import net.minecraft.client.class_534;
+import net.minecraft.client.class_535;
+import net.minecraft.client.class_584;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -41,16 +52,11 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.ServerPacketListener;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.ChunkProvider;
-
-import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
+import net.minecraft.world.level.LevelGeneratorType;
 
 public class ModLoader {
     public static final String fmlMarker = "This is an FML marker";
@@ -144,7 +150,7 @@ public class ModLoader {
     }
 
     public static void addSpawn(Class<? extends MobEntity> entityClass, int weightedProb, int min, int max, EntityCategory spawnList) {
-        EntityRegistry.addSpawn(entityClass, weightedProb, min, max, spawnList, ReflectionUtils.LevelGeneratorType_base12Biomes);
+        EntityRegistry.addSpawn(entityClass, weightedProb, min, max, spawnList, LevelGeneratorType.base12Biomes);
     }
 
     public static void addSpawn(Class<? extends MobEntity> entityClass, int weightedProb, int min, int max, EntityCategory spawnList, Biome... biomes) {
@@ -152,7 +158,7 @@ public class ModLoader {
     }
 
     public static void addSpawn(String entityName, int weightedProb, int min, int max, EntityCategory spawnList) {
-        EntityRegistry.addSpawn(entityName, weightedProb, min, max, spawnList, ReflectionUtils.LevelGeneratorType_base12Biomes);
+        EntityRegistry.addSpawn(entityName, weightedProb, min, max, spawnList, LevelGeneratorType.base12Biomes);
     }
 
     public static void addSpawn(String entityName, int weightedProb, int min, int max, EntityCategory spawnList, Biome... biomes) {
@@ -320,7 +326,7 @@ public class ModLoader {
     }
 
     public static void removeSpawn(Class<? extends MobEntity> entityClass, EntityCategory spawnList) {
-        EntityRegistry.removeSpawn(entityClass, spawnList, ReflectionUtils.LevelGeneratorType_base12Biomes);
+        EntityRegistry.removeSpawn(entityClass, spawnList, LevelGeneratorType.base12Biomes);
     }
 
     public static void removeSpawn(Class<? extends MobEntity> entityClass, EntityCategory spawnList, Biome... biomes) {
@@ -328,7 +334,7 @@ public class ModLoader {
     }
 
     public static void removeSpawn(String entityName, EntityCategory spawnList) {
-        EntityRegistry.removeSpawn(entityName, spawnList, ReflectionUtils.LevelGeneratorType_base12Biomes);
+        EntityRegistry.removeSpawn(entityName, spawnList, LevelGeneratorType.base12Biomes);
     }
 
     public static void removeSpawn(String entityName, EntityCategory spawnList, Biome... biomes) {
@@ -352,7 +358,7 @@ public class ModLoader {
     /** @deprecated */
     @Deprecated
     @SideOnly(Side.CLIENT)
-    public static boolean renderWorldBlock(class_535 renderer, WorldView world, int x, int y, int z, Block block, int modelID) {
+    public static boolean renderWorldBlock(class_535 renderer, BlockView world, int x, int y, int z, Block block, int modelID) {
         return RenderingRegistry.instance().renderWorldBlock(renderer, world, x, y, z, block, modelID);
     }
 
@@ -378,7 +384,7 @@ public class ModLoader {
 
     public static void serverSendPacket(ServerPacketListener handler, Packet packet) {
         if (handler != null) {
-            PacketDispatcher.sendPacketToPlayer(packet, (Player)((IPacketListener)handler).getPlayer());
+            PacketDispatcher.sendPacketToPlayer(packet, (Player)handler.getPlayer());
         }
 
     }
