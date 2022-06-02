@@ -4,7 +4,7 @@ import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 import net.minecraft.BaseMod;
 import net.minecraft.block.Block;
 import net.minecraft.client.class_535;
-import net.minecraft.world.WorldView;
+import net.minecraft.world.BlockView;
 
 public class ModLoaderBlockRendererHandler implements ISimpleBlockRenderingHandler {
     private int renderId;
@@ -25,7 +25,7 @@ public class ModLoaderBlockRendererHandler implements ISimpleBlockRenderingHandl
         return this.render3dInInventory;
     }
 
-    public boolean renderWorldBlock(WorldView world, int x, int y, int z, Block block, int modelId, class_535 renderer) {
+    public boolean renderWorldBlock(BlockView world, int x, int y, int z, Block block, int modelId, class_535 renderer) {
         return this.mod.renderWorldBlock(renderer, world, x, y, z, block, modelId);
     }
 

@@ -3,6 +3,8 @@ package cpw.mods.fml.client;
 import com.google.common.base.Strings;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
+import java.awt.Dimension;
+import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
@@ -11,10 +13,6 @@ import net.minecraft.client.gui.widget.OptionButtonWidget;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.util.Language;
 import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 public class GuiModList extends Screen {
     private Screen mainMenu;
@@ -25,39 +23,42 @@ public class GuiModList extends Screen {
     private ArrayList<ModContainer> mods;
 
     public GuiModList(Screen mainMenu) {
-        this.mainMenu=mainMenu;
-        this.mods=new ArrayList<ModContainer>();
-        FMLClientHandler.instance().addSpecialModEntries(mods);
-        for (ModContainer mod : Loader.instance().getModList()) {
-            if (mod.getMetadata()!=null && !Strings.isNullOrEmpty(mod.getMetadata().parent)) {
+        this.mainMenu = mainMenu;
+        this.mods = new ArrayList();
+        FMLClientHandler.instance().addSpecialModEntries(this.mods);
+
+        for(ModContainer mod : Loader.instance().getModList()) {
+            if (mod.getMetadata() != null && !Strings.isNullOrEmpty(mod.getMetadata().parent)) {
                 String parentMod = mod.getMetadata().parent;
-                ModContainer parentContainer = Loader.instance().getIndexedModList().get(parentMod);
-                if (parentContainer != null)
-                {
+                ModContainer parentContainer = (ModContainer)Loader.instance().getIndexedModList().get(parentMod);
+                if (parentContainer != null) {
                     mod.getMetadata().parentMod = parentContainer;
                     parentContainer.getMetadata().childMods.add(mod);
                     continue;
                 }
             }
-            mods.add(mod);
+
+            this.mods.add(mod);
         }
+
     }
 
     public void init() {
-        for (ModContainer mod : mods) {
-            listWidth=Math.max(listWidth,getFontRenderer().getStringWidth(mod.getName()) + 10);
-            listWidth=Math.max(listWidth,getFontRenderer().getStringWidth(mod.getVersion()) + 10);
+        for(ModContainer mod : this.mods) {
+            this.listWidth = Math.max(this.listWidth, this.getFontRenderer().getStringWidth(mod.getName()) + 10);
+            this.listWidth = Math.max(this.listWidth, this.getFontRenderer().getStringWidth(mod.getVersion()) + 10);
         }
-        listWidth=Math.min(listWidth, 150);
+
+        this.listWidth = Math.min(this.listWidth, 150);
         Language translations = Language.getInstance();
         this.buttons.add(new OptionButtonWidget(6, this.width / 2 - 75, this.height - 38, translations.translate("gui.done")));
-        this.modList=new GuiSlotModList(this, mods, listWidth);
+        this.modList = new GuiSlotModList(this, this.mods, this.listWidth);
         this.modList.registerScrollButtons(this.buttons, 7, 8);
     }
 
     protected void buttonClicked(ButtonWidget button) {
         if (button.active) {
-            switch (button.id) {
+            switch(button.id) {
                 case 6:
                     this.field_1229.openScreen(this.mainMenu);
                     return;
@@ -68,7 +69,7 @@ public class GuiModList extends Screen {
     }
 
     public int drawLine(String line, int offset, int shifty) {
-        this.textRenderer.method_964(line, offset, shifty, 14151146);
+        this.textRenderer.method_4247(line, offset, shifty, 14151146);
         return shifty + 10;
     }
 
@@ -106,16 +107,21 @@ public class GuiModList extends Screen {
 
                 shifty = this.drawLine(String.format("Authors: %s", this.selectedMod.getMetadata().getAuthorList()), offset, shifty);
                 shifty = this.drawLine(String.format("URL: %s", this.selectedMod.getMetadata().url), offset, shifty);
-                shifty = this.drawLine(this.selectedMod.getMetadata().childMods.isEmpty() ? "No child mods for this mod" : String.format("Child mods: %s", this.selectedMod.getMetadata().getChildModList()), offset, shifty);
-                TextRenderer var10000 = this.getFontRenderer();
-                int var10003 = shifty + 10;
-                int var10004 = this.width - offset - 20;
-                var10000.drawTrimmed(this.selectedMod.getMetadata().description, offset, var10003, var10004, 14540253);
+                shifty = this.drawLine(
+                        this.selectedMod.getMetadata().childMods.isEmpty()
+                                ? "No child mods for this mod"
+                                : String.format("Child mods: %s", this.selectedMod.getMetadata().getChildModList()),
+                        offset,
+                        shifty
+                );
+                this.getFontRenderer().drawTrimmed(this.selectedMod.getMetadata().description, offset, shifty + 10, this.width - offset - 20, 14540253);
             } else {
                 offset = (this.listWidth + this.width) / 2;
                 this.drawCenteredString(this.textRenderer, this.selectedMod.getName(), offset, 35, 16777215);
                 this.drawCenteredString(this.textRenderer, String.format("Version: %s", this.selectedMod.getVersion()), offset, 45, 16777215);
-                this.drawCenteredString(this.textRenderer, String.format("Mod State: %s", Loader.instance().getModState(this.selectedMod)), offset, 55, 16777215);
+                this.drawCenteredString(
+                        this.textRenderer, String.format("Mod State: %s", Loader.instance().getModState(this.selectedMod)), offset, 55, 16777215
+                );
                 this.drawCenteredString(this.textRenderer, "No mod information found", offset, 65, 14540253);
                 this.drawCenteredString(this.textRenderer, "Ask your mod author to provide a mod mcmod.info file", offset, 75, 14540253);
             }

@@ -6,15 +6,13 @@ import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.Side;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.registry.TickRegistry;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Set;
 import net.minecraft.client.options.GameOptions;
 import net.minecraft.client.options.KeyBinding;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.Set;
 
 public class KeyBindingRegistry {
     private static final KeyBindingRegistry INSTANCE = new KeyBindingRegistry();
@@ -31,7 +29,6 @@ public class KeyBindingRegistry {
 
     }
 
-    /** @deprecated */
     @Deprecated
     public static KeyBindingRegistry instance() {
         return INSTANCE;
@@ -39,10 +36,9 @@ public class KeyBindingRegistry {
 
     public void uploadKeyBindingsToGame(GameOptions settings) {
         ArrayList<KeyBinding> harvestedBindings = Lists.newArrayList();
-        for (KeyHandler key : keyHandlers)
-        {
-            for (KeyBinding kb : key.keyBindings)
-            {
+
+        for(KeyBindingRegistry.KeyHandler key : this.keyHandlers) {
+            for(KeyBinding kb : key.keyBindings) {
                 harvestedBindings.add(kb);
             }
         }

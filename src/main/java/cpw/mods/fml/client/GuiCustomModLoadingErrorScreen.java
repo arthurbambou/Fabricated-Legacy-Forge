@@ -1,11 +1,8 @@
 package cpw.mods.fml.client;
 
-import fr.catcore.fabricatedforge.forged.FatalErrorScreenForged;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.screen.FatalErrorScreen;
 
-@Environment(value = EnvType.CLIENT)
-public class GuiCustomModLoadingErrorScreen extends FatalErrorScreenForged {
+public class GuiCustomModLoadingErrorScreen extends FatalErrorScreen {
     private CustomModLoadingErrorDisplayException customException;
 
     public GuiCustomModLoadingErrorScreen(CustomModLoadingErrorDisplayException customException) {

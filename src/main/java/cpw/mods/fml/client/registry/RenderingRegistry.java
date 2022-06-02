@@ -5,21 +5,20 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.ObjectArrays;
 import cpw.mods.fml.client.SpriteHelper;
 import cpw.mods.fml.client.TextureFXManager;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.block.Block;
 import net.minecraft.client.class_535;
+import net.minecraft.client.render.entity.BipedEntityRenderer;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.entity.Entity;
-import net.minecraft.world.WorldView;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import net.minecraft.world.BlockView;
 
 public class RenderingRegistry {
     private static final RenderingRegistry INSTANCE = new RenderingRegistry();
-    private int nextRenderId = 32;
+    private int nextRenderId = 36;
     private Map<Integer, ISimpleBlockRenderingHandler> blockRenderers = Maps.newHashMap();
     private List<RenderingRegistry.EntityRendererInfo> entityRenderers = Lists.newArrayList();
 
@@ -27,7 +26,8 @@ public class RenderingRegistry {
     }
 
     public static int addNewArmourRendererPrefix(String armor) {
-        PlayerEntityRenderer.field_2136 = (String[]) ObjectArrays.concat(PlayerEntityRenderer.field_2136, armor);
+        PlayerEntityRenderer.field_2136 = (String[])ObjectArrays.concat(PlayerEntityRenderer.field_2136, armor);
+        BipedEntityRenderer.field_5195 = PlayerEntityRenderer.field_2136;
         return PlayerEntityRenderer.field_2136.length - 1;
     }
 
@@ -44,7 +44,10 @@ public class RenderingRegistry {
     }
 
     public static int getNextAvailableRenderId() {
-        return instance().nextRenderId++;
+        RenderingRegistry var10000 = instance();
+        int var0 = var10000.nextRenderId;
+        var10000.nextRenderId += 1;
+        return var0;
     }
 
     public static int addTextureOverride(String fileToOverride, String fileToAdd) {
@@ -61,13 +64,12 @@ public class RenderingRegistry {
         return SpriteHelper.getUniqueSpriteIndex(path);
     }
 
-    /** @deprecated */
     @Deprecated
     public static RenderingRegistry instance() {
         return INSTANCE;
     }
 
-    public boolean renderWorldBlock(class_535 renderer, WorldView world, int x, int y, int z, Block block, int modelId) {
+    public boolean renderWorldBlock(class_535 renderer, BlockView world, int x, int y, int z, Block block, int modelId) {
         if (!this.blockRenderers.containsKey(modelId)) {
             return false;
         } else {
@@ -89,11 +91,11 @@ public class RenderingRegistry {
     }
 
     public void loadEntityRenderers(Map<Class<? extends Entity>, EntityRenderer> rendererMap) {
-        for (EntityRendererInfo info : entityRenderers)
-        {
+        for(RenderingRegistry.EntityRendererInfo info : this.entityRenderers) {
             rendererMap.put(info.target, info.renderer);
             info.renderer.method_1528(EntityRenderDispatcher.field_2094);
         }
+
     }
 
     private static class EntityRendererInfo {

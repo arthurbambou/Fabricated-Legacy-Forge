@@ -1,12 +1,11 @@
 package cpw.mods.fml.client;
 
+import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.render.Tessellator;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
-
-import java.util.List;
 
 public abstract class GuiScrollingList {
     private final Minecraft client;
@@ -130,16 +129,12 @@ public abstract class GuiScrollingList {
         int scrollBarXEnd = scrollBarXStart + 6;
         int boxLeft = this.left;
         int boxRight = scrollBarXStart - 1;
-        int var10;
-        int var11;
-        int var13;
-        int var19;
         if (Mouse.isButtonDown(0)) {
             if (this.initialMouseClickY == -1.0F) {
                 boolean var7 = true;
                 if (mouseY >= this.top && mouseY <= this.bottom) {
-                    var10 = mouseY - this.top - this.field_27261_r + (int)this.scrollDistance - 4;
-                    var11 = var10 / this.slotHeight;
+                    int var10 = mouseY - this.top - this.field_27261_r + (int)this.scrollDistance - 4;
+                    int var11 = var10 / this.slotHeight;
                     if (mouseX >= boxLeft && mouseX <= boxRight && var11 >= 0 && var10 >= 0 && var11 < listLength) {
                         boolean var12 = var11 == this.selectedIndex && System.currentTimeMillis() - this.lastClickTime < 250L;
                         this.elementClicked(var11, var12);
@@ -152,12 +147,12 @@ public abstract class GuiScrollingList {
 
                     if (mouseX >= scrollBarXStart && mouseX <= scrollBarXEnd) {
                         this.scrollFactor = -1.0F;
-                        var19 = this.getContentHeight() - (this.bottom - this.top - 4);
+                        int var19 = this.getContentHeight() - (this.bottom - this.top - 4);
                         if (var19 < 1) {
                             var19 = 1;
                         }
 
-                        var13 = (int)((float)((this.bottom - this.top) * (this.bottom - this.top)) / (float)this.getContentHeight());
+                        int var13 = (int)((float)((this.bottom - this.top) * (this.bottom - this.top)) / (float)this.getContentHeight());
                         if (var13 < 32) {
                             var13 = 32;
                         }
@@ -184,12 +179,7 @@ public abstract class GuiScrollingList {
                 this.initialMouseClickY = (float)mouseY;
             }
         } else {
-            while(true) {
-                if (!Mouse.next()) {
-                    this.initialMouseClickY = -1.0F;
-                    break;
-                }
-
+            while(Mouse.next()) {
                 int var16 = Mouse.getEventDWheel();
                 if (var16 != 0) {
                     if (var16 > 0) {
@@ -201,6 +191,8 @@ public abstract class GuiScrollingList {
                     this.scrollDistance += (float)(var16 * this.slotHeight / 2);
                 }
             }
+
+            this.initialMouseClickY = -1.0F;
         }
 
         this.applyScrollLimits();
@@ -212,19 +204,31 @@ public abstract class GuiScrollingList {
         float var17 = 32.0F;
         var18.method_1405();
         var18.method_1413(2105376);
-        var18.method_1399((double)this.left, (double)this.bottom, 0.0, (double)((float)this.left / var17), (double)((float)(this.bottom + (int)this.scrollDistance) / var17));
-        var18.method_1399((double)this.right, (double)this.bottom, 0.0, (double)((float)this.right / var17), (double)((float)(this.bottom + (int)this.scrollDistance) / var17));
-        var18.method_1399((double)this.right, (double)this.top, 0.0, (double)((float)this.right / var17), (double)((float)(this.top + (int)this.scrollDistance) / var17));
-        var18.method_1399((double)this.left, (double)this.top, 0.0, (double)((float)this.left / var17), (double)((float)(this.top + (int)this.scrollDistance) / var17));
+        var18.method_1399(
+                (double)this.left, (double)this.bottom, 0.0, (double)((float)this.left / var17), (double)((float)(this.bottom + (int)this.scrollDistance) / var17)
+        );
+        var18.method_1399(
+                (double)this.right,
+                (double)this.bottom,
+                0.0,
+                (double)((float)this.right / var17),
+                (double)((float)(this.bottom + (int)this.scrollDistance) / var17)
+        );
+        var18.method_1399(
+                (double)this.right, (double)this.top, 0.0, (double)((float)this.right / var17), (double)((float)(this.top + (int)this.scrollDistance) / var17)
+        );
+        var18.method_1399(
+                (double)this.left, (double)this.top, 0.0, (double)((float)this.left / var17), (double)((float)(this.top + (int)this.scrollDistance) / var17)
+        );
         var18.method_1396();
-        var10 = this.top + 4 - (int)this.scrollDistance;
+        int var10 = this.top + 4 - (int)this.scrollDistance;
         if (this.field_27262_q) {
             this.func_27260_a(boxRight, var10, var18);
         }
 
-        for(var11 = 0; var11 < listLength; ++var11) {
-            var19 = var10 + var11 * this.slotHeight + this.field_27261_r;
-            var13 = this.slotHeight - 4;
+        for(int var11 = 0; var11 < listLength; ++var11) {
+            int var19 = var10 + var11 * this.slotHeight + this.field_27261_r;
+            int var13 = this.slotHeight - 4;
             if (var19 <= this.bottom && var19 + var13 >= this.top) {
                 if (this.field_25123_p && this.isSelected(var11)) {
                     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -273,9 +277,9 @@ public abstract class GuiScrollingList {
         var18.method_1399((double)this.right, (double)(this.bottom - var20), 0.0, 1.0, 0.0);
         var18.method_1399((double)this.left, (double)(this.bottom - var20), 0.0, 0.0, 0.0);
         var18.method_1396();
-        var19 = this.getContentHeight() - (this.bottom - this.top - 4);
+        int var19 = this.getContentHeight() - (this.bottom - this.top - 4);
         if (var19 > 0) {
-            var13 = (this.bottom - this.top) * (this.bottom - this.top) / this.getContentHeight();
+            int var13 = (this.bottom - this.top) * (this.bottom - this.top) / this.getContentHeight();
             if (var13 < 32) {
                 var13 = 32;
             }
@@ -327,9 +331,13 @@ public abstract class GuiScrollingList {
         var5.method_1405();
         var5.method_1402(4210752, p_22239_4_);
         var5.method_1399(0.0, (double)p_22239_2_, 0.0, 0.0, (double)((float)p_22239_2_ / var6));
-        var5.method_1399((double)this.listWidth + 30.0, (double)p_22239_2_, 0.0, (double)((float)(this.listWidth + 30) / var6), (double)((float)p_22239_2_ / var6));
+        var5.method_1399(
+                (double)this.listWidth + 30.0, (double)p_22239_2_, 0.0, (double)((float)(this.listWidth + 30) / var6), (double)((float)p_22239_2_ / var6)
+        );
         var5.method_1402(4210752, p_22239_3_);
-        var5.method_1399((double)this.listWidth + 30.0, (double)p_22239_1_, 0.0, (double)((float)(this.listWidth + 30) / var6), (double)((float)p_22239_1_ / var6));
+        var5.method_1399(
+                (double)this.listWidth + 30.0, (double)p_22239_1_, 0.0, (double)((float)(this.listWidth + 30) / var6), (double)((float)p_22239_1_ / var6)
+        );
         var5.method_1399(0.0, (double)p_22239_1_, 0.0, 0.0, (double)((float)p_22239_1_ / var6));
         var5.method_1396();
     }

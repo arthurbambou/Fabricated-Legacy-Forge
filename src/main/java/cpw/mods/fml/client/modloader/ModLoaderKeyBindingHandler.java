@@ -2,17 +2,17 @@ package cpw.mods.fml.client.modloader;
 
 import com.google.common.collect.ObjectArrays;
 import com.google.common.primitives.Booleans;
-import cpw.mods.fml.client.registry.KeyBindingRegistry;
+import cpw.mods.fml.client.registry.KeyBindingRegistry.KeyHandler;
 import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.modloader.ModLoaderModContainer;
-import net.minecraft.BaseMod;
-import net.minecraft.client.options.KeyBinding;
-
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-public class ModLoaderKeyBindingHandler extends KeyBindingRegistry.KeyHandler {
+import net.minecraft.BaseMod;
+import net.minecraft.client.options.KeyBinding;
+
+public class ModLoaderKeyBindingHandler extends KeyHandler {
     private ModLoaderModContainer modContainer;
     private List<KeyBinding> helper;
     private boolean[] active = new boolean[0];
@@ -63,7 +63,7 @@ public class ModLoaderKeyBindingHandler extends KeyBindingRegistry.KeyHandler {
     }
 
     void addKeyBinding(KeyBinding binding, boolean repeats) {
-        this.keyBindings = (KeyBinding[]) ObjectArrays.concat(this.keyBindings, binding);
+        this.keyBindings = (KeyBinding[])ObjectArrays.concat(this.keyBindings, binding);
         this.repeatings = new boolean[this.keyBindings.length];
         Arrays.fill(this.repeatings, true);
         this.active = new boolean[this.keyBindings.length];
