@@ -34,7 +34,7 @@ public abstract class CactusBlockMixin extends Block implements IPlantable {
             return false;
         } else {
             int var5 = par1World.getBlock(par2, par3 - 1, par4);
-            return BLOCKS[var5] != null && ((IBlock)BLOCKS[var5]).canSustainPlant(par1World, par2, par3 - 1, par4, ForgeDirection.UP, this);
+            return BLOCKS[var5] != null && BLOCKS[var5].canSustainPlant(par1World, par2, par3 - 1, par4, ForgeDirection.UP, this);
         }
     }
 

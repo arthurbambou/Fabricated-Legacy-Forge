@@ -34,7 +34,9 @@ public abstract class FlowerBlockMixin extends Block implements IPlantable {
     @Overwrite
     public boolean method_450(World par1World, int par2, int par3, int par4) {
         Block soil = BLOCKS[par1World.getBlock(par2, par3 - 1, par4)];
-        return (par1World.method_3718(par2, par3, par4) >= 8 || par1World.method_3716(par2, par3, par4)) && soil != null && ((IBlock)soil).canSustainPlant(par1World, par2, par3 - 1, par4, ForgeDirection.UP, this);
+        return (par1World.method_3718(par2, par3, par4) >= 8 || par1World.method_3716(par2, par3, par4))
+                && soil != null
+                && soil.canSustainPlant(par1World, par2, par3 - 1, par4, ForgeDirection.UP, this);
     }
 
     @Override
@@ -58,7 +60,7 @@ public abstract class FlowerBlockMixin extends Block implements IPlantable {
         } else if (this.id == PUMPKIN_STEM.id) {
             return EnumPlantType.Crop;
         } else {
-            return this.id == TALLGRASS.id ? EnumPlantType.Plains : EnumPlantType.Plains;
+            return EnumPlantType.Plains;
         }
     }
 

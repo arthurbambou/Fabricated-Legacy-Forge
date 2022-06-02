@@ -27,7 +27,9 @@ public class SnowLayerBlockMixin extends Block {
     public boolean method_434(World par1World, int par2, int par3, int par4) {
         int var5 = par1World.getBlock(par2, par3 - 1, par4);
         Block block = Block.BLOCKS[var5];
-        return block != null && (((IBlock)block).isLeaves(par1World, par2, par3 - 1, par4) || block.hasTransperancy()) && par1World.getMaterial(par2, par3 - 1, par4).blocksMovement();
+        return block == null || !block.isLeaves(par1World, par2, par3 - 1, par4) && !Block.BLOCKS[var5].hasTransperancy()
+                ? false
+                : par1World.getMaterial(par2, par3 - 1, par4).blocksMovement();
     }
 
     /**
@@ -50,8 +52,8 @@ public class SnowLayerBlockMixin extends Block {
      */
     @Overwrite
     public void method_424(World par1World, PlayerEntity par2EntityPlayer, int par3, int par4, int par5, int par6) {
-        this.method_445(par1World, par3, par4, par5, par6, 0);
-        par2EntityPlayer.incrementStat(Stats.BLOCK_STATS[this.id], 1);
+        super.method_424(par1World, par2EntityPlayer, par3, par4, par5, par6);
+        par1World.method_3690(par3, par4, par5, 0);
     }
 
     /**
@@ -72,5 +74,6 @@ public class SnowLayerBlockMixin extends Block {
         if (par1World.method_3667(LightType.BLOCK, par2, par3, par4) > 11) {
             par1World.method_3690(par2, par3, par4, 0);
         }
+
     }
 }

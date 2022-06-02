@@ -38,8 +38,9 @@ public abstract class class_174Mixin {
 
     @Shadow protected abstract boolean method_367(class_174 arg);
 
-    @Shadow protected abstract int method_363();
+    @Shadow protected abstract class_174 method_361(Vec3i vec3i);
 
+    // Forge Fields
     @Unique // final
     RailBlock field_305;
     @Unique // final
@@ -48,20 +49,11 @@ public abstract class class_174Mixin {
     @Inject(method = "<init>", at = @At(value = "RETURN"))
     private void overwriteCtr(RailBlock par1BlockRail, World par2World, int par3, int par4, int par5, CallbackInfo ci) {
         int var6 = par2World.getBlock(par3, par4, par5);
-        IRailBlock target = (IRailBlock) Block.BLOCKS[var6];
+        RailBlock target = (RailBlock)Block.BLOCKS[var6];
         int var7 = target.getBasicRailMetadata(par2World, null, par3, par4, par5);
         this.field_310 = !target.isFlexibleRail(par2World, par3, par4, par5);
         this.canMakeSlopes = target.canMakeSlopes(par2World, par3, par4, par5);
         this.method_358(var7);
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    private class_174 method_361(Vec3i par1ChunkPosition) {
-        return RailBlock.method_355(this.field_306, par1ChunkPosition.field_4613, par1ChunkPosition.field_4614, par1ChunkPosition.field_4615) ? new class_174(this.field_305, this.field_306, par1ChunkPosition.field_4613, par1ChunkPosition.field_4614, par1ChunkPosition.field_4615) : (RailBlock.method_355(this.field_306, par1ChunkPosition.field_4613, par1ChunkPosition.field_4614 + 1, par1ChunkPosition.field_4615) ? new class_174(this.field_305, this.field_306, par1ChunkPosition.field_4613, par1ChunkPosition.field_4614 + 1, par1ChunkPosition.field_4615) : (RailBlock.method_355(this.field_306, par1ChunkPosition.field_4613, par1ChunkPosition.field_4614 - 1, par1ChunkPosition.field_4615) ? new class_174(this.field_305, this.field_306, par1ChunkPosition.field_4613, par1ChunkPosition.field_4614 - 1, par1ChunkPosition.field_4615) : null));
     }
 
     /**
@@ -249,16 +241,17 @@ public abstract class class_174Mixin {
 
         if (par2 || this.field_306.getBlockData(this.field_307, this.field_308, this.field_309) != var8) {
             this.field_306.method_3672(this.field_307, this.field_308, this.field_309, var8);
-            for (Object o : this.field_311) {
-                Vec3i var10 = (Vec3i) o;
+
+            for(Vec3i var10 : (List<Vec3i>)this.field_311) {
                 class_174 var11 = this.method_361(var10);
                 if (var11 != null) {
-                    ((class_174Mixin) (Object) var11).method_357();
-                    if (((class_174Mixin) (Object) var11).method_367((class_174) (Object) this)) {
-                        ((class_174Mixin) (Object) var11).method_368((class_174) (Object) this);
+                    ((class_174Mixin)(Object)var11).method_357();
+                    if (((class_174Mixin)(Object)var11).method_367((class_174)(Object) this)) {
+                        ((class_174Mixin)(Object)var11).method_368((class_174)(Object) this);
                     }
                 }
             }
         }
+
     }
 }

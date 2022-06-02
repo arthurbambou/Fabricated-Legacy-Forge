@@ -21,7 +21,10 @@ public abstract class LadderBlockMixin extends Block {
      */
     @Overwrite
     public boolean method_434(World par1World, int par2, int par3, int par4) {
-        return par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.EAST) || par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.WEST) || par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.SOUTH) || par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH);
+        return par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.EAST)
+                || par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.WEST)
+                || par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.SOUTH)
+                || par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH);
     }
 
     /**
@@ -29,7 +32,7 @@ public abstract class LadderBlockMixin extends Block {
      * @reason none
      */
     @Overwrite
-    public void method_409(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8) {
+    public void method_4185(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8) {
         int var9 = par1World.getBlockData(par2, par3, par4);
         if ((var9 == 0 || par5 == 2) && par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH)) {
             var9 = 2;

@@ -29,13 +29,16 @@ public class MyceliumBlockMixin extends Block {
                     int var7 = par2 + par5Random.nextInt(3) - 1;
                     int var8 = par3 + par5Random.nextInt(5) - 3;
                     int var9 = par4 + par5Random.nextInt(3) - 1;
-                    par1World.getBlock(var7, var8 + 1, var9);
-                    if (par1World.getBlock(var7, var8, var9) == Block.DIRT.id && par1World.method_3720(var7, var8 + 1, var9) >= 4 && par1World.method_3651(var7, var8 + 1, var9) <= 2) {
+                    int var10 = par1World.getBlock(var7, var8 + 1, var9);
+                    if (par1World.getBlock(var7, var8, var9) == Block.DIRT.id
+                            && par1World.method_3720(var7, var8 + 1, var9) >= 4
+                            && par1World.method_3651(var7, var8 + 1, var9) <= 2) {
                         par1World.method_3690(var7, var8, var9, this.id);
                     }
                 }
             }
         }
+
     }
 
 

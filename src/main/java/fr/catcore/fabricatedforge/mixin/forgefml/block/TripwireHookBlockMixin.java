@@ -30,7 +30,10 @@ public abstract class TripwireHookBlockMixin extends Block {
     @Overwrite
     public boolean method_428(World par1World, int par2, int par3, int par4, int par5) {
         ForgeDirection dir = ForgeDirection.getOrientation(par5);
-        return dir == ForgeDirection.NORTH && par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH) || dir == ForgeDirection.SOUTH && par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.SOUTH) || dir == ForgeDirection.WEST && par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.WEST) || dir == ForgeDirection.EAST && par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.EAST);
+        return dir == ForgeDirection.NORTH && par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH)
+                || dir == ForgeDirection.SOUTH && par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.SOUTH)
+                || dir == ForgeDirection.WEST && par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.WEST)
+                || dir == ForgeDirection.EAST && par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.EAST);
     }
 
     /**
@@ -39,7 +42,10 @@ public abstract class TripwireHookBlockMixin extends Block {
      */
     @Overwrite
     public boolean method_434(World par1World, int par2, int par3, int par4) {
-        return par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.SOUTH) || par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.NORTH) || par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.EAST) || par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.WEST);
+        return par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.SOUTH)
+                || par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.NORTH)
+                || par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.EAST)
+                || par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.WEST);
     }
 
     /**
@@ -47,7 +53,7 @@ public abstract class TripwireHookBlockMixin extends Block {
      * @reason none
      */
     @Overwrite
-    public void method_409(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8) {
+    public void method_4185(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8) {
         byte var9 = 0;
         if (par5 == 2 && par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.WEST, true)) {
             var9 = 2;
@@ -99,6 +105,7 @@ public abstract class TripwireHookBlockMixin extends Block {
                 par1World.method_3690(par2, par3, par4, 0);
             }
         }
+
     }
 
     /**
@@ -118,17 +125,12 @@ public abstract class TripwireHookBlockMixin extends Block {
         int var18 = 0;
         int[] var19 = new int[42];
 
-        int var21;
-        int var20;
-        int var23;
-        int var22;
-        int var24;
-        for(var20 = 1; var20 < 42; ++var20) {
-            var21 = par2 + var16 * var20;
-            var22 = par4 + var17 * var20;
-            var23 = par1World.getBlock(var21, par3, var22);
+        for(int var20 = 1; var20 < 42; ++var20) {
+            int var21 = par2 + var16 * var20;
+            int var22 = par4 + var17 * var20;
+            int var23 = par1World.getBlock(var21, par3, var22);
             if (var23 == Block.TRIPWIRE_HOOK.id) {
-                var24 = par1World.getBlockData(var21, par3, var22);
+                int var24 = par1World.getBlockData(var21, par3, var22);
                 if ((var24 & 3) == Axis.OPPOSITE[var10]) {
                     var18 = var20;
                 }
@@ -139,7 +141,7 @@ public abstract class TripwireHookBlockMixin extends Block {
                 var19[var20] = -1;
                 var13 = false;
             } else {
-                var24 = var20 == par8 ? par9 : par1World.getBlockData(var21, par3, var22);
+                int var24 = var20 == par8 ? par9 : par1World.getBlockData(var21, par3, var22);
                 boolean var25 = (var24 & 8) != 8;
                 boolean var26 = (var24 & 1) == 1;
                 boolean var27 = (var24 & 2) == 2;
@@ -155,13 +157,13 @@ public abstract class TripwireHookBlockMixin extends Block {
 
         var13 &= var18 > 1;
         var14 &= var13;
-        var20 = (var13 ? 4 : 0) | (var14 ? 8 : 0);
-        par6 = var10 | var20;
+        int var33 = (var13 ? 4 : 0) | (var14 ? 8 : 0);
+        par6 = var10 | var33;
         if (var18 > 0) {
-            var21 = par2 + var16 * var18;
-            var22 = par4 + var17 * var18;
-            var23 = Axis.OPPOSITE[var10];
-            par1World.method_3672(var21, par3, var22, var23 | var20);
+            int var21 = par2 + var16 * var18;
+            int var22 = par4 + var17 * var18;
+            int var23 = Axis.OPPOSITE[var10];
+            par1World.method_3672(var21, par3, var22, var23 | var33);
             this.method_498(par1World, var21, par3, var22, var23);
             this.method_497(par1World, var21, par3, var22, var13, var14, var11, var12);
         }
@@ -175,10 +177,10 @@ public abstract class TripwireHookBlockMixin extends Block {
         }
 
         if (var11 != var13) {
-            for(var21 = 1; var21 < var18; ++var21) {
-                var22 = par2 + var16 * var21;
-                var23 = par4 + var17 * var21;
-                var24 = var19[var21];
+            for(int var21 = 1; var21 < var18; ++var21) {
+                int var22 = par2 + var16 * var21;
+                int var23 = par4 + var17 * var21;
+                int var24 = var19[var21];
                 if (var24 >= 0) {
                     if (var13) {
                         var24 |= 4;

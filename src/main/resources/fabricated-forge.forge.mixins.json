@@ -16,7 +16,6 @@
     "block.class_174Accessor",
     "block.class_174Mixin",
     "block.CropBlockMixin",
-    "block.DispenserBlockMixin",
     "block.DoorBlockMixin",
     "block.FarmlandBlockMixin",
     "block.FireBlockMixin",

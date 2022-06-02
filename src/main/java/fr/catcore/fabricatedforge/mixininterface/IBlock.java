@@ -10,9 +10,9 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
 import net.minecraftforge.common.ForgeDirection;
 import net.minecraftforge.common.IPlantable;
 
@@ -21,7 +21,7 @@ import java.util.Random;
 
 public interface IBlock {
 
-    int getLightValue(WorldView world, int x, int y, int z);
+    int getLightValue(BlockView world, int x, int y, int z);
     boolean isLadder(World world, int x, int y, int z);
     boolean isBlockNormalCube(World world, int x, int y, int z);
     boolean isBlockSolidOnSide(World world, int x, int y, int z, ForgeDirection side);
@@ -31,8 +31,8 @@ public interface IBlock {
     boolean canHarvestBlock(PlayerEntity player, int meta);
     boolean removeBlockByPlayer(World world, PlayerEntity player, int x, int y, int z);
     void addCreativeItems(ArrayList itemList);
-    int getFlammability(WorldView world, int x, int y, int z, int metadata, ForgeDirection face);
-    boolean isFlammable(WorldView world, int x, int y, int z, int metadata, ForgeDirection face);
+    int getFlammability(BlockView world, int x, int y, int z, int metadata, ForgeDirection face);
+    boolean isFlammable(BlockView world, int x, int y, int z, int metadata, ForgeDirection face);
     int getFireSpreadSpeed(World world, int x, int y, int z, int metadata, ForgeDirection face);
     boolean isFireSource(World world, int x, int y, int z, int metadata, ForgeDirection side);
     boolean hasTileEntity(int metadata);
@@ -44,8 +44,8 @@ public interface IBlock {
     boolean isBed(World world, int x, int y, int z, MobEntity player);
     BlockPos getBedSpawnPosition(World world, int x, int y, int z, PlayerEntity player);
     void setBedOccupied(World world, int x, int y, int z, PlayerEntity player, boolean occupied);
-    int getBedDirection(WorldView world, int x, int y, int z);
-    boolean isBedFoot(WorldView world, int x, int y, int z);
+    int getBedDirection(BlockView world, int x, int y, int z);
+    boolean isBedFoot(BlockView world, int x, int y, int z);
     void beginLeavesDecay(World world, int x, int y, int z);
     boolean canSustainLeaves(World world, int x, int y, int z);
     boolean isLeaves(World world, int x, int y, int z);
@@ -55,13 +55,13 @@ public interface IBlock {
     String getTextureFile();
     void setTextureFile(String texture);
     float getExplosionResistance(Entity par1Entity, World world, int x, int y, int z, double explosionX, double explosionY, double explosionZ);
-    boolean canConnectRedstone(WorldView world, int x, int y, int z, int side);
+    boolean canConnectRedstone(BlockView world, int x, int y, int z, int side);
     boolean canPlaceTorchOnTop(World world, int x, int y, int z);
     boolean canRenderInPass(int pass);
-    ItemStack getPickBlock(HitResult target, World world, int x, int y, int z);
+    ItemStack getPickBlock(BlockHitResult target, World world, int x, int y, int z);
     boolean isBlockFoliage(World world, int x, int y, int z);
     @Environment(EnvType.CLIENT)
-    boolean addBlockHitEffects(World worldObj, HitResult target, ParticleManager effectRenderer);
+    boolean addBlockHitEffects(World worldObj, BlockHitResult target, ParticleManager effectRenderer);
     @Environment(EnvType.CLIENT)
     boolean addBlockDestroyEffects(World world, int x, int y, int z, int meta, ParticleManager effectRenderer);
     boolean canSustainPlant(World world, int x, int y, int z, ForgeDirection direction, IPlantable plant);

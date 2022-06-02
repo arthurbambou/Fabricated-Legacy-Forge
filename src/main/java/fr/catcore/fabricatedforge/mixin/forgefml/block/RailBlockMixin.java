@@ -1,13 +1,14 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.block;
 
+import fr.catcore.fabricatedforge.forged.ReflectionUtils;
 import fr.catcore.fabricatedforge.mixininterface.IRailBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.block.RailBlock;
 import net.minecraft.block.class_174;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
 import net.minecraftforge.common.ForgeDirection;
 import org.spongepowered.asm.mixin.*;
 
@@ -24,13 +25,9 @@ public abstract class RailBlockMixin extends Block implements IRailBlock {
         super(id, material);
     }
 
+    // Forge Field
     @Unique
     private int renderType = 9;
-
-    @Override
-    public void setRenderType(int value) {
-        this.renderType = value;
-    }
 
     /**
      * @author Minecraft Forge
@@ -124,11 +121,19 @@ public abstract class RailBlockMixin extends Block implements IRailBlock {
                         par1World.method_3710(par2, par3 + 1, par4, this.id);
                     }
                 }
-            } else if (par5 > 0 && Block.BLOCKS[par5].emitsRedstonePower() && !this.field_304 && ((class_174Accessor)new class_174((RailBlock)(Object) this, par1World, par2, par3, par4)).method_363_invoker() == 3) {
+            } else if (par5 > 0
+                    && Block.BLOCKS[par5].emitsRedstonePower()
+                    && !this.field_304
+                    && ReflectionUtils.class_174_method_360(new class_174((RailBlock)(Object) this, par1World, par2, par3, par4)) == 3) {
                 this.method_352(par1World, par2, par3, par4, false);
             }
         }
 
+    }
+
+    @Override
+    public void setRenderType(int value) {
+        this.renderType = value;
     }
 
     @Override
@@ -142,7 +147,7 @@ public abstract class RailBlockMixin extends Block implements IRailBlock {
     }
 
     @Override
-    public int getBasicRailMetadata(WorldView world, AbstractMinecartEntity cart, int x, int y, int z) {
+    public int getBasicRailMetadata(BlockView world, AbstractMinecartEntity cart, int x, int y, int z) {
         int meta = world.getBlockData(x, y, z);
         if (this.field_304) {
             meta &= 7;
@@ -162,6 +167,11 @@ public abstract class RailBlockMixin extends Block implements IRailBlock {
 
     @Override
     public boolean hasPowerBit(World world, int x, int y, int z) {
+        return this.field_304;
+    }
+
+    @Override
+    public boolean getField_304() {
         return this.field_304;
     }
 }

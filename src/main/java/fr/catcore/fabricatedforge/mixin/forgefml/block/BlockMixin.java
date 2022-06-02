@@ -2,7 +2,6 @@ package fr.catcore.fabricatedforge.mixin.forgefml.block;
 
 import cpw.mods.fml.common.registry.BlockProxy;
 import fr.catcore.fabricatedforge.mixininterface.IBlock;
-import fr.catcore.fabricatedforge.mixininterface.IBlockWithEntity;
 import fr.catcore.fabricatedforge.forged.ReflectionUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -18,13 +17,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Box;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
 import net.minecraft.world.dimension.TheEndDimension;
 import net.minecraftforge.common.*;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,13 +34,6 @@ import java.util.Random;
 public abstract class BlockMixin implements IBlock, BlockProxy {
 
     @Shadow @Final public static Block[] BLOCKS;
-
-    @Shadow public double boundingBoxMinY;
-    @Shadow public double boundingBoxMaxY;
-    @Shadow public double boundingBoxMinZ;
-    @Shadow public double boundingBoxMaxZ;
-    @Shadow public double boundingBoxMinX;
-    @Shadow public double boundingBoxMaxX;
 
     @Shadow protected abstract void method_422(World world, int i, int j, int k, ItemStack itemStack);
 
@@ -68,7 +58,8 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
 
     @Shadow public abstract int method_398(int i, Random random, int j);
 
-    @Shadow protected abstract int method_431(int i);
+    @Shadow
+    public abstract int method_431(int i);
 
     @Shadow
     public static boolean method_467(int id) {
@@ -101,16 +92,13 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
     @Shadow @Final public static int[] field_494;
     @Shadow @Final public static Block OBSIDIAN;
     @Shadow @Final public static Block END_STONE;
-    @Unique
-    protected String currentTexture;
-    @Unique
-    public boolean isDefaultTexture;
+    @Shadow @Final public static Block COBBLESTONE_WALL;
 
-    @Inject(method = "<init>(ILnet/minecraft/block/Material;)V", at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/block/Block;field_469:Z"))
-    private void ctrPart1(int material, Material par2, CallbackInfo ci) {
-        this.currentTexture = "/terrain.png";
-        this.isDefaultTexture = true;
-    }
+    // Additional Fields
+    @Unique
+    protected String currentTexture = "/terrain.png";
+    @Unique
+    public boolean isDefaultTexture = true;
 
     @Inject(method = "<init>(ILnet/minecraft/block/Material;)V", at = @At("RETURN"))
     private void ctrPart2(int material, Material par2, CallbackInfo ci) {
@@ -132,7 +120,7 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
      */
     @Environment(EnvType.CLIENT)
     @Overwrite
-    public float method_458(WorldView par1IBlockAccess, int par2, int par3, int par4) {
+    public float method_458(BlockView par1IBlockAccess, int par2, int par3, int par4) {
         return par1IBlockAccess.method_3779(par2, par3, par4, this.getLightValue(par1IBlockAccess, par2, par3, par4));
     }
 
@@ -142,28 +130,8 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
      */
     @Environment(EnvType.CLIENT)
     @Overwrite
-    public int method_455(WorldView par1IBlockAccess, int par2, int par3, int par4) {
+    public int method_455(BlockView par1IBlockAccess, int par2, int par3, int par4) {
         return par1IBlockAccess.method_3778(par2, par3, par4, this.getLightValue(par1IBlockAccess, par2, par3, par4));
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Environment(EnvType.CLIENT)
-    @Overwrite
-    public boolean method_447(WorldView par1IBlockAccess, int par2, int par3, int par4, int par5) {
-        return par5 == 0 && this.boundingBoxMinY > 0.0 ? true : (par5 == 1 && this.boundingBoxMaxY < 1.0 ? true : (par5 == 2 && this.boundingBoxMinZ > 0.0 ? true : (par5 == 3 && this.boundingBoxMaxZ < 1.0 ? true : (par5 == 4 && this.boundingBoxMinX > 0.0 ? true : (par5 == 5 && this.boundingBoxMaxX < 1.0 ? true : !par1IBlockAccess.method_3782(par2, par3, par4))))));
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Environment(EnvType.CLIENT)
-    @Overwrite
-    public Box method_427(World par1World, int par2, int par3, int par4) {
-        return Box.getLocalPool().getOrCreate((double)par2 + this.boundingBoxMinX, (double)par3 + this.boundingBoxMinY, (double)par4 + this.boundingBoxMinZ, (double)par2 + this.boundingBoxMaxX, (double)par3 + this.boundingBoxMaxY, (double)par4 + this.boundingBoxMaxZ);
     }
 
     /**
@@ -200,20 +168,21 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
     public void method_424(World par1World, PlayerEntity par2EntityPlayer, int par3, int par4, int par5, int par6) {
         par2EntityPlayer.incrementStat(Stats.BLOCK_STATS[this.id], 1);
         par2EntityPlayer.addExhaustion(0.025F);
-        if (this.canSilkHarvest(par1World, par2EntityPlayer, par3, par4, par5, par6) && EnchantmentHelper.method_3534(par2EntityPlayer.inventory)) {
+        if (this.canSilkHarvest(par1World, par2EntityPlayer, par3, par4, par5, par6) && EnchantmentHelper.method_4653(par2EntityPlayer)) {
             ItemStack var8 = this.method_448(par6);
             if (var8 != null) {
                 this.method_422(par1World, par3, par4, par5, var8);
             }
         } else {
-            int var7 = EnchantmentHelper.method_3535(par2EntityPlayer.inventory);
+            int var7 = EnchantmentHelper.method_4654(par2EntityPlayer);
             this.method_445(par1World, par3, par4, par5, par6, var7);
         }
 
     }
 
+    // Forge Methods
     @Override
-    public int getLightValue(WorldView world, int x, int y, int z) {
+    public int getLightValue(BlockView world, int x, int y, int z) {
         return field_496[this.id];
     }
 
@@ -230,11 +199,11 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
     @Override
     public boolean isBlockSolidOnSide(World world, int x, int y, int z, ForgeDirection side) {
         int meta = world.getBlockData(x, y, z);
-        if (((Object) this) instanceof SlabBlock) {
+        if (((Object)this) instanceof SlabBlock) {
             return (meta & 8) == 8 && side == ForgeDirection.UP || this.hasTransperancy();
-        } else if (((Object) this) instanceof FarmlandBlock) {
+        } else if (((Object)this) instanceof FarmlandBlock) {
             return side != ForgeDirection.DOWN && side != ForgeDirection.UP;
-        } else if (((Object) this) instanceof StairsBlock) {
+        } else if (((Object)this) instanceof StairsBlock) {
             boolean flipped = (meta & 4) != 0;
             return (meta & 3) + side.ordinal() == 5 || side == ForgeDirection.UP && flipped;
         } else {
@@ -259,7 +228,7 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
 
     @Override
     public boolean canHarvestBlock(PlayerEntity player, int meta) {
-        return ForgeHooks.canHarvestBlock((Block)(Object) this, player, meta);
+        return ForgeHooks.canHarvestBlock(((Block)(Object)this), player, meta);
     }
 
     @Override
@@ -272,12 +241,12 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
     }
 
     @Override
-    public int getFlammability(WorldView world, int x, int y, int z, int metadata, ForgeDirection face) {
+    public int getFlammability(BlockView world, int x, int y, int z, int metadata, ForgeDirection face) {
         return ReflectionUtils.Block_blockFlammability[this.id];
     }
 
     @Override
-    public boolean isFlammable(WorldView world, int x, int y, int z, int metadata, ForgeDirection face) {
+    public boolean isFlammable(BlockView world, int x, int y, int z, int metadata, ForgeDirection face) {
         return this.getFlammability(world, x, y, z, metadata, face) > 0;
     }
 
@@ -302,7 +271,7 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
 
     @Override
     public BlockEntity createTileEntity(World world, int metadata) {
-        return ((Block)(Object)this) instanceof BlockWithEntity ? ((IBlockWithEntity)(Object)this).createNewTileEntity(world, metadata) : null;
+        return ((Object)this) instanceof BlockWithEntity ? ((BlockWithEntity)((Object)this)).createNewTileEntity(world, metadata) : null;
     }
 
     @Override
@@ -370,12 +339,12 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
     }
 
     @Override
-    public int getBedDirection(WorldView world, int x, int y, int z) {
+    public int getBedDirection(BlockView world, int x, int y, int z) {
         return BedBlock.method_297(world.getBlockData(x, y, z));
     }
 
     @Override
-    public boolean isBedFoot(WorldView world, int x, int y, int z) {
+    public boolean isBedFoot(BlockView world, int x, int y, int z) {
         return BedBlock.method_278(world.getBlockData(x, y, z));
     }
 
@@ -425,7 +394,7 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
     }
 
     @Override
-    public boolean canConnectRedstone(WorldView world, int x, int y, int z, int side) {
+    public boolean canConnectRedstone(BlockView world, int x, int y, int z, int side) {
         return BLOCKS[this.id].emitsRedstonePower() && side != -1;
     }
 
@@ -435,7 +404,7 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
             return true;
         } else {
             int id = world.getBlock(x, y, z);
-            return id == WOODEN_FENCE.id || id == NETHER_BRICK_FENCE.id || id == GLASS_BLOCK.id;
+            return id == WOODEN_FENCE.id || id == NETHER_BRICK_FENCE.id || id == GLASS_BLOCK.id || id == COBBLESTONE_WALL.id;
         }
     }
 
@@ -445,7 +414,7 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
     }
 
     @Override
-    public ItemStack getPickBlock(HitResult target, World world, int x, int y, int z) {
+    public ItemStack getPickBlock(BlockHitResult target, World world, int x, int y, int z) {
         int id = this.method_407(world, x, y, z);
         if (id == 0) {
             return null;
@@ -460,14 +429,14 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
         return false;
     }
 
-    @Environment(EnvType.CLIENT)
     @Override
-    public boolean addBlockHitEffects(World worldObj, HitResult target, ParticleManager effectRenderer) {
+    @Environment(EnvType.CLIENT)
+    public boolean addBlockHitEffects(World worldObj, BlockHitResult target, ParticleManager effectRenderer) {
         return false;
     }
 
-    @Environment(EnvType.CLIENT)
     @Override
+    @Environment(EnvType.CLIENT)
     public boolean addBlockDestroyEffects(World world, int x, int y, int z, int meta, ParticleManager effectRenderer) {
         return false;
     }
@@ -498,7 +467,10 @@ public abstract class BlockMixin implements IBlock, BlockProxy {
                     return world.getMaterial(x, y, z) == Material.WATER && world.getBlockData(x, y, z) == 0;
                 case Beach:
                     boolean isBeach = this.id == GRASS_BLOCK.id || this.id == DIRT.id || this.id == SAND_BLOCK.id;
-                    boolean hasWater = world.getMaterial(x - 1, y - 1, z) == Material.WATER || world.getMaterial(x + 1, y - 1, z) == Material.WATER || world.getMaterial(x, y - 1, z - 1) == Material.WATER || world.getMaterial(x, y - 1, z + 1) == Material.WATER;
+                    boolean hasWater = world.getMaterial(x - 1, y - 1, z) == Material.WATER
+                            || world.getMaterial(x + 1, y - 1, z) == Material.WATER
+                            || world.getMaterial(x, y - 1, z - 1) == Material.WATER
+                            || world.getMaterial(x, y - 1, z + 1) == Material.WATER;
                     return isBeach && hasWater;
                 default:
                     return false;

@@ -29,7 +29,7 @@ public abstract class FarmlandBlockMixin extends Block {
             for(int var7 = par4 - var5; var7 <= par4 + var5; ++var7) {
                 int var8 = par1World.getBlock(var6, par3 + 1, var7);
                 Block plant = BLOCKS[var8];
-                if (plant instanceof IPlantable && ((IBlock)this).canSustainPlant(par1World, par2, par3, par4, ForgeDirection.UP, (IPlantable)plant)) {
+                if (plant instanceof IPlantable && this.canSustainPlant(par1World, par2, par3, par4, ForgeDirection.UP, (IPlantable)plant)) {
                     return true;
                 }
             }

@@ -25,7 +25,10 @@ public abstract class AbstractButtonBlockMixin extends Block {
     @Overwrite
     public boolean method_428(World par1World, int par2, int par3, int par4, int par5) {
         ForgeDirection dir = ForgeDirection.getOrientation(par5);
-        return dir == ForgeDirection.NORTH && par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH) || dir == ForgeDirection.SOUTH && par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.SOUTH) || dir == ForgeDirection.WEST && par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.WEST) || dir == ForgeDirection.EAST && par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.EAST);
+        return dir == ForgeDirection.NORTH && par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH)
+                || dir == ForgeDirection.SOUTH && par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.SOUTH)
+                || dir == ForgeDirection.WEST && par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.WEST)
+                || dir == ForgeDirection.EAST && par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.EAST);
     }
 
     /**
@@ -34,7 +37,10 @@ public abstract class AbstractButtonBlockMixin extends Block {
      */
     @Overwrite
     public boolean method_434(World par1World, int par2, int par3, int par4) {
-        return par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.EAST) || par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.WEST) || par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.SOUTH) || par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH);
+        return par1World.isBlockSolidOnSide(par2 - 1, par3, par4, ForgeDirection.EAST)
+                || par1World.isBlockSolidOnSide(par2 + 1, par3, par4, ForgeDirection.WEST)
+                || par1World.isBlockSolidOnSide(par2, par3, par4 - 1, ForgeDirection.SOUTH)
+                || par1World.isBlockSolidOnSide(par2, par3, par4 + 1, ForgeDirection.NORTH);
     }
 
     /**
@@ -42,7 +48,7 @@ public abstract class AbstractButtonBlockMixin extends Block {
      * @reason none
      */
     @Overwrite
-    public void method_409(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8) {
+    public void method_4185(World par1World, int par2, int par3, int par4, int par5, float par6, float par7, float par8) {
         int var9 = par1World.getBlockData(par2, par3, par4);
         int var10 = var9 & 8;
         var9 &= 7;
@@ -109,5 +115,6 @@ public abstract class AbstractButtonBlockMixin extends Block {
                 par1World.method_3690(par2, par3, par4, 0);
             }
         }
+
     }
 }

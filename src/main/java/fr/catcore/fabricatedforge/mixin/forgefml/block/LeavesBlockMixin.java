@@ -42,7 +42,7 @@ public abstract class LeavesBlockMixin extends BaseLeavesBlock implements IShear
                     for(int var11 = -var7; var11 <= var7; ++var11) {
                         int var12 = par1World.getBlock(par2 + var9, par3 + var10, par4 + var11);
                         if (Block.BLOCKS[var12] != null) {
-                            ((IBlock)Block.BLOCKS[var12]).beginLeavesDecay(par1World, par2 + var9, par3 + var10, par4 + var11);
+                            Block.BLOCKS[var12].beginLeavesDecay(par1World, par2 + var9, par3 + var10, par4 + var11);
                         }
                     }
                 }
@@ -69,63 +69,12 @@ public abstract class LeavesBlockMixin extends BaseLeavesBlock implements IShear
                     this.field_287 = new int[var9 * var9 * var9];
                 }
 
-                int var12;
                 if (par1World.isRegionLoaded(par2 - var8, par3 - var8, par4 - var8, par2 + var8, par3 + var8, par4 + var8)) {
-                    var12 = -var7;
-
-                    label117:
-                    while(true) {
-                        int var13;
-                        int var14;
-                        int var15;
-                        if (var12 > var7) {
-                            var12 = 1;
-
-                            while(true) {
-                                if (var12 > 4) {
-                                    break label117;
-                                }
-
-                                for(var13 = -var7; var13 <= var7; ++var13) {
-                                    for(var14 = -var7; var14 <= var7; ++var14) {
-                                        for(var15 = -var7; var15 <= var7; ++var15) {
-                                            if (this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + var15 + var11] == var12 - 1) {
-                                                if (this.field_287[(var13 + var11 - 1) * var10 + (var14 + var11) * var9 + var15 + var11] == -2) {
-                                                    this.field_287[(var13 + var11 - 1) * var10 + (var14 + var11) * var9 + var15 + var11] = var12;
-                                                }
-
-                                                if (this.field_287[(var13 + var11 + 1) * var10 + (var14 + var11) * var9 + var15 + var11] == -2) {
-                                                    this.field_287[(var13 + var11 + 1) * var10 + (var14 + var11) * var9 + var15 + var11] = var12;
-                                                }
-
-                                                if (this.field_287[(var13 + var11) * var10 + (var14 + var11 - 1) * var9 + var15 + var11] == -2) {
-                                                    this.field_287[(var13 + var11) * var10 + (var14 + var11 - 1) * var9 + var15 + var11] = var12;
-                                                }
-
-                                                if (this.field_287[(var13 + var11) * var10 + (var14 + var11 + 1) * var9 + var15 + var11] == -2) {
-                                                    this.field_287[(var13 + var11) * var10 + (var14 + var11 + 1) * var9 + var15 + var11] = var12;
-                                                }
-
-                                                if (this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + (var15 + var11 - 1)] == -2) {
-                                                    this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + (var15 + var11 - 1)] = var12;
-                                                }
-
-                                                if (this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + var15 + var11 + 1] == -2) {
-                                                    this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + var15 + var11 + 1] = var12;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                ++var12;
-                            }
-                        }
-
-                        for(var13 = -var7; var13 <= var7; ++var13) {
-                            for(var14 = -var7; var14 <= var7; ++var14) {
-                                var15 = par1World.getBlock(par2 + var12, par3 + var13, par4 + var14);
-                                IBlock block = (IBlock) Block.BLOCKS[var15];
+                    for(int var12 = -var7; var12 <= var7; ++var12) {
+                        for(int var13 = -var7; var13 <= var7; ++var13) {
+                            for(int var14 = -var7; var14 <= var7; ++var14) {
+                                int var15 = par1World.getBlock(par2 + var12, par3 + var13, par4 + var14);
+                                Block block = Block.BLOCKS[var15];
                                 if (block != null && block.canSustainLeaves(par1World, par2 + var12, par3 + var13, par4 + var14)) {
                                     this.field_287[(var12 + var11) * var10 + (var13 + var11) * var9 + var14 + var11] = 0;
                                 } else if (block != null && block.isLeaves(par1World, par2 + var12, par3 + var13, par4 + var14)) {
@@ -135,12 +84,44 @@ public abstract class LeavesBlockMixin extends BaseLeavesBlock implements IShear
                                 }
                             }
                         }
+                    }
 
-                        ++var12;
+                    for(int var17 = 1; var17 <= 4; ++var17) {
+                        for(int var13 = -var7; var13 <= var7; ++var13) {
+                            for(int var14 = -var7; var14 <= var7; ++var14) {
+                                for(int var15 = -var7; var15 <= var7; ++var15) {
+                                    if (this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + var15 + var11] == var17 - 1) {
+                                        if (this.field_287[(var13 + var11 - 1) * var10 + (var14 + var11) * var9 + var15 + var11] == -2) {
+                                            this.field_287[(var13 + var11 - 1) * var10 + (var14 + var11) * var9 + var15 + var11] = var17;
+                                        }
+
+                                        if (this.field_287[(var13 + var11 + 1) * var10 + (var14 + var11) * var9 + var15 + var11] == -2) {
+                                            this.field_287[(var13 + var11 + 1) * var10 + (var14 + var11) * var9 + var15 + var11] = var17;
+                                        }
+
+                                        if (this.field_287[(var13 + var11) * var10 + (var14 + var11 - 1) * var9 + var15 + var11] == -2) {
+                                            this.field_287[(var13 + var11) * var10 + (var14 + var11 - 1) * var9 + var15 + var11] = var17;
+                                        }
+
+                                        if (this.field_287[(var13 + var11) * var10 + (var14 + var11 + 1) * var9 + var15 + var11] == -2) {
+                                            this.field_287[(var13 + var11) * var10 + (var14 + var11 + 1) * var9 + var15 + var11] = var17;
+                                        }
+
+                                        if (this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + (var15 + var11 - 1)] == -2) {
+                                            this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + (var15 + var11 - 1)] = var17;
+                                        }
+
+                                        if (this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + var15 + var11 + 1] == -2) {
+                                            this.field_287[(var13 + var11) * var10 + (var14 + var11) * var9 + var15 + var11 + 1] = var17;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
-                var12 = this.field_287[var11 * var10 + var11 * var9 + var11];
+                int var12 = this.field_287[var11 * var10 + var11 * var9 + var11];
                 if (var12 >= 0) {
                     par1World.method_3682(par2, par3, par4, var6 & -9);
                 } else {
@@ -167,7 +148,7 @@ public abstract class LeavesBlockMixin extends BaseLeavesBlock implements IShear
 
     @Override
     public ArrayList<ItemStack> onSheared(ItemStack item, World world, int x, int y, int z, int fortune) {
-        ArrayList<ItemStack> ret = new ArrayList<>();
+        ArrayList<ItemStack> ret = new ArrayList();
         ret.add(new ItemStack(this, 1, world.getBlockData(x, y, z) & 3));
         return ret;
     }

@@ -25,68 +25,86 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                 "fr/catcore/fabricatedforge/forged/ReflectionUtils"
         ));
         METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
-                "<init>",
-                "(Ljava/lang/String;)V",
-                "net/minecraft/class_1041"
+                "method_360",
+                "(Lnet/minecraft/class_174;)I",
+                "net/minecraft/class_174"
         ), new ForgeModRemapper.Entry(
-                "<init>",
-                "(Ljava/lang/String;)V",
-                "fr/catcore/fabricatedforge/forged/ItemGroupForged"
+                "class_174_method_360",
+                "(Lnet/minecraft/class_174;)I",
+                "fr/catcore/fabricatedforge/forged/ReflectionUtils"
         ));
         METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
-                "<init>",
-                "(ILjava/lang/String;)V",
-                "net/minecraft/class_1041"
+                "method_350",
+                "(Lnet/minecraft/class_173;)Z",
+                "net/minecraft/class_173"
         ), new ForgeModRemapper.Entry(
-                "<init>",
-                "(ILjava/lang/String;)V",
-                "fr/catcore/fabricatedforge/forged/ItemGroupForged"
+                "RailBlock_method_350",
+                "(Lnet/minecraft/class_173;)Z",
+                "fr/catcore/fabricatedforge/forged/ReflectionUtils"
         ));
-        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
-                "<init>",
-                "(Lnet/minecraft/class_1071;III)V",
-                "net/minecraft/class_847"
-        ), new ForgeModRemapper.Entry(
-                "<init>",
-                "(Lnet/minecraft/class_1071;III)V",
-                "fr/catcore/fabricatedforge/forged/WeightedRandomChestContentForged"
-        ));
-        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
-                "<init>",
-                "(IIIII)V",
-                "net/minecraft/class_847"
-        ), new ForgeModRemapper.Entry(
-                "<init>",
-                "(IIIII)V",
-                "fr/catcore/fabricatedforge/forged/WeightedRandomChestContentForged"
-        ));
-        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
-                "<init>",
-                "(Lnet/minecraft/class_1150;II)V",
-                "net/minecraft/class_1196"
-        ), new ForgeModRemapper.Entry(
-                "<init>",
-                "(Lnet/minecraft/class_1150;II)V",
-                "fr/catcore/fabricatedforge/forged/ChunkForged"
-        ));
-        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
-                "<init>",
-                "(Lnet/minecraft/class_1150;[BII)V",
-                "net/minecraft/class_1196"
-        ), new ForgeModRemapper.Entry(
-                "<init>",
-                "(Lnet/minecraft/class_1150;[BII)V",
-                "fr/catcore/fabricatedforge/forged/ChunkForged"
-        ));
-        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
-                "<init>",
-                "(Lnet/minecraft/class_1150;[B[BII)V",
-                "net/minecraft/class_1196"
-        ), new ForgeModRemapper.Entry(
-                "<init>",
-                "(Lnet/minecraft/class_1150;[B[BII)V",
-                "fr/catcore/fabricatedforge/forged/ChunkForged"
-        ));
+//        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Ljava/lang/String;)V",
+//                "net/minecraft/class_1041"
+//        ), new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Ljava/lang/String;)V",
+//                "fr/catcore/fabricatedforge/forged/ItemGroupForged"
+//        ));
+//        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(ILjava/lang/String;)V",
+//                "net/minecraft/class_1041"
+//        ), new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(ILjava/lang/String;)V",
+//                "fr/catcore/fabricatedforge/forged/ItemGroupForged"
+//        ));
+//        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Lnet/minecraft/class_1071;III)V",
+//                "net/minecraft/class_847"
+//        ), new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Lnet/minecraft/class_1071;III)V",
+//                "fr/catcore/fabricatedforge/forged/WeightedRandomChestContentForged"
+//        ));
+//        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(IIIII)V",
+//                "net/minecraft/class_847"
+//        ), new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(IIIII)V",
+//                "fr/catcore/fabricatedforge/forged/WeightedRandomChestContentForged"
+//        ));
+//        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Lnet/minecraft/class_1150;II)V",
+//                "net/minecraft/class_1196"
+//        ), new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Lnet/minecraft/class_1150;II)V",
+//                "fr/catcore/fabricatedforge/forged/ChunkForged"
+//        ));
+//        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Lnet/minecraft/class_1150;[BII)V",
+//                "net/minecraft/class_1196"
+//        ), new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Lnet/minecraft/class_1150;[BII)V",
+//                "fr/catcore/fabricatedforge/forged/ChunkForged"
+//        ));
+//        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Lnet/minecraft/class_1150;[B[BII)V",
+//                "net/minecraft/class_1196"
+//        ), new ForgeModRemapper.Entry(
+//                "<init>",
+//                "(Lnet/minecraft/class_1150;[B[BII)V",
+//                "fr/catcore/fabricatedforge/forged/ChunkForged"
+//        ));
     }
 
     @Override
@@ -119,15 +137,15 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
 
                                 switch (type) {
                                     // Forge
-                                    case "net/minecraft/class_1041":
-                                        type = "fr/catcore/fabricatedforge/forged/ItemGroupForged";
-                                        break;
-                                    case "net/minecraft/class_847":
-                                        type = "fr/catcore/fabricatedforge/forged/WeightedRandomChestContentForged";
-                                        break;
-                                    case "net/minecraft/class_1196":
-                                        type = "fr/catcore/fabricatedforge/forged/ChunkForged";
-                                        break;
+//                                    case "net/minecraft/class_1041":
+//                                        type = "fr/catcore/fabricatedforge/forged/ItemGroupForged";
+//                                        break;
+//                                    case "net/minecraft/class_847":
+//                                        type = "fr/catcore/fabricatedforge/forged/WeightedRandomChestContentForged";
+//                                        break;
+//                                    case "net/minecraft/class_1196":
+//                                        type = "fr/catcore/fabricatedforge/forged/ChunkForged";
+//                                        break;
                                 }
 
                                 break;
@@ -138,14 +156,30 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
 
                     @Override
                     public void visitFieldInsn(int opcode, String fieldOwner, String fieldName, String fieldDescriptor) {
-//                        switch (fieldOwner) {
+                        switch (fieldOwner) {
+                            // Forge
+                            case "net/minecraft/class_197":
+                                if (fieldName.equals("blockFireSpreadSpeed")) {
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                    fieldName = "Block_blockFireSpreadSpeed";
+                                } else if (fieldName.equals("blockFlammability")) {
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                    fieldName = "Block_blockFlammability";
+                                }
+                                break;
+                            case "net/minecraft/class_205":
+                                if (fieldName.equals("disableValidation")) {
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                    fieldName = "TrapdoorBlock_disableValidation";
+                                }
+                                break;
 //                            // Mystcraft
 //                            case "xcompwiz/mystcraft/Mystcraft":
 //                                if (fieldName.equals("registeredDims")) {
 //                                    fieldOwner = "fr/catcore/fabricatedforge/compat/MystcraftCompat";
 //                                }
 //                                break;
-//                        }
+                        }
 
                         super.visitFieldInsn(opcode, fieldOwner, fieldName, fieldDescriptor);
                     }

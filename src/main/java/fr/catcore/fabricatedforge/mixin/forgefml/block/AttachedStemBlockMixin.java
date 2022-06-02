@@ -38,8 +38,7 @@ public abstract class AttachedStemBlockMixin extends FlowerBlock {
             if (par5Random.nextInt((int)(25.0F / var6) + 1) == 0) {
                 int var7 = par1World.getBlockData(par2, par3, par4);
                 if (var7 < 7) {
-                    ++var7;
-                    par1World.method_3672(par2, par3, par4, var7);
+                    par1World.method_3672(par2, par3, par4, ++var7);
                 } else {
                     if (par1World.getBlock(par2 - 1, par3, par4) == this.mainBlock.id) {
                         return;
@@ -77,13 +76,14 @@ public abstract class AttachedStemBlockMixin extends FlowerBlock {
                     }
 
                     int var11 = par1World.getBlock(var9, par3 - 1, var10);
-                    boolean isSoil = BLOCKS[var11] != null && ((IBlock)BLOCKS[var11]).canSustainPlant(par1World, var9, par3 - 1, var10, ForgeDirection.UP, this);
+                    boolean isSoil = BLOCKS[var11] != null && BLOCKS[var11].canSustainPlant(par1World, var9, par3 - 1, var10, ForgeDirection.UP, this);
                     if (par1World.getBlock(var9, par3, var10) == 0 && (isSoil || var11 == Block.DIRT.id || var11 == Block.GRASS_BLOCK.id)) {
                         par1World.method_3690(var9, par3, var10, this.mainBlock.id);
                     }
                 }
             }
         }
+
     }
 
     /**
@@ -109,9 +109,9 @@ public abstract class AttachedStemBlockMixin extends FlowerBlock {
             for(int var18 = par4 - 1; var18 <= par4 + 1; ++var18) {
                 int var19 = par1World.getBlock(var17, par3 - 1, var18);
                 float var20 = 0.0F;
-                if (BLOCKS[var19] != null && ((IBlock)BLOCKS[var19]).canSustainPlant(par1World, var17, par3 - 1, var18, ForgeDirection.UP, this)) {
+                if (BLOCKS[var19] != null && BLOCKS[var19].canSustainPlant(par1World, var17, par3 - 1, var18, ForgeDirection.UP, this)) {
                     var20 = 1.0F;
-                    if (((IBlock)BLOCKS[var19]).isFertile(par1World, var17, par3 - 1, var18)) {
+                    if (BLOCKS[var19].isFertile(par1World, var17, par3 - 1, var18)) {
                         var20 = 3.0F;
                     }
                 }
