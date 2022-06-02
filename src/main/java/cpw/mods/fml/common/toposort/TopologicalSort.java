@@ -1,20 +1,29 @@
 package cpw.mods.fml.common.toposort;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class TopologicalSort {
     public TopologicalSort() {
     }
 
     public static <T> List<T> topologicalSort(TopologicalSort.DirectedGraph<T> graph) {
-        DirectedGraph<T> rGraph = reverse(graph);
-        List<T> sortedResult = new ArrayList<T>();
-        Set<T> visitedNodes = new HashSet<T>();
-        // A list of "fully explored" nodes. Leftovers in here indicate cycles in the graph
-        Set<T> expandedNodes = new HashSet<T>();
+        TopologicalSort.DirectedGraph<T> rGraph = reverse(graph);
+        List<T> sortedResult = new ArrayList();
+        Set<T> visitedNodes = new HashSet();
+        Set<T> expandedNodes = new HashSet();
 
-        for (T node : rGraph)
-        {
+        for(T node : rGraph) {
             explore(node, rGraph, sortedResult, visitedNodes, expandedNodes);
         }
 
@@ -22,17 +31,14 @@ public class TopologicalSort {
     }
 
     public static <T> TopologicalSort.DirectedGraph<T> reverse(TopologicalSort.DirectedGraph<T> graph) {
-        DirectedGraph<T> result = new DirectedGraph<T>();
+        TopologicalSort.DirectedGraph<T> result = new TopologicalSort.DirectedGraph<>();
 
-        for (T node : graph)
-        {
+        for(T node : graph) {
             result.addNode(node);
         }
 
-        for (T from : graph)
-        {
-            for (T to : graph.edgesFrom(from))
-            {
+        for(T from : graph) {
+            for(T to : graph.edgesFrom(from)) {
                 result.addEdge(to, from);
             }
         }
@@ -41,33 +47,21 @@ public class TopologicalSort {
     }
 
     public static <T> void explore(T node, TopologicalSort.DirectedGraph<T> graph, List<T> sortedResult, Set<T> visitedNodes, Set<T> expandedNodes) {
-        // Have we been here before?
-        if (visitedNodes.contains(node))
-        {
-            // And have completed this node before
-            if (expandedNodes.contains(node))
-            {
-                // Then we're fine
-                return;
+        if (visitedNodes.contains(node)) {
+            if (!expandedNodes.contains(node)) {
+                System.out.printf("%s: %s\n%s\n%s\n", node, sortedResult, visitedNodes, expandedNodes);
+                throw new ModSortingException("There was a cycle detected in the input graph, sorting is not possible", node, visitedNodes);
+            }
+        } else {
+            visitedNodes.add(node);
+
+            for(T inbound : graph.edgesFrom(node)) {
+                explore(inbound, graph, sortedResult, visitedNodes, expandedNodes);
             }
 
-            System.out.printf("%s: %s\n%s\n%s\n", node, sortedResult, visitedNodes, expandedNodes);
-            throw new ModSortingException("There was a cycle detected in the input graph, sorting is not possible", node, visitedNodes);
+            sortedResult.add(node);
+            expandedNodes.add(node);
         }
-
-        // Visit this node
-        visitedNodes.add(node);
-
-        // Recursively explore inbound edges
-        for (T inbound : graph.edgesFrom(node))
-        {
-            explore(inbound, graph, sortedResult, visitedNodes, expandedNodes);
-        }
-
-        // Add ourselves now
-        sortedResult.add(node);
-        // And mark ourselves as explored
-        expandedNodes.add(node);
     }
 
     public static class DirectedGraph<T> implements Iterable<T> {
@@ -84,7 +78,7 @@ public class TopologicalSort {
                 this.orderedNodes.add(node);
                 this.graph.put(node, new TreeSet(new Comparator<T>() {
                     public int compare(T o1, T o2) {
-                        return TopologicalSort.DirectedGraph.this.orderedNodes.indexOf(o1) - TopologicalSort.DirectedGraph.this.orderedNodes.indexOf(o2);
+                        return DirectedGraph.this.orderedNodes.indexOf(o1) - DirectedGraph.this.orderedNodes.indexOf(o2);
                     }
                 }));
                 return true;

@@ -5,7 +5,7 @@ public class Restriction {
     private final boolean lowerBoundInclusive;
     private final ArtifactVersion upperBound;
     private final boolean upperBoundInclusive;
-    public static final Restriction EVERYTHING = new Restriction((ArtifactVersion)null, false, (ArtifactVersion)null, false);
+    public static final Restriction EVERYTHING = new Restriction(null, false, null, false);
 
     public Restriction(ArtifactVersion lowerBound, boolean lowerBoundInclusive, ArtifactVersion upperBound, boolean upperBoundInclusive) {
         this.lowerBound = lowerBound;
@@ -31,9 +31,8 @@ public class Restriction {
     }
 
     public boolean containsVersion(ArtifactVersion version) {
-        int comparison;
         if (this.lowerBound != null) {
-            comparison = this.lowerBound.compareTo(version);
+            int comparison = this.lowerBound.compareTo(version);
             if (comparison == 0 && !this.lowerBoundInclusive) {
                 return false;
             }
@@ -44,7 +43,7 @@ public class Restriction {
         }
 
         if (this.upperBound != null) {
-            comparison = this.upperBound.compareTo(version);
+            int comparison = this.upperBound.compareTo(version);
             if (comparison == 0 && !this.upperBoundInclusive) {
                 return false;
             }
@@ -72,8 +71,7 @@ public class Restriction {
             result -= this.upperBound.hashCode();
         }
 
-        result *= this.upperBoundInclusive ? 2 : 3;
-        return result;
+        return result * (this.upperBoundInclusive ? 2 : 3);
     }
 
     public boolean equals(Object other) {

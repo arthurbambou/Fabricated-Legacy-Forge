@@ -3,7 +3,7 @@ package cpw.mods.fml.common.network;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import fr.catcore.fabricatedforge.mixininterface.IPacketListener;
+import cpw.mods.fml.common.network.FMLPacket.Type;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Connection;
 import net.minecraft.network.listener.PacketListener;
@@ -22,12 +22,12 @@ public class OpenGuiPacket extends FMLPacket {
 
     public byte[] generatePacket(Object... data) {
         ByteArrayDataOutput dat = ByteStreams.newDataOutput();
-        dat.writeInt((Integer)data[0]);
-        dat.writeInt((Integer)data[1]);
-        dat.writeInt((Integer)data[2]);
-        dat.writeInt((Integer)data[3]);
-        dat.writeInt((Integer)data[4]);
-        dat.writeInt((Integer)data[5]);
+        dat.writeInt(data[0]);
+        dat.writeInt(data[1]);
+        dat.writeInt(data[2]);
+        dat.writeInt(data[3]);
+        dat.writeInt(data[4]);
+        dat.writeInt(data[5]);
         return dat.toByteArray();
     }
 
@@ -43,7 +43,7 @@ public class OpenGuiPacket extends FMLPacket {
     }
 
     public void execute(Connection network, FMLNetworkHandler handler, PacketListener netHandler, String userName) {
-        PlayerEntity player = ((IPacketListener)netHandler).getPlayer();
+        PlayerEntity player = netHandler.getPlayer();
         player.openGui(this.networkId, this.modGuiId, player.world, this.x, this.y, this.z);
         player.openScreenHandler.syncId = this.windowId;
     }

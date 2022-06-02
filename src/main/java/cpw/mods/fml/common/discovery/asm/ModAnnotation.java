@@ -3,13 +3,13 @@ package cpw.mods.fml.common.discovery.asm;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.objectweb.asm.Type;
-
+import cpw.mods.fml.common.discovery.asm.ASMModParser.AnnotationType;
 import java.util.ArrayList;
 import java.util.Map;
+import org.objectweb.asm.Type;
 
 public class ModAnnotation {
-    ASMModParser.AnnotationType type;
+    AnnotationType type;
     Type asmType;
     String member;
     Map<String, Object> values = Maps.newHashMap();
@@ -18,23 +18,28 @@ public class ModAnnotation {
     private String arrayName;
     private ModAnnotation parent;
 
-    public ModAnnotation(ASMModParser.AnnotationType type, Type asmType, String member) {
+    public ModAnnotation(AnnotationType type, Type asmType, String member) {
         this.type = type;
         this.asmType = asmType;
         this.member = member;
     }
 
-    public ModAnnotation(ASMModParser.AnnotationType type, Type asmType, ModAnnotation parent) {
+    public ModAnnotation(AnnotationType type, Type asmType, ModAnnotation parent) {
         this.type = type;
         this.asmType = asmType;
         this.parent = parent;
     }
 
     public String toString() {
-        return Objects.toStringHelper("Annotation").add("type", this.type).add("name", this.asmType.getClassName()).add("member", this.member).add("values", this.values).toString();
+        return Objects.toStringHelper("Annotation")
+                .add("type", this.type)
+                .add("name", this.asmType.getClassName())
+                .add("member", this.member)
+                .add("values", this.values)
+                .toString();
     }
 
-    public ASMModParser.AnnotationType getType() {
+    public AnnotationType getType() {
         return this.type;
     }
 
@@ -74,7 +79,7 @@ public class ModAnnotation {
     }
 
     public ModAnnotation addChildAnnotation(String name, String desc) {
-        return new ModAnnotation(ASMModParser.AnnotationType.SUBTYPE, Type.getType(desc), this);
+        return new ModAnnotation(AnnotationType.SUBTYPE, Type.getType(desc), this);
     }
 
     public class EnumHolder {

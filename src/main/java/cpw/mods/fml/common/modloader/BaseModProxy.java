@@ -1,6 +1,7 @@
 package cpw.mods.fml.common.modloader;
 
 import cpw.mods.fml.common.TickType;
+import java.util.Random;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -9,8 +10,6 @@ import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.server.ServerPacketListener;
 import net.minecraft.world.World;
-
-import java.util.Random;
 
 public interface BaseModProxy {
     void modsLoaded();

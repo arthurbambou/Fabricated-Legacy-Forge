@@ -4,12 +4,12 @@ import com.google.common.collect.Maps;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
+import cpw.mods.fml.common.network.FMLPacket.Type;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
 import net.minecraft.network.Connection;
 import net.minecraft.network.listener.PacketListener;
-
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
 
 public class ModIdentifiersPacket extends FMLPacket {
     private Map<String, Integer> modIds = Maps.newHashMap();
@@ -20,16 +20,14 @@ public class ModIdentifiersPacket extends FMLPacket {
 
     public byte[] generatePacket(Object... data) {
         ByteArrayDataOutput dat = ByteStreams.newDataOutput();
-        Collection<NetworkModHandler >networkMods = FMLNetworkHandler.instance().getNetworkIdMap().values();
-
+        Collection<NetworkModHandler> networkMods = FMLNetworkHandler.instance().getNetworkIdMap().values();
         dat.writeInt(networkMods.size());
-        for (NetworkModHandler handler : networkMods)
-        {
+
+        for(NetworkModHandler handler : networkMods) {
             dat.writeUTF(handler.getContainer().getModId());
             dat.writeInt(handler.getNetworkId());
         }
 
-        // TODO send the other id maps as well
         return dat.toByteArray();
     }
 
@@ -47,10 +45,9 @@ public class ModIdentifiersPacket extends FMLPacket {
     }
 
     public void execute(Connection network, FMLNetworkHandler handler, PacketListener netHandler, String userName) {
-        for (Map.Entry<String,Integer> idEntry : modIds.entrySet())
-        {
-            handler.bindNetworkId(idEntry.getKey(), idEntry.getValue());
+        for(Entry<String, Integer> idEntry : this.modIds.entrySet()) {
+            handler.bindNetworkId((String)idEntry.getKey(), (Integer)idEntry.getValue());
         }
-        // TODO other id maps
+
     }
 }

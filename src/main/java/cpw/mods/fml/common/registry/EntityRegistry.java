@@ -1,26 +1,33 @@
 package cpw.mods.fml.common.registry;
 
 import com.google.common.base.Function;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.UnsignedBytes;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.network.EntitySpawnPacket;
-import net.minecraft.entity.*;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.world.biome.Biome;
-
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCategory;
+import net.minecraft.entity.EntityTracker;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnEntry;
+import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.world.biome.Biome;
 
 public class EntityRegistry {
     private static final EntityRegistry INSTANCE = new EntityRegistry();
-    private BitSet availableIndicies = new BitSet(256);
+    private BitSet availableIndicies;
     private ListMultimap<ModContainer, EntityRegistry.EntityRegistration> entityRegistrations = ArrayListMultimap.create();
     private Map<String, ModContainer> entityNames = Maps.newHashMap();
     private BiMap<Class<? extends Entity>, EntityRegistry.EntityRegistration> entityClassRegistrations = HashBiMap.create();
@@ -30,20 +37,28 @@ public class EntityRegistry {
     }
 
     private EntityRegistry() {
+        this.availableIndicies = new BitSet(256);
         this.availableIndicies.set(1, 255);
-        for (Object id : EntityType.ID_CLASS_MAP.keySet())
-        {
-            availableIndicies.clear((Integer)id);
+
+        for(Object id : EntityType.ID_CLASS_MAP.keySet()) {
+            this.availableIndicies.clear((Integer)id);
         }
+
     }
 
-    public static void registerModEntity(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates) {
+    public static void registerModEntity(
+            Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates
+    ) {
         instance().doModEntityRegistration(entityClass, entityName, id, mod, trackingRange, updateFrequency, sendsVelocityUpdates);
     }
 
-    private void doModEntityRegistration(Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates) {
+    private void doModEntityRegistration(
+            Class<? extends Entity> entityClass, String entityName, int id, Object mod, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates
+    ) {
         ModContainer mc = FMLCommonHandler.instance().findContainerFor(mod);
-        EntityRegistry.EntityRegistration er = new EntityRegistry.EntityRegistration(mc, entityClass, entityName, id, trackingRange, updateFrequency, sendsVelocityUpdates);
+        EntityRegistry.EntityRegistration er = new EntityRegistry.EntityRegistration(
+                mc, entityClass, entityName, id, trackingRange, updateFrequency, sendsVelocityUpdates
+        );
 
         try {
             this.entityClassRegistrations.put(entityClass, er);
@@ -57,7 +72,12 @@ public class EntityRegistry {
                 FMLLog.fine("Skipping automatic mod %s entity registration for already registered class %s", new Object[]{mc.getModId(), entityClass.getName()});
             }
         } catch (IllegalArgumentException var11) {
-            FMLLog.log(Level.WARNING, var11, "The mod %s tried to register the entity (name,class) (%s,%s) one or both of which are already registered", new Object[]{mc.getModId(), entityName, entityClass.getName()});
+            FMLLog.log(
+                    Level.WARNING,
+                    var11,
+                    "The mod %s tried to register the entity (name,class) (%s,%s) one or both of which are already registered",
+                    new Object[]{mc.getModId(), entityName, entityClass.getName()}
+            );
             return;
         }
 
@@ -71,10 +91,16 @@ public class EntityRegistry {
             if (activeModContainer != null) {
                 modId = activeModContainer.getModId();
             } else {
-                FMLLog.severe("There is a rogue mod failing to register entities from outside the context of mod loading. This is incredibly dangerous and should be stopped.", new Object[0]);
+                FMLLog.severe(
+                        "There is a rogue mod failing to register entities from outside the context of mod loading. This is incredibly dangerous and should be stopped.",
+                        new Object[0]
+                );
             }
 
-            FMLLog.warning("The mod %s tried to register the entity class %s which was already registered - if you wish to override default naming for FML mod entities, register it here first", new Object[]{modId, entityClass});
+            FMLLog.warning(
+                    "The mod %s tried to register the entity class %s which was already registered - if you wish to override default naming for FML mod entities, register it here first",
+                    new Object[]{modId, entityClass}
+            );
         } else {
             id = instance().validateAndClaimId(id);
             EntityType.registerEntity(entityClass, entityName, id);
@@ -84,7 +110,10 @@ public class EntityRegistry {
     private int validateAndClaimId(int id) {
         int realId = id;
         if (id < -128) {
-            FMLLog.warning("Compensating for modloader out of range compensation by mod : entityId %d for mod %s is now %d", new Object[]{id, Loader.instance().activeModContainer().getModId(), id});
+            FMLLog.warning(
+                    "Compensating for modloader out of range compensation by mod : entityId %d for mod %s is now %d",
+                    new Object[]{id, Loader.instance().activeModContainer().getModId(), id}
+            );
             realId = id + 3000;
         }
 
@@ -95,11 +124,18 @@ public class EntityRegistry {
         try {
             UnsignedBytes.checkedCast((long)realId);
         } catch (IllegalArgumentException var4) {
-            FMLLog.log(Level.SEVERE, "The entity ID %d for mod %s is not an unsigned byte and may not work", new Object[]{id, Loader.instance().activeModContainer().getModId()});
+            FMLLog.log(
+                    Level.SEVERE,
+                    "The entity ID %d for mod %s is not an unsigned byte and may not work",
+                    new Object[]{id, Loader.instance().activeModContainer().getModId()}
+            );
         }
 
         if (!this.availableIndicies.get(realId)) {
-            FMLLog.severe("The mod %s has attempted to register an entity ID %d which is already reserved. This could cause severe problems", new Object[]{Loader.instance().activeModContainer().getModId(), id});
+            FMLLog.severe(
+                    "The mod %s has attempted to register an entity ID %d which is already reserved. This could cause severe problems",
+                    new Object[]{Loader.instance().activeModContainer().getModId(), id}
+            );
         }
 
         this.availableIndicies.clear(realId);
@@ -113,10 +149,16 @@ public class EntityRegistry {
             if (activeModContainer != null) {
                 modId = activeModContainer.getModId();
             } else {
-                FMLLog.severe("There is a rogue mod failing to register entities from outside the context of mod loading. This is incredibly dangerous and should be stopped.", new Object[0]);
+                FMLLog.severe(
+                        "There is a rogue mod failing to register entities from outside the context of mod loading. This is incredibly dangerous and should be stopped.",
+                        new Object[0]
+                );
             }
 
-            FMLLog.warning("The mod %s tried to register the entity class %s which was already registered - if you wish to override default naming for FML mod entities, register it here first", new Object[]{modId, entityClass});
+            FMLLog.warning(
+                    "The mod %s tried to register the entity class %s which was already registered - if you wish to override default naming for FML mod entities, register it here first",
+                    new Object[]{modId, entityClass}
+            );
         } else {
             instance().validateAndClaimId(id);
             EntityType.registerEntity(entityClass, entityName, id, backgroundEggColour, foregroundEggColour);
@@ -124,16 +166,11 @@ public class EntityRegistry {
     }
 
     public static void addSpawn(Class<? extends MobEntity> entityClass, int weightedProb, int min, int max, EntityCategory typeOfCreature, Biome... biomes) {
-        for (Biome biome : biomes)
-        {
-            @SuppressWarnings("unchecked")
+        for(Biome biome : biomes) {
             List<SpawnEntry> spawns = biome.getSpawnEntries(typeOfCreature);
 
-            for (SpawnEntry entry : spawns)
-            {
-                //Adjusting an existing spawn entry
-                if (entry.type == entityClass)
-                {
+            for(SpawnEntry entry : spawns) {
+                if (entry.type == entityClass) {
                     entry.weight = weightedProb;
                     entry.minGroupSize = min;
                     entry.maxGroupSize = max;
@@ -143,6 +180,7 @@ public class EntityRegistry {
 
             spawns.add(new SpawnEntry(entityClass, weightedProb, min, max));
         }
+
     }
 
     public static void addSpawn(String entityName, int weightedProb, int min, int max, EntityCategory spawnList, Biome... biomes) {
@@ -154,20 +192,17 @@ public class EntityRegistry {
     }
 
     public static void removeSpawn(Class<? extends MobEntity> entityClass, EntityCategory typeOfCreature, Biome... biomes) {
-        for (Biome biome : biomes)
-        {
-            @SuppressWarnings("unchecked")
+        for(Biome biome : biomes) {
             Iterator<SpawnEntry> spawns = biome.getSpawnEntries(typeOfCreature).iterator();
 
-            while (spawns.hasNext())
-            {
-                SpawnEntry entry = spawns.next();
-                if (entry.type == entityClass)
-                {
+            while(spawns.hasNext()) {
+                SpawnEntry entry = (SpawnEntry)spawns.next();
+                if (entry.type == entityClass) {
                     spawns.remove();
                 }
             }
         }
+
     }
 
     public static void removeSpawn(String entityName, EntityCategory spawnList, Biome... biomes) {
@@ -204,13 +239,12 @@ public class EntityRegistry {
     }
 
     public EntityRegistry.EntityRegistration lookupModSpawn(ModContainer mc, int modEntityId) {
-        for (EntityRegistration er : entityRegistrations.get(mc))
-        {
-            if (er.getModEntityId() == modEntityId)
-            {
+        for(EntityRegistry.EntityRegistration er : this.entityRegistrations.get(mc)) {
+            if (er.getModEntityId() == modEntityId) {
                 return er;
             }
         }
+
         return null;
     }
 
@@ -224,12 +258,19 @@ public class EntityRegistry {
         }
     }
 
-    /** @deprecated */
     @Deprecated
-    public static EntityRegistry.EntityRegistration registerModLoaderEntity(Object mod, Class<? extends Entity> entityClass, int entityTypeId, int updateRange, int updateInterval, boolean sendVelocityInfo) {
+    public static EntityRegistry.EntityRegistration registerModLoaderEntity(
+            Object mod, Class<? extends Entity> entityClass, int entityTypeId, int updateRange, int updateInterval, boolean sendVelocityInfo
+    ) {
         String entityName = (String)EntityType.CLASS_NAME_MAP.get(entityClass);
         if (entityName == null) {
-            throw new IllegalArgumentException(String.format("The ModLoader mod %s has tried to register an entity tracker for a non-existent entity type %s", Loader.instance().activeModContainer().getModId(), entityClass.getCanonicalName()));
+            throw new IllegalArgumentException(
+                    String.format(
+                            "The ModLoader mod %s has tried to register an entity tracker for a non-existent entity type %s",
+                            Loader.instance().activeModContainer().getModId(),
+                            entityClass.getCanonicalName()
+                    )
+            );
         } else {
             instance().doModEntityRegistration(entityClass, entityName, entityTypeId, mod, updateRange, updateInterval, sendVelocityInfo);
             return (EntityRegistry.EntityRegistration)instance().entityClassRegistrations.get(entityClass);
@@ -247,7 +288,15 @@ public class EntityRegistry {
         private Function<EntitySpawnPacket, Entity> customSpawnCallback;
         private boolean usesVanillaSpawning;
 
-        public EntityRegistration(ModContainer mc, Class<? extends Entity> entityClass, String entityName, int id, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates) {
+        public EntityRegistration(
+                ModContainer mc,
+                Class<? extends Entity> entityClass,
+                String entityName,
+                int id,
+                int trackingRange,
+                int updateFrequency,
+                boolean sendsVelocityUpdates
+        ) {
             this.container = mc;
             this.entityClass = entityClass;
             this.entityName = entityName;

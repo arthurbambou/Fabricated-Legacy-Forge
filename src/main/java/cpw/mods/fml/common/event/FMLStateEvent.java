@@ -1,15 +1,15 @@
 package cpw.mods.fml.common.event;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.LoaderState;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.Side;
+import cpw.mods.fml.common.LoaderState.ModState;
 
 public abstract class FMLStateEvent extends FMLEvent {
     public FMLStateEvent(Object... data) {
     }
 
-    public abstract LoaderState.ModState getModState();
+    public abstract ModState getModState();
 
     public void applyModContainer(ModContainer activeContainer) {
     }

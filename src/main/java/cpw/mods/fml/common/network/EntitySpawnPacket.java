@@ -6,19 +6,24 @@ import com.google.common.io.ByteStreams;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.ModContainer;
+import cpw.mods.fml.common.network.FMLPacket.Type;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.IEntityAdditionalSpawnData;
 import cpw.mods.fml.common.registry.IThrowableEntity;
+import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.network.Connection;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.util.math.MathHelper;
-
-import java.io.*;
-import java.util.List;
-import java.util.logging.Level;
 
 public class EntitySpawnPacket extends FMLPacket {
     public int networkId;
@@ -45,7 +50,7 @@ public class EntitySpawnPacket extends FMLPacket {
     }
 
     public byte[] generatePacket(Object... data) {
-        EntityRegistry.EntityRegistration er = (EntityRegistry.EntityRegistration)data[0];
+        EntityRegistration er = (EntityRegistration)data[0];
         Entity ent = (Entity)data[1];
         NetworkModHandler handler = (NetworkModHandler)data[2];
         ByteArrayDataOutput dat = ByteStreams.newDataOutput();
@@ -68,7 +73,7 @@ public class EntitySpawnPacket extends FMLPacket {
 
         try {
             ent.getDataTracker().method_2696(dos);
-        } catch (Exception var17) {
+        } catch (IOException var17) {
         }
 
         dat.write(bos.toByteArray());
@@ -136,7 +141,7 @@ public class EntitySpawnPacket extends FMLPacket {
 
         try {
             this.metadata = DataTracker.method_2695(dis);
-        } catch (Exception var6) {
+        } catch (IOException var6) {
         }
 
         dat.skipBytes(data.length - bis.available() - 27);
@@ -154,12 +159,12 @@ public class EntitySpawnPacket extends FMLPacket {
     public void execute(Connection network, FMLNetworkHandler handler, PacketListener netHandler, String userName) {
         NetworkModHandler nmh = handler.findNetworkModHandler(this.networkId);
         ModContainer mc = nmh.getContainer();
-        EntityRegistry.EntityRegistration registration = EntityRegistry.instance().lookupModSpawn(mc, this.modEntityId);
+        EntityRegistration registration = EntityRegistry.instance().lookupModSpawn(mc, this.modEntityId);
         Class<? extends Entity> cls = registration.getEntityClass();
         if (cls == null) {
-            FMLLog.log(Level.WARNING, "Missing mod entity information for %s : %d", mc.getModId(), this.modEntityId);
+            FMLLog.log(Level.WARNING, "Missing mod entity information for %s : %d", new Object[]{mc.getModId(), this.modEntityId});
         } else {
-            FMLCommonHandler.instance().spawnEntityIntoClientWorld(registration, this);
+            Entity entity = FMLCommonHandler.instance().spawnEntityIntoClientWorld(registration, this);
         }
     }
 }

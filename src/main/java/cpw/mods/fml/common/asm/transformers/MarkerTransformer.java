@@ -9,87 +9,84 @@ import com.google.common.collect.Lists;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import cpw.mods.fml.relauncher.IClassTransformer;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.tree.ClassNode;
-
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.tree.ClassNode;
 
 public class MarkerTransformer implements IClassTransformer {
-    private ListMultimap<String, String> markers;
+    private ListMultimap<String, String> markers = ArrayListMultimap.create();
 
     public MarkerTransformer() throws IOException {
         this("fml_marker.cfg");
     }
 
     protected MarkerTransformer(String rulesFile) throws IOException {
-        this.markers = ArrayListMultimap.create();
         this.readMapFile(rulesFile);
     }
 
     private void readMapFile(String rulesFile) throws IOException {
         File file = new File(rulesFile);
         URL rulesResource;
-        if (file.exists())
-        {
+        if (file.exists()) {
             rulesResource = file.toURI().toURL();
-        }
-        else
-        {
+        } else {
             rulesResource = Resources.getResource(rulesFile);
         }
-        Resources.readLines(rulesResource, Charsets.UTF_8, new LineProcessor<Void>()
-        {
-            @Override
-            public Void getResult()
-            {
+
+        Resources.readLines(rulesResource, Charsets.UTF_8, new LineProcessor<Void>() {
+            public Void getResult() {
                 return null;
             }
 
-            @Override
-            public boolean processLine(String input) throws IOException
-            {
-                String line = Iterables.getFirst(Splitter.on('#').limit(2).split(input), "").trim();
-                if (line.length()==0)
-                {
+            public boolean processLine(String input) throws IOException {
+                String line = ((String)Iterables.getFirst(Splitter.on('#').limit(2).split(input), "")).trim();
+                if (line.length() == 0) {
                     return true;
+                } else {
+                    List<String> parts = Lists.newArrayList(Splitter.on(" ").trimResults().split(line));
+                    if (parts.size() != 2) {
+                        throw new RuntimeException("Invalid config file line " + input);
+                    } else {
+                        for(String marker : Lists.newArrayList(Splitter.on(",").trimResults().split((CharSequence)parts.get(1)))) {
+                            MarkerTransformer.this.markers.put(parts.get(0), marker);
+                        }
+
+                        return true;
+                    }
                 }
-                List<String> parts = Lists.newArrayList(Splitter.on(" ").trimResults().split(line));
-                if (parts.size()!=2)
-                {
-                    throw new RuntimeException("Invalid config file line "+ input);
-                }
-                List<String> markerInterfaces = Lists.newArrayList(Splitter.on(",").trimResults().split(parts.get(1)));
-                for (String marker : markerInterfaces)
-                {
-                    markers.put(parts.get(0), marker);
-                }
-                return true;
             }
         });
     }
 
     public byte[] transform(String name, byte[] bytes) {
-        if (!markers.containsKey(name)) { return bytes; }
+        if (!this.markers.containsKey(name)) {
+            return bytes;
+        } else {
+            ClassNode classNode = new ClassNode();
+            ClassReader classReader = new ClassReader(bytes);
+            classReader.accept(classNode, 0);
 
-        ClassNode classNode = new ClassNode();
-        ClassReader classReader = new ClassReader(bytes);
-        classReader.accept(classNode, 0);
+            for(String marker : this.markers.get(name)) {
+                classNode.interfaces.add(marker);
+            }
 
-        for (String marker : markers.get(name))
-        {
-            classNode.interfaces.add(marker);
+            ClassWriter writer = new ClassWriter(1);
+            classNode.accept(writer);
+            return writer.toByteArray();
         }
-
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        classNode.accept(writer);
-        return writer.toByteArray();
     }
 
     public static void main(String[] args) {
@@ -138,94 +135,69 @@ public class MarkerTransformer implements IClassTransformer {
         ZipInputStream inJar = null;
         ZipOutputStream outJar = null;
 
-        try
-        {
-            try
-            {
+        try {
+            try {
                 inJar = new ZipInputStream(new BufferedInputStream(new FileInputStream(inFile)));
-            }
-            catch (FileNotFoundException e)
-            {
-                throw new FileNotFoundException("Could not open input file: " + e.getMessage());
+            } catch (FileNotFoundException var30) {
+                throw new FileNotFoundException("Could not open input file: " + var30.getMessage());
             }
 
-            try
-            {
+            try {
                 outJar = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
-            }
-            catch (FileNotFoundException e)
-            {
-                throw new FileNotFoundException("Could not open output file: " + e.getMessage());
+            } catch (FileNotFoundException var29) {
+                throw new FileNotFoundException("Could not open output file: " + var29.getMessage());
             }
 
             ZipEntry entry;
-            while ((entry = inJar.getNextEntry()) != null)
-            {
-                if (entry.isDirectory())
-                {
+            while((entry = inJar.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
                     outJar.putNextEntry(entry);
-                    continue;
-                }
+                } else {
+                    byte[] data = new byte[4096];
+                    ByteArrayOutputStream entryBuffer = new ByteArrayOutputStream();
 
-                byte[] data = new byte[4096];
-                ByteArrayOutputStream entryBuffer = new ByteArrayOutputStream();
+                    int len;
+                    do {
+                        len = inJar.read(data);
+                        if (len > 0) {
+                            entryBuffer.write(data, 0, len);
+                        }
+                    } while(len != -1);
 
-                int len;
-                do
-                {
-                    len = inJar.read(data);
-                    if (len > 0)
-                    {
-                        entryBuffer.write(data, 0, len);
+                    byte[] entryData = entryBuffer.toByteArray();
+                    String entryName = entry.getName();
+                    if (entryName.endsWith(".class") && !entryName.startsWith(".")) {
+                        ClassNode cls = new ClassNode();
+                        ClassReader rdr = new ClassReader(entryData);
+                        rdr.accept(cls, 0);
+                        String name = cls.name.replace('/', '.').replace('\\', '.');
+
+                        for(MarkerTransformer trans : transformers) {
+                            entryData = trans.transform(name, entryData);
+                        }
                     }
+
+                    ZipEntry newEntry = new ZipEntry(entryName);
+                    outJar.putNextEntry(newEntry);
+                    outJar.write(entryData);
                 }
-                while (len != -1);
-
-                byte[] entryData = entryBuffer.toByteArray();
-
-                String entryName = entry.getName();
-
-                if (entryName.endsWith(".class") && !entryName.startsWith("."))
-                {
-                    ClassNode cls = new ClassNode();
-                    ClassReader rdr = new ClassReader(entryData);
-                    rdr.accept(cls, 0);
-                    String name = cls.name.replace('/', '.').replace('\\', '.');
-
-                    for (MarkerTransformer trans : transformers)
-                    {
-                        entryData = trans.transform(name, entryData);
-                    }
-                }
-
-                ZipEntry newEntry = new ZipEntry(entryName);
-                outJar.putNextEntry(newEntry);
-                outJar.write(entryData);
             }
-        }
-        finally
-        {
-            if (outJar != null)
-            {
-                try
-                {
+        } finally {
+            if (outJar != null) {
+                try {
                     outJar.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException var28) {
                 }
             }
 
-            if (inJar != null)
-            {
-                try
-                {
+            if (inJar != null) {
+                try {
                     inJar.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException var27) {
                 }
             }
+
         }
+
     }
 }

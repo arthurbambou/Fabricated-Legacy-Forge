@@ -19,7 +19,9 @@ public class ModProperty {
     }
 
     public ModProperty(Field field, Map<String, Object> annotationInfo) {
-        this(field, (String)annotationInfo.get("info"), (Double)annotationInfo.get("min"), (Double)annotationInfo.get("max"), (String)annotationInfo.get("name"));
+        this(
+                field, (String)annotationInfo.get("info"), (Double)annotationInfo.get("min"), (Double)annotationInfo.get("max"), (String)annotationInfo.get("name")
+        );
     }
 
     public String name() {

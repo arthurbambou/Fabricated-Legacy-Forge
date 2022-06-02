@@ -1,6 +1,6 @@
 package cpw.mods.fml.common.event;
 
-import cpw.mods.fml.common.LoaderState;
+import cpw.mods.fml.common.LoaderState.ModState;
 import net.minecraft.command.Command;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandRegistry;
@@ -13,8 +13,8 @@ public class FMLServerStartingEvent extends FMLStateEvent {
         this.server = (MinecraftServer)data[0];
     }
 
-    public LoaderState.ModState getModState() {
-        return LoaderState.ModState.AVAILABLE;
+    public ModState getModState() {
+        return ModState.AVAILABLE;
     }
 
     public MinecraftServer getServer() {

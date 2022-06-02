@@ -1,10 +1,9 @@
 package cpw.mods.fml.common.modloader;
 
 import cpw.mods.fml.common.IDispenserHandler;
+import java.util.Random;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-
-import java.util.Random;
 
 public class ModLoaderDispenseHelper implements IDispenserHandler {
     private BaseModProxy mod;

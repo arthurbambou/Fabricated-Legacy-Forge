@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.network.FMLPacket.Type;
 import net.minecraft.network.Connection;
 import net.minecraft.network.listener.PacketListener;
 
@@ -19,10 +20,10 @@ public class EntitySpawnAdjustmentPacket extends FMLPacket {
 
     public byte[] generatePacket(Object... data) {
         ByteArrayDataOutput dat = ByteStreams.newDataOutput();
-        dat.writeInt((Integer)data[0]);
-        dat.writeInt((Integer)data[1]);
-        dat.writeInt((Integer)data[2]);
-        dat.writeInt((Integer)data[3]);
+        dat.writeInt(data[0]);
+        dat.writeInt(data[1]);
+        dat.writeInt(data[2]);
+        dat.writeInt(data[3]);
         return dat.toByteArray();
     }
 

@@ -1,8 +1,11 @@
 package cpw.mods.fml.common.discovery.asm;
 
-import org.objectweb.asm.*;
-
 import java.util.Collections;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 
 public class ModClassVisitor extends ClassVisitor {
     private ASMModParser discoverer;
@@ -26,6 +29,10 @@ public class ModClassVisitor extends ClassVisitor {
     }
 
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        return this.discoverer.isBaseMod(Collections.emptyList()) && name.equals("getPriorities") && desc.equals(Type.getMethodDescriptor(Type.getType(String.class), new Type[0])) ? new ModMethodVisitor(name, this.discoverer) : null;
+        return this.discoverer.isBaseMod(Collections.emptyList())
+                && name.equals("getPriorities")
+                && desc.equals(Type.getMethodDescriptor(Type.getType(String.class), new Type[0]))
+                ? new ModMethodVisitor(name, this.discoverer)
+                : null;
     }
 }

@@ -1,11 +1,10 @@
 package cpw.mods.fml.common;
 
-import net.minecraft.item.BlockItem;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import net.minecraft.item.BlockItem;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
@@ -26,14 +25,6 @@ public @interface Mod {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.FIELD})
-    public @interface Item {
-        String name();
-
-        String typeClass();
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.FIELD})
     public @interface Block {
         String name();
 
@@ -41,9 +32,8 @@ public @interface Mod {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.FIELD})
-    public @interface Metadata {
-        String value() default "";
+    @Target({ElementType.METHOD})
+    public @interface Init {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -53,8 +43,27 @@ public @interface Mod {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.FIELD})
+    public @interface Item {
+        String name();
+
+        String typeClass();
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.FIELD})
+    public @interface Metadata {
+        String value() default "";
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
-    public @interface ServerStopping {
+    public @interface PostInit {
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.METHOD})
+    public @interface PreInit {
     }
 
     @Retention(RetentionPolicy.RUNTIME)
@@ -69,16 +78,6 @@ public @interface Mod {
 
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
-    public @interface PostInit {
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.METHOD})
-    public @interface Init {
-    }
-
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target({ElementType.METHOD})
-    public @interface PreInit {
+    public @interface ServerStopping {
     }
 }

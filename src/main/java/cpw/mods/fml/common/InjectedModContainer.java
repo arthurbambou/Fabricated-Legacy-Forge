@@ -1,10 +1,8 @@
 package cpw.mods.fml.common;
 
-
 import com.google.common.eventbus.EventBus;
 import cpw.mods.fml.common.versioning.ArtifactVersion;
 import cpw.mods.fml.common.versioning.VersionRange;
-
 import java.io.File;
 import java.util.List;
 import java.util.Set;

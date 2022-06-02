@@ -1,8 +1,7 @@
 package cpw.mods.fml.common.registry;
 
-import net.minecraft.block.Block;
-
 import java.util.BitSet;
+import net.minecraft.block.Block;
 
 class BlockTracker {
     private static final BlockTracker INSTANCE = new BlockTracker();

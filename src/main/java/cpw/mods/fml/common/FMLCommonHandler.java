@@ -1,14 +1,24 @@
 package cpw.mods.fml.common;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.MapMaker;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.ImmutableList.Builder;
 import cpw.mods.fml.common.network.EntitySpawnAdjustmentPacket;
 import cpw.mods.fml.common.network.EntitySpawnPacket;
-import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.TickRegistry;
+import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
 import cpw.mods.fml.server.FMLServerHandler;
-import fr.catcore.fabricatedforge.mixininterface.ILevelProperties;
-import net.fabricmc.loader.api.FabricLoader;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.logging.Logger;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -25,9 +35,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldSaveHandler;
 import net.minecraft.world.level.LevelProperties;
 
-import java.util.*;
-import java.util.logging.Logger;
-
 public class FMLCommonHandler {
     private static final FMLCommonHandler INSTANCE = new FMLCommonHandler();
     private IFMLSidedHandler sidedDelegate;
@@ -36,18 +43,18 @@ public class FMLCommonHandler {
     private Class<?> forge;
     private boolean noForge;
     private List<String> brandings;
-    private List<ICrashCallable> crashCallables = Lists.newArrayList(Loader.instance().getCallableCrashInformation());
-    private Set<WorldSaveHandler> handlerSet = Sets.newSetFromMap((new MapMaker()).weakKeys().makeMap());
+    private List<ICrashCallable> crashCallables = Lists.newArrayList(new ICrashCallable[]{Loader.instance().getCallableCrashInformation()});
+    private Set<WorldSaveHandler> handlerSet = Sets.newSetFromMap(new MapMaker().weakKeys().makeMap());
 
     public FMLCommonHandler() {
     }
 
     public void beginLoading(IFMLSidedHandler handler) {
         this.sidedDelegate = handler;
-        FMLLog.info("Attempting early MinecraftForge initialization");
+        FMLLog.info("Attempting early MinecraftForge initialization", new Object[0]);
         this.callForgeMethod("initialize");
         this.callForgeMethod("registerCrashCallable");
-        FMLLog.info("Completed early MinecraftForge initialization");
+        FMLLog.info("Completed early MinecraftForge initialization", new Object[0]);
     }
 
     public void rescheduleTicks(Side side) {
@@ -55,38 +62,30 @@ public class FMLCommonHandler {
     }
 
     public void tickStart(EnumSet<TickType> ticks, Side side, Object... data) {
-        List<IScheduledTickHandler> scheduledTicks = side.isClient() ? scheduledClientTicks : scheduledServerTicks;
-
-        if (scheduledTicks.size()==0)
-        {
-            return;
-        }
-        for (IScheduledTickHandler ticker : scheduledTicks)
-        {
-            EnumSet<TickType> ticksToRun = EnumSet.copyOf(ticker.ticks() == null ? EnumSet.noneOf(TickType.class) : ticker.ticks());
-            ticksToRun.removeAll(EnumSet.complementOf(ticks));
-            if (!ticksToRun.isEmpty())
-            {
-                ticker.tickStart(ticksToRun, data);
+        List<IScheduledTickHandler> scheduledTicks = side.isClient() ? this.scheduledClientTicks : this.scheduledServerTicks;
+        if (scheduledTicks.size() != 0) {
+            for(IScheduledTickHandler ticker : scheduledTicks) {
+                EnumSet<TickType> ticksToRun = EnumSet.copyOf((EnumSet)Objects.firstNonNull(ticker.ticks(), EnumSet.noneOf(TickType.class)));
+                ticksToRun.removeAll(EnumSet.complementOf(ticks));
+                if (!ticksToRun.isEmpty()) {
+                    ticker.tickStart(ticksToRun, data);
+                }
             }
+
         }
     }
 
     public void tickEnd(EnumSet<TickType> ticks, Side side, Object... data) {
-        List<IScheduledTickHandler> scheduledTicks = side.isClient() ? scheduledClientTicks : scheduledServerTicks;
-
-        if (scheduledTicks.size()==0)
-        {
-            return;
-        }
-        for (IScheduledTickHandler ticker : scheduledTicks)
-        {
-            EnumSet<TickType> ticksToRun = EnumSet.copyOf(ticker.ticks() == null ? EnumSet.noneOf(TickType.class) : ticker.ticks());
-            ticksToRun.removeAll(EnumSet.complementOf(ticks));
-            if (!ticksToRun.isEmpty())
-            {
-                ticker.tickEnd(ticksToRun, data);
+        List<IScheduledTickHandler> scheduledTicks = side.isClient() ? this.scheduledClientTicks : this.scheduledServerTicks;
+        if (scheduledTicks.size() != 0) {
+            for(IScheduledTickHandler ticker : scheduledTicks) {
+                EnumSet<TickType> ticksToRun = EnumSet.copyOf((EnumSet)Objects.firstNonNull(ticker.ticks(), EnumSet.noneOf(TickType.class)));
+                ticksToRun.removeAll(EnumSet.complementOf(ticks));
+                if (!ticksToRun.isEmpty()) {
+                    ticker.tickEnd(ticksToRun, data);
+                }
             }
+
         }
     }
 
@@ -95,7 +94,7 @@ public class FMLCommonHandler {
     }
 
     public ModContainer findContainerFor(Object mod) {
-        return Loader.instance().getReversedModObjectList().get(mod);
+        return (ModContainer)Loader.instance().getReversedModObjectList().get(mod);
     }
 
     public Logger getFMLLogger() {
@@ -136,7 +135,7 @@ public class FMLCommonHandler {
             return null;
         } else {
             try {
-                return this.findMinecraftForge().getMethod(method).invoke((Object)null);
+                return this.findMinecraftForge().getMethod(method).invoke(null);
             } catch (Exception var3) {
                 return null;
             }
@@ -145,32 +144,27 @@ public class FMLCommonHandler {
 
     public void computeBranding() {
         if (this.brandings == null) {
-            ImmutableList.Builder<String> brd = ImmutableList.builder();
+            Builder brd = ImmutableList.builder();
             brd.add(Loader.instance().getMCVersionString());
-
-            brd.add("Fabric Loader " + FabricLoader.getInstance().getModContainer("fabricloader").get().getMetadata().getVersion().getFriendlyString()
-                + String.format(" (%s Mod%s)", FabricLoader.getInstance().getAllMods().size(), FabricLoader.getInstance().getAllMods().size() > 1 ? "s" : "")
-            );
-            brd.add("Fabricated Forge " + FabricLoader.getInstance().getModContainer("fabricated-forge").get().getMetadata().getVersion().getFriendlyString());
-
-            brd.add("FML v"+Loader.instance().getFMLVersionString());
-            String forgeBranding = (String) callForgeMethod("getBrandingVersion");
-            if (!Strings.isNullOrEmpty(forgeBranding))
-            {
+            brd.add("FML v" + Loader.instance().getFMLVersionString());
+            String forgeBranding = (String)this.callForgeMethod("getBrandingVersion");
+            if (!Strings.isNullOrEmpty(forgeBranding)) {
                 brd.add(forgeBranding);
             }
-            brd.addAll(sidedDelegate.getAdditionalBrandingInformation());
+
+            brd.addAll(this.sidedDelegate.getAdditionalBrandingInformation());
+
             try {
-                Properties props=new Properties();
-                props.load(getClass().getClassLoader().getResourceAsStream("/fmlbranding.properties"));
+                Properties props = new Properties();
+                props.load(this.getClass().getClassLoader().getResourceAsStream("fmlbranding.properties"));
                 brd.add(props.getProperty("fmlbranding"));
-            } catch (Exception ex) {
-                // Ignore - no branding file found
+            } catch (Exception var5) {
             }
+
             int tModCount = Loader.instance().getModList().size();
             int aModCount = Loader.instance().getActiveModList().size();
-            brd.add(String.format("%d  forge mod%s loaded, %d  forge mod%s active", tModCount, tModCount!=1 ? "s" :"", aModCount, aModCount!=1 ? "s" :"" ));
-            brandings = brd.build();
+            brd.add(String.format("%d mod%s loaded, %d mod%s active", tModCount, tModCount != 1 ? "s" : "", aModCount, aModCount != 1 ? "s" : ""));
+            this.brandings = brd.build();
         }
 
     }
@@ -204,11 +198,12 @@ public class FMLCommonHandler {
     }
 
     public void onWorldLoadTick(World[] worlds) {
-        rescheduleTicks(Side.SERVER);
-        for (World w : worlds)
-        {
-            tickStart(EnumSet.of(TickType.WORLDLOAD), Side.SERVER, w);
+        this.rescheduleTicks(Side.SERVER);
+
+        for(World w : worlds) {
+            this.tickStart(EnumSet.of(TickType.WORLDLOAD), Side.SERVER, w);
         }
+
     }
 
     public void handleServerStarting(MinecraftServer server) {
@@ -231,7 +226,7 @@ public class FMLCommonHandler {
         this.sidedDelegate.showGuiScreen(clientGuiElement);
     }
 
-    public Entity spawnEntityIntoClientWorld(EntityRegistry.EntityRegistration registration, EntitySpawnPacket entitySpawnPacket) {
+    public Entity spawnEntityIntoClientWorld(EntityRegistration registration, EntitySpawnPacket entitySpawnPacket) {
         return this.sidedDelegate.spawnEntityIntoClientWorld(registration, entitySpawnPacket);
     }
 
@@ -279,10 +274,10 @@ public class FMLCommonHandler {
     }
 
     public void enhanceCrashReport(CrashReport crashReport) {
-        for (ICrashCallable call: crashCallables)
-        {
-            crashReport.addSection(call.getLabel(), call);
+        for(ICrashCallable call : this.crashCallables) {
+            crashReport.method_22519(call.getLabel(), call);
         }
+
     }
 
     public void handleTinyPacket(PacketListener handler, MapUpdate_S2CPacket mapData) {
@@ -290,41 +285,34 @@ public class FMLCommonHandler {
     }
 
     public void handleWorldDataSave(WorldSaveHandler handler, LevelProperties worldInfo, NbtCompound tagCompound) {
-        for (ModContainer mc : Loader.instance().getModList())
-        {
-            if (mc instanceof InjectedModContainer)
-            {
+        for(ModContainer mc : Loader.instance().getModList()) {
+            if (mc instanceof InjectedModContainer) {
                 WorldAccessContainer wac = ((InjectedModContainer)mc).getWrappedWorldAccessContainer();
-                if (wac != null)
-                {
+                if (wac != null) {
                     NbtCompound dataForWriting = wac.getDataForWriting(handler, worldInfo);
                     tagCompound.put(mc.getModId(), dataForWriting);
                 }
             }
         }
+
     }
 
     public void handleWorldDataLoad(WorldSaveHandler handler, LevelProperties worldInfo, NbtCompound tagCompound) {
-        if (getEffectiveSide()!=Side.SERVER)
-        {
-            return;
-        }
-        if (handlerSet.contains(handler))
-        {
-            return;
-        }
-        handlerSet.add(handler);
-        Map<String,NbtElement> additionalProperties = Maps.newHashMap();
-        ((ILevelProperties)worldInfo).setAdditionalProperties(additionalProperties);
-        for (ModContainer mc : Loader.instance().getModList())
-        {
-            if (mc instanceof InjectedModContainer)
-            {
-                WorldAccessContainer wac = ((InjectedModContainer)mc).getWrappedWorldAccessContainer();
-                if (wac != null)
-                {
-                    wac.readData(handler, worldInfo, additionalProperties, tagCompound.getCompound(mc.getModId()));
+        if (this.getEffectiveSide() == Side.SERVER) {
+            if (!this.handlerSet.contains(handler)) {
+                this.handlerSet.add(handler);
+                Map<String, NbtElement> additionalProperties = Maps.newHashMap();
+                worldInfo.setAdditionalProperties(additionalProperties);
+
+                for(ModContainer mc : Loader.instance().getModList()) {
+                    if (mc instanceof InjectedModContainer) {
+                        WorldAccessContainer wac = ((InjectedModContainer)mc).getWrappedWorldAccessContainer();
+                        if (wac != null) {
+                            wac.readData(handler, worldInfo, additionalProperties, tagCompound.getCompound(mc.getModId()));
+                        }
+                    }
                 }
+
             }
         }
     }

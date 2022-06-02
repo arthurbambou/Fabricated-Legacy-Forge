@@ -6,17 +6,14 @@ import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.LoaderException;
 import cpw.mods.fml.common.discovery.ASMDataTable;
 import cpw.mods.fml.common.discovery.ModCandidate;
-import net.minecraft.BaseMod;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.Type;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Type;
 
 public class ASMModParser {
     private Type asmType;
@@ -56,7 +53,14 @@ public class ASMModParser {
     }
 
     public String toString() {
-        return Objects.toStringHelper("ASMAnnotationDiscoverer").add("className", this.asmType.getClassName()).add("classVersion", this.classVersion).add("superName", this.asmSuperType.getClassName()).add("annotations", this.annotations).add("isBaseMod", this.isBaseMod(Collections.emptyList())).add("baseModProperties", this.baseModProperties).toString();
+        return Objects.toStringHelper("ASMAnnotationDiscoverer")
+                .add("className", this.asmType.getClassName())
+                .add("classVersion", this.classVersion)
+                .add("superName", this.asmSuperType.getClassName())
+                .add("annotations", this.annotations)
+                .add("isBaseMod", this.isBaseMod(Collections.emptyList()))
+                .add("baseModProperties", this.baseModProperties)
+                .toString();
     }
 
     public Type getASMType() {
@@ -91,10 +95,10 @@ public class ASMModParser {
     }
 
     public void sendToTable(ASMDataTable table, ModCandidate candidate) {
-        for (ModAnnotation ma : annotations)
-        {
+        for(ModAnnotation ma : this.annotations) {
             table.addASMData(candidate, ma.asmType.getClassName(), this.asmType.getClassName(), ma.member, ma.values);
         }
+
     }
 
     public void addAnnotationArray(String name) {

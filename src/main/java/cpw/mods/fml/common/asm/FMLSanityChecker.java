@@ -2,13 +2,11 @@ package cpw.mods.fml.common.asm;
 
 import cpw.mods.fml.relauncher.IFMLCallHook;
 import cpw.mods.fml.relauncher.RelaunchClassLoader;
+import java.util.Map;
+import javax.swing.JOptionPane;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.Map;
 
 public class FMLSanityChecker implements IFMLCallHook {
     private RelaunchClassLoader cl;
@@ -25,7 +23,12 @@ public class FMLSanityChecker implements IFMLCallHook {
             ClassReader cr = new ClassReader(mlClass);
             cr.accept(mlTester, 1);
             if (!mlTester.foundMarker) {
-                JOptionPane.showMessageDialog((Component)null, "<html>CRITICAL ERROR<br/>ModLoader was detected in this environment<br/>ForgeModLoader cannot be installed alongside ModLoader<br/>All mods should work without ModLoader being installed<br/>Because ForgeModLoader is 100% compatible with ModLoader<br/>Re-install Minecraft Forge or Forge ModLoader into a clean<br/>jar and try again.", "ForgeModLoader critical error", 0);
+                JOptionPane.showMessageDialog(
+                        null,
+                        "<html>CRITICAL ERROR<br/>ModLoader was detected in this environment<br/>ForgeModLoader cannot be installed alongside ModLoader<br/>All mods should work without ModLoader being installed<br/>Because ForgeModLoader is 100% compatible with ModLoader<br/>Re-install Minecraft Forge or Forge ModLoader into a clean<br/>jar and try again.",
+                        "ForgeModLoader critical error",
+                        0
+                );
                 throw new RuntimeException("Invalid ModLoader class detected");
             } else {
                 return null;
@@ -38,11 +41,10 @@ public class FMLSanityChecker implements IFMLCallHook {
     }
 
     static class MLDetectorClassVisitor extends ClassVisitor {
-        private boolean foundMarker;
+        private boolean foundMarker = false;
 
         private MLDetectorClassVisitor() {
             super(262144);
-            this.foundMarker = false;
         }
 
         public FieldVisitor visitField(int arg0, String arg1, String arg2, String arg3, Object arg4) {

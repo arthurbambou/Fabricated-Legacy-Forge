@@ -2,15 +2,15 @@ package cpw.mods.fml.common.modloader;
 
 import com.google.common.base.Function;
 import cpw.mods.fml.common.network.EntitySpawnPacket;
-import cpw.mods.fml.common.registry.EntityRegistry;
+import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
 import net.minecraft.entity.Entity;
 
 public class ModLoaderEntitySpawnCallback implements Function<EntitySpawnPacket, Entity> {
     private BaseModProxy mod;
-    private EntityRegistry.EntityRegistration registration;
+    private EntityRegistration registration;
     private boolean isAnimal;
 
-    public ModLoaderEntitySpawnCallback(BaseModProxy mod, EntityRegistry.EntityRegistration er) {
+    public ModLoaderEntitySpawnCallback(BaseModProxy mod, EntityRegistration er) {
         this.mod = mod;
         this.registration = er;
     }

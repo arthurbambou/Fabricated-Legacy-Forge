@@ -32,6 +32,9 @@ public @interface NetworkMod {
             packetHandler = NetworkMod.NULL.class
     );
 
+    public interface NULL extends IPacketHandler, IConnectionHandler, ITinyPacketHandler {
+    }
+
     public @interface SidedPacketHandler {
         String[] channels();
 
@@ -41,8 +44,5 @@ public @interface NetworkMod {
     @Retention(RetentionPolicy.RUNTIME)
     @Target({ElementType.METHOD})
     public @interface VersionCheckHandler {
-    }
-
-    public interface NULL extends IPacketHandler, IConnectionHandler, ITinyPacketHandler {
     }
 }

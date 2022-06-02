@@ -3,9 +3,7 @@ package cpw.mods.fml.common.modloader;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.ITickHandler;
 import cpw.mods.fml.common.TickType;
-
 import java.util.EnumSet;
-import java.util.Iterator;
 
 public class BaseModTicker implements ITickHandler {
     private BaseModProxy mod;
@@ -33,9 +31,7 @@ public class BaseModTicker implements ITickHandler {
     }
 
     private void tickBaseMod(EnumSet<TickType> types, boolean end, Object... tickData) {
-        if (!FMLCommonHandler.instance().getSide().isClient() || !this.ticks.contains(TickType.CLIENT) && !this.ticks.contains(TickType.WORLDLOAD)) {
-            this.sendTick(types, end, tickData);
-        } else {
+        if (FMLCommonHandler.instance().getSide().isClient() && (this.ticks.contains(TickType.CLIENT) || this.ticks.contains(TickType.WORLDLOAD))) {
             EnumSet cTypes = EnumSet.copyOf(types);
             if (end && types.contains(TickType.CLIENT) || types.contains(TickType.WORLDLOAD)) {
                 this.clockTickTrigger = true;
@@ -50,32 +46,29 @@ public class BaseModTicker implements ITickHandler {
             }
 
             this.sendTick(cTypes, end, tickData);
+        } else {
+            this.sendTick(types, end, tickData);
         }
 
     }
 
     private void sendTick(EnumSet<TickType> types, boolean end, Object... tickData) {
-        for (TickType type : types)
-        {
-            if (!ticks.contains(type))
-            {
-                continue;
-            }
+        for(TickType type : types) {
+            if (this.ticks.contains(type)) {
+                boolean keepTicking = true;
+                if (this.sendGuiTicks) {
+                    keepTicking = this.mod.doTickInGUI(type, end, tickData);
+                } else {
+                    keepTicking = this.mod.doTickInGame(type, end, tickData);
+                }
 
-            boolean keepTicking=true;
-            if (sendGuiTicks)
-            {
-                keepTicking = mod.doTickInGUI(type, end, tickData);
-            }
-            else
-            {
-                keepTicking = mod.doTickInGame(type, end, tickData);
-            }
-            if (!keepTicking) {
-                ticks.remove(type);
-                ticks.removeAll(type.partnerTicks());
+                if (!keepTicking) {
+                    this.ticks.remove(type);
+                    this.ticks.removeAll(type.partnerTicks());
+                }
             }
         }
+
     }
 
     public EnumSet<TickType> ticks() {

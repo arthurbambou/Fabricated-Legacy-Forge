@@ -1,13 +1,24 @@
 package cpw.mods.fml.common.modloader;
 
 import com.google.common.collect.Maps;
-import cpw.mods.fml.common.*;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.ICraftingHandler;
+import cpw.mods.fml.common.IDispenserHandler;
+import cpw.mods.fml.common.IFuelHandler;
+import cpw.mods.fml.common.IPickupNotifier;
+import cpw.mods.fml.common.IWorldGenerator;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.TickType;
 import cpw.mods.fml.common.network.IChatListener;
 import cpw.mods.fml.common.network.IConnectionHandler;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.VillagerRegistry;
+import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
+import java.util.EnumSet;
+import java.util.Map;
+
 import net.minecraft.TradeEntry;
 import net.minecraft.command.Command;
 import net.minecraft.entity.Entity;
@@ -15,9 +26,6 @@ import net.minecraft.entity.EntityCategoryProvider;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.screen.ScreenHandler;
-
-import java.util.EnumSet;
-import java.util.Map;
 
 public class ModLoaderHelper {
     public static IModLoaderSidedHelper sidedHelper;
@@ -28,7 +36,7 @@ public class ModLoaderHelper {
     }
 
     public static void updateStandardTicks(BaseModProxy mod, boolean enable, boolean useClock) {
-        ModLoaderModContainer mlmc = (ModLoaderModContainer) Loader.instance().activeModContainer();
+        ModLoaderModContainer mlmc = (ModLoaderModContainer)Loader.instance().activeModContainer();
         BaseModTicker ticker = mlmc.getGameTickHandler();
         EnumSet<TickType> ticks = ticker.ticks();
         if (enable && !useClock) {
@@ -117,9 +125,14 @@ public class ModLoaderHelper {
         return new ModLoaderDispenseHelper(mod);
     }
 
-    public static void buildEntityTracker(BaseModProxy mod, Class<? extends Entity> entityClass, int entityTypeId, int updateRange, int updateInterval, boolean sendVelocityInfo) {
-        EntityRegistry.EntityRegistration er = EntityRegistry.registerModLoaderEntity(mod, entityClass, entityTypeId, updateRange, updateInterval, sendVelocityInfo);
-        er.setCustomSpawning(new ModLoaderEntitySpawnCallback(mod, er), EnderDragonEntity.class.isAssignableFrom(entityClass) || EntityCategoryProvider.class.isAssignableFrom(entityClass));
+    public static void buildEntityTracker(
+            BaseModProxy mod, Class<? extends Entity> entityClass, int entityTypeId, int updateRange, int updateInterval, boolean sendVelocityInfo
+    ) {
+        EntityRegistration er = EntityRegistry.registerModLoaderEntity(mod, entityClass, entityTypeId, updateRange, updateInterval, sendVelocityInfo);
+        er.setCustomSpawning(
+                new ModLoaderEntitySpawnCallback(mod, er),
+                EnderDragonEntity.class.isAssignableFrom(entityClass) || EntityCategoryProvider.class.isAssignableFrom(entityClass)
+        );
     }
 
     public static void registerTrade(int profession, TradeEntry entry) {

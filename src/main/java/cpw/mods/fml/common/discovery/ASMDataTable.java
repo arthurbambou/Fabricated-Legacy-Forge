@@ -1,10 +1,15 @@
 package cpw.mods.fml.common.discovery;
 
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SetMultimap;
+import com.google.common.collect.ImmutableMap.Builder;
 import cpw.mods.fml.common.ModContainer;
-
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,17 +23,18 @@ public class ASMDataTable {
     }
 
     public SetMultimap<String, ASMDataTable.ASMData> getAnnotationsFor(ModContainer container) {
-        if (containerAnnotationData == null)
-        {
-            ImmutableMap.Builder<ModContainer, SetMultimap<String, ASMData>> mapBuilder = ImmutableMap.<ModContainer, SetMultimap<String,ASMData>>builder();
-            for (ModContainer cont : containers)
-            {
-                Multimap<String, ASMData> values = Multimaps.filterValues(globalAnnotationData, new ModContainerPredicate(cont));
+        if (this.containerAnnotationData == null) {
+            Builder<ModContainer, SetMultimap<String, ASMDataTable.ASMData>> mapBuilder = ImmutableMap.builder();
+
+            for(ModContainer cont : this.containers) {
+                Multimap<String, ASMDataTable.ASMData> values = Multimaps.filterValues(this.globalAnnotationData, new ASMDataTable.ModContainerPredicate(cont));
                 mapBuilder.put(cont, ImmutableSetMultimap.copyOf(values));
             }
-            containerAnnotationData = mapBuilder.build();
+
+            this.containerAnnotationData = mapBuilder.build();
         }
-        return containerAnnotationData.get(container);
+
+        return (SetMultimap<String, ASMDataTable.ASMData>)this.containerAnnotationData.get(container);
     }
 
     public Set<ASMDataTable.ASMData> getAll(String annotation) {
@@ -41,18 +47,6 @@ public class ASMDataTable {
 
     public void addContainer(ModContainer container) {
         this.containers.add(container);
-    }
-
-    private static class ModContainerPredicate implements Predicate<ASMDataTable.ASMData> {
-        private ModContainer container;
-
-        public ModContainerPredicate(ModContainer container) {
-            this.container = container;
-        }
-
-        public boolean apply(ASMDataTable.ASMData data) {
-            return this.container.getSource().equals(data.candidate.getModContainer());
-        }
     }
 
     public static class ASMData {
@@ -88,6 +82,18 @@ public class ASMDataTable {
 
         public Map<String, Object> getAnnotationInfo() {
             return this.annotationInfo;
+        }
+    }
+
+    private static class ModContainerPredicate implements Predicate<ASMDataTable.ASMData> {
+        private ModContainer container;
+
+        public ModContainerPredicate(ModContainer container) {
+            this.container = container;
+        }
+
+        public boolean apply(ASMDataTable.ASMData data) {
+            return this.container.getSource().equals(data.candidate.getModContainer());
         }
     }
 }

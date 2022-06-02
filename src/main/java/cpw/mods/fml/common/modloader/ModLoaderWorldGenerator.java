@@ -1,12 +1,11 @@
 package cpw.mods.fml.common.modloader;
 
 import cpw.mods.fml.common.IWorldGenerator;
+import java.util.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkProvider;
 import net.minecraft.world.chunk.NetherChunkGenerator;
 import net.minecraft.world.chunk.SurfaceChunkGenerator;
-
-import java.util.Random;
 
 public class ModLoaderWorldGenerator implements IWorldGenerator {
     private BaseModProxy mod;

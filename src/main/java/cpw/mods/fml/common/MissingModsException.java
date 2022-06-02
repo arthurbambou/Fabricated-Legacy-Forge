@@ -1,7 +1,6 @@
 package cpw.mods.fml.common;
 
 import cpw.mods.fml.common.versioning.ArtifactVersion;
-
 import java.util.Set;
 
 public class MissingModsException extends RuntimeException {

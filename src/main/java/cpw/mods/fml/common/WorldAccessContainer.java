@@ -1,11 +1,10 @@
 package cpw.mods.fml.common;
 
+import java.util.Map;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.world.WorldSaveHandler;
 import net.minecraft.world.level.LevelProperties;
-
-import java.util.Map;
 
 public interface WorldAccessContainer {
     NbtCompound getDataForWriting(WorldSaveHandler arg, LevelProperties arg2);

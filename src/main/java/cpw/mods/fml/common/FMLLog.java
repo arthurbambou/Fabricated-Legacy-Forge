@@ -1,12 +1,11 @@
 package cpw.mods.fml.common;
 
 import cpw.mods.fml.relauncher.FMLRelaunchLog;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FMLLog {
-    private static FMLRelaunchLog coreLog;
+    private static FMLRelaunchLog coreLog = FMLRelaunchLog.log;
 
     public FMLLog() {
     }
@@ -47,9 +46,5 @@ public class FMLLog {
 
     public static Logger getLogger() {
         return coreLog.getLogger();
-    }
-
-    static {
-        coreLog = FMLRelaunchLog.log;
     }
 }

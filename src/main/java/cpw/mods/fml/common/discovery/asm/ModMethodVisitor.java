@@ -1,10 +1,9 @@
 package cpw.mods.fml.common.discovery.asm;
 
 import com.google.common.collect.Lists;
+import java.util.LinkedList;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-
-import java.util.LinkedList;
 
 public class ModMethodVisitor extends MethodVisitor {
     private ASMModParser discoverer;

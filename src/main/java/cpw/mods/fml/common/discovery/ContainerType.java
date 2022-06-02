@@ -2,7 +2,6 @@ package cpw.mods.fml.common.discovery;
 
 import com.google.common.base.Throwables;
 import cpw.mods.fml.common.ModContainer;
-
 import java.util.List;
 
 public enum ContainerType {
@@ -11,7 +10,7 @@ public enum ContainerType {
 
     private ITypeDiscoverer discoverer;
 
-    private ContainerType(Class discovererClass) {
+    private ContainerType(Class<? extends ITypeDiscoverer> discovererClass) {
         try {
             this.discoverer = (ITypeDiscoverer)discovererClass.newInstance();
         } catch (Exception var5) {

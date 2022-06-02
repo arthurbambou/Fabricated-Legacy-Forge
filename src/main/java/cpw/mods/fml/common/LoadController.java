@@ -1,17 +1,24 @@
 package cpw.mods.fml.common;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import cpw.mods.fml.common.LoaderState.ModState;
 import cpw.mods.fml.common.event.FMLLoadEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLStateEvent;
-
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 
 public class LoadController {
@@ -19,7 +26,7 @@ public class LoadController {
     private EventBus masterChannel;
     private ImmutableMap<String, EventBus> eventChannels;
     private LoaderState state;
-    private Multimap<String, LoaderState.ModState> modStates = ArrayListMultimap.create();
+    private Multimap<String, ModState> modStates = ArrayListMultimap.create();
     private Multimap<String, Throwable> errors = ArrayListMultimap.create();
     private Map<String, ModContainer> modList;
     private List<ModContainer> activeModList = Lists.newArrayList();
@@ -35,29 +42,25 @@ public class LoadController {
 
     @Subscribe
     public void buildModList(FMLLoadEvent event) {
-        this.modList = loader.getIndexedModList();
-        ImmutableMap.Builder<String, EventBus> eventBus = ImmutableMap.builder();
+        this.modList = this.loader.getIndexedModList();
+        Builder<String, EventBus> eventBus = ImmutableMap.builder();
 
-        for (ModContainer mod : loader.getModList())
-        {
+        for(ModContainer mod : this.loader.getModList()) {
             EventBus bus = new EventBus(mod.getModId());
             boolean isActive = mod.registerBus(bus, this);
-            if (isActive)
-            {
-                FMLLog.fine("Activating mod %s", mod.getModId());
-                activeModList.add(mod);
-                modStates.put(mod.getModId(), LoaderState.ModState.UNLOADED);
+            if (isActive) {
+                FMLLog.fine("Activating mod %s", new Object[]{mod.getModId()});
+                this.activeModList.add(mod);
+                this.modStates.put(mod.getModId(), ModState.UNLOADED);
                 eventBus.put(mod.getModId(), bus);
-            }
-            else
-            {
-                FMLLog.warning("Mod %s has been disabled through configuration", mod.getModId());
-                modStates.put(mod.getModId(), LoaderState.ModState.UNLOADED);
-                modStates.put(mod.getModId(), LoaderState.ModState.DISABLED);
+            } else {
+                FMLLog.warning("Mod %s has been disabled through configuration", new Object[]{mod.getModId()});
+                this.modStates.put(mod.getModId(), ModState.UNLOADED);
+                this.modStates.put(mod.getModId(), ModState.DISABLED);
             }
         }
 
-        eventChannels = eventBus.build();
+        this.eventChannels = eventBus.build();
     }
 
     public void distributeStateMessage(LoaderState state, Object... eventData) {
@@ -68,34 +71,28 @@ public class LoadController {
     }
 
     public void transition(LoaderState desiredState) {
-        LoaderState oldState = state;
-        state = state.transition(!errors.isEmpty());
-        if (state != desiredState)
-        {
+        LoaderState oldState = this.state;
+        this.state = this.state.transition(!this.errors.isEmpty());
+        if (this.state != desiredState) {
             Throwable toThrow = null;
-            FMLLog.severe("Fatal errors were detected during the transition from %s to %s. Loading cannot continue", oldState, desiredState);
+            FMLLog.severe("Fatal errors were detected during the transition from %s to %s. Loading cannot continue", new Object[]{oldState, desiredState});
             StringBuilder sb = new StringBuilder();
-            printModStates(sb);
-            FMLLog.severe(sb.toString());
-            FMLLog.severe("The following problems were captured during this phase");
-            for (Map.Entry<String, Throwable> error : errors.entries())
-            {
-                FMLLog.log(Level.SEVERE, error.getValue(), "Caught exception from %s", error.getKey());
-                if (error.getValue() instanceof IFMLHandledException)
-                {
-                    toThrow = error.getValue();
-                }
-                else if (toThrow == null)
-                {
-                    toThrow = error.getValue();
+            this.printModStates(sb);
+            FMLLog.severe(sb.toString(), new Object[0]);
+            FMLLog.severe("The following problems were captured during this phase", new Object[0]);
+
+            for(Entry<String, Throwable> error : this.errors.entries()) {
+                FMLLog.log(Level.SEVERE, (Throwable)error.getValue(), "Caught exception from %s", new Object[]{error.getKey()});
+                if (error.getValue() instanceof IFMLHandledException) {
+                    toThrow = (Throwable)error.getValue();
+                } else if (toThrow == null) {
+                    toThrow = (Throwable)error.getValue();
                 }
             }
-            if (toThrow != null && toThrow instanceof RuntimeException)
-            {
+
+            if (toThrow != null && toThrow instanceof RuntimeException) {
                 throw (RuntimeException)toThrow;
-            }
-            else
-            {
+            } else {
                 throw new LoaderException(toThrow);
             }
         }
@@ -107,47 +104,43 @@ public class LoadController {
 
     @Subscribe
     public void propogateStateMessage(FMLStateEvent stateEvent) {
-        if (stateEvent instanceof FMLPreInitializationEvent)
-        {
-            modObjectList = buildModObjectList();
+        if (stateEvent instanceof FMLPreInitializationEvent) {
+            this.modObjectList = this.buildModObjectList();
         }
-        for (ModContainer mc : activeModList)
-        {
-            activeContainer = mc;
+
+        for(ModContainer mc : this.activeModList) {
+            this.activeContainer = mc;
             String modId = mc.getModId();
-            stateEvent.applyModContainer(activeContainer());
-            FMLLog.finer("Posting state event %s to mod %s", stateEvent.getEventType(), modId);
-            eventChannels.get(modId).post(stateEvent);
-            FMLLog.finer("State event %s delivered to mod %s", stateEvent.getEventType(), modId);
-            activeContainer = null;
-            if (!errors.containsKey(modId))
-            {
-                modStates.put(modId, stateEvent.getModState());
-            }
-            else
-            {
-                modStates.put(modId, LoaderState.ModState.ERRORED);
+            stateEvent.applyModContainer(this.activeContainer());
+            FMLLog.finer("Posting state event %s to mod %s", new Object[]{stateEvent.getEventType(), modId});
+            ((EventBus)this.eventChannels.get(modId)).post(stateEvent);
+            FMLLog.finer("State event %s delivered to mod %s", new Object[]{stateEvent.getEventType(), modId});
+            this.activeContainer = null;
+            if (!this.errors.containsKey(modId)) {
+                this.modStates.put(modId, stateEvent.getModState());
+            } else {
+                this.modStates.put(modId, ModState.ERRORED);
             }
         }
+
     }
 
     public ImmutableBiMap<ModContainer, Object> buildModObjectList() {
-        ImmutableBiMap.Builder<ModContainer, Object> builder = ImmutableBiMap.<ModContainer, Object>builder();
-        for (ModContainer mc : activeModList)
-        {
-            if (!mc.isImmutable() && mc.getMod()!=null)
-            {
+        com.google.common.collect.ImmutableBiMap.Builder<ModContainer, Object> builder = ImmutableBiMap.builder();
+
+        for(ModContainer mc : this.activeModList) {
+            if (!mc.isImmutable() && mc.getMod() != null) {
                 builder.put(mc, mc.getMod());
             }
-            if (mc.getMod()==null && !mc.isImmutable() && state!=LoaderState.CONSTRUCTING)
-            {
-                FMLLog.severe("There is a severe problem with %s - it appears not to have constructed correctly", mc.getModId());
-                if (state != LoaderState.CONSTRUCTING)
-                {
+
+            if (mc.getMod() == null && !mc.isImmutable() && this.state != LoaderState.CONSTRUCTING) {
+                FMLLog.severe("There is a severe problem with %s - it appears not to have constructed correctly", new Object[]{mc.getModId()});
+                if (this.state != LoaderState.CONSTRUCTING) {
                     this.errorOccurred(mc, new RuntimeException());
                 }
             }
         }
+
         return builder.build();
     }
 
@@ -161,19 +154,19 @@ public class LoadController {
     }
 
     public void printModStates(StringBuilder ret) {
-        for (ModContainer mc : loader.getModList())
-        {
+        for(ModContainer mc : this.loader.getModList()) {
             ret.append("\n\t").append(mc.getModId()).append(" [").append(mc.getName()).append("] (").append(mc.getSource().getName()).append(") ");
-            Joiner.on("->"). appendTo(ret, modStates.get(mc.getModId()));
+            Joiner.on("->").appendTo(ret, this.modStates.get(mc.getModId()));
         }
+
     }
 
     public List<ModContainer> getActiveModList() {
         return this.activeModList;
     }
 
-    public LoaderState.ModState getModState(ModContainer selectedMod) {
-        return (LoaderState.ModState)Iterables.getLast(this.modStates.get(selectedMod.getModId()), LoaderState.ModState.AVAILABLE);
+    public ModState getModState(ModContainer selectedMod) {
+        return (ModState)Iterables.getLast(this.modStates.get(selectedMod.getModId()), ModState.AVAILABLE);
     }
 
     public void distributeStateMessage(Class<?> customEvent) {
@@ -187,7 +180,10 @@ public class LoadController {
 
     public BiMap<ModContainer, Object> getModObjectList() {
         if (this.modObjectList == null) {
-            FMLLog.severe("Detected an attempt by a mod %s to perform game activity during mod construction. This is a serious programming error.", new Object[]{this.activeContainer});
+            FMLLog.severe(
+                    "Detected an attempt by a mod %s to perform game activity during mod construction. This is a serious programming error.",
+                    new Object[]{this.activeContainer}
+            );
             return this.buildModObjectList();
         } else {
             return ImmutableBiMap.copyOf(this.modObjectList);

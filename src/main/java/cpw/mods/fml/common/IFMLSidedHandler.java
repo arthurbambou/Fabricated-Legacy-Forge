@@ -3,14 +3,13 @@ package cpw.mods.fml.common;
 import cpw.mods.fml.common.network.EntitySpawnAdjustmentPacket;
 import cpw.mods.fml.common.network.EntitySpawnPacket;
 import cpw.mods.fml.common.network.ModMissingPacket;
-import cpw.mods.fml.common.registry.EntityRegistry;
+import cpw.mods.fml.common.registry.EntityRegistry.EntityRegistration;
+import java.util.List;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.s2c.play.MapUpdate_S2CPacket;
 import net.minecraft.server.MinecraftServer;
-
-import java.util.List;
 
 public interface IFMLSidedHandler {
     List<String> getAdditionalBrandingInformation();
@@ -21,7 +20,7 @@ public interface IFMLSidedHandler {
 
     void showGuiScreen(Object object);
 
-    Entity spawnEntityIntoClientWorld(EntityRegistry.EntityRegistration entityRegistration, EntitySpawnPacket entitySpawnPacket);
+    Entity spawnEntityIntoClientWorld(EntityRegistration entityRegistration, EntitySpawnPacket entitySpawnPacket);
 
     void adjustEntityLocationOnClient(EntitySpawnAdjustmentPacket entitySpawnAdjustmentPacket);
 

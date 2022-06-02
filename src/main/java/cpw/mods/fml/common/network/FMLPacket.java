@@ -4,11 +4,10 @@ import com.google.common.base.Throwables;
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
 import cpw.mods.fml.common.FMLLog;
-import net.minecraft.network.Connection;
-import net.minecraft.network.listener.PacketListener;
-
 import java.util.Arrays;
 import java.util.logging.Level;
+import net.minecraft.network.Connection;
+import net.minecraft.network.listener.PacketListener;
 
 public abstract class FMLPacket {
     private FMLPacket.Type type;
@@ -44,7 +43,7 @@ public abstract class FMLPacket {
 
         private Class<? extends FMLPacket> packetType;
 
-        private Type(Class clazz) {
+        private Type(Class<? extends FMLPacket> clazz) {
             this.packetType = clazz;
         }
 

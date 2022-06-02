@@ -1,7 +1,6 @@
 package cpw.mods.fml.common.discovery;
 
 import cpw.mods.fml.common.ModContainer;
-
 import java.util.List;
 import java.util.regex.Pattern;
 

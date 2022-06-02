@@ -9,31 +9,34 @@ import com.google.common.collect.Multimap;
 import com.google.common.io.LineProcessor;
 import com.google.common.io.Resources;
 import cpw.mods.fml.relauncher.IClassTransformer;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import java.io.*;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
-
 public class AccessTransformer implements IClassTransformer {
     private static final boolean DEBUG = false;
-    private Multimap<String, AccessTransformer.Modifier> modifiers;
+    private Multimap<String, AccessTransformer.Modifier> modifiers = ArrayListMultimap.create();
 
     public AccessTransformer() throws IOException {
         this("fml_at.cfg");
     }
 
     protected AccessTransformer(String rulesFile) throws IOException {
-        this.modifiers = ArrayListMultimap.create();
         this.readMapFile(rulesFile);
     }
 
@@ -52,7 +55,7 @@ public class AccessTransformer implements IClassTransformer {
             }
 
             public boolean processLine(String input) throws IOException {
-                String line = ((String) Iterables.getFirst(Splitter.on('#').limit(2).split(input), "")).trim();
+                String line = ((String)Iterables.getFirst(Splitter.on('#').limit(2).split(input), "")).trim();
                 if (line.length() == 0) {
                     return true;
                 } else {
@@ -85,67 +88,41 @@ public class AccessTransformer implements IClassTransformer {
     }
 
     public byte[] transform(String name, byte[] bytes) {
-        if (!modifiers.containsKey(name)) { return bytes; }
+        if (!this.modifiers.containsKey(name)) {
+            return bytes;
+        } else {
+            ClassNode classNode = new ClassNode();
+            ClassReader classReader = new ClassReader(bytes);
+            classReader.accept(classNode, 0);
 
-        ClassNode classNode = new ClassNode();
-        ClassReader classReader = new ClassReader(bytes);
-        classReader.accept(classNode, 0);
-
-        Collection<Modifier> mods = modifiers.get(name);
-        for (Modifier m : mods)
-        {
-            if (m.modifyClassVisibility)
-            {
-                classNode.access = getFixedAccess(classNode.access, m);
-                if (DEBUG)
-                {
-                    System.out.println(String.format("Class: %s %s -> %s", name, toBinary(m.oldAccess), toBinary(m.newAccess)));
-                }
-                continue;
-            }
-            if (m.desc.isEmpty())
-            {
-                for (FieldNode n : (List<FieldNode>) classNode.fields)
-                {
-                    if (n.name.equals(m.name) || m.name.equals("*"))
-                    {
-                        n.access = getFixedAccess(n.access, m);
-                        if (DEBUG)
-                        {
-                            System.out.println(String.format("Field: %s.%s %s -> %s", name, n.name, toBinary(m.oldAccess), toBinary(m.newAccess)));
+            for(AccessTransformer.Modifier m : this.modifiers.get(name)) {
+                if (m.modifyClassVisibility) {
+                    classNode.access = this.getFixedAccess(classNode.access, m);
+                } else if (m.desc.isEmpty()) {
+                    for(FieldNode n : classNode.fields) {
+                        if (n.name.equals(m.name) || m.name.equals("*")) {
+                            n.access = this.getFixedAccess(n.access, m);
+                            if (!m.name.equals("*")) {
+                                break;
+                            }
                         }
-
-                        if (!m.name.equals("*"))
-                        {
-                            break;
+                    }
+                } else {
+                    for(MethodNode n : classNode.methods) {
+                        if (n.name.equals(m.name) && n.desc.equals(m.desc) || m.name.equals("*")) {
+                            n.access = this.getFixedAccess(n.access, m);
+                            if (!m.name.equals("*")) {
+                                break;
+                            }
                         }
                     }
                 }
             }
-            else
-            {
-                for (MethodNode n : (List<MethodNode>) classNode.methods)
-                {
-                    if ((n.name.equals(m.name) && n.desc.equals(m.desc)) || m.name.equals("*"))
-                    {
-                        n.access = getFixedAccess(n.access, m);
-                        if (DEBUG)
-                        {
-                            System.out.println(String.format("Method: %s.%s%s %s -> %s", name, n.name, n.desc, toBinary(m.oldAccess), toBinary(m.newAccess)));
-                        }
 
-                        if (!m.name.equals("*"))
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
+            ClassWriter writer = new ClassWriter(1);
+            classNode.accept(writer);
+            return writer.toByteArray();
         }
-
-        ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-        classNode.accept(writer);
-        return writer.toByteArray();
     }
 
     private String toBinary(int num) {
@@ -156,7 +133,7 @@ public class AccessTransformer implements IClassTransformer {
         target.oldAccess = access;
         int t = target.targetAccess;
         int ret = access & -8;
-        switch (access & 7) {
+        switch(access & 7) {
             case 0:
                 ret |= t != 2 ? t : 0;
                 break;
@@ -238,95 +215,70 @@ public class AccessTransformer implements IClassTransformer {
         ZipInputStream inJar = null;
         ZipOutputStream outJar = null;
 
-        try
-        {
-            try
-            {
+        try {
+            try {
                 inJar = new ZipInputStream(new BufferedInputStream(new FileInputStream(inFile)));
-            }
-            catch (FileNotFoundException e)
-            {
-                throw new FileNotFoundException("Could not open input file: " + e.getMessage());
+            } catch (FileNotFoundException var30) {
+                throw new FileNotFoundException("Could not open input file: " + var30.getMessage());
             }
 
-            try
-            {
+            try {
                 outJar = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(outFile)));
-            }
-            catch (FileNotFoundException e)
-            {
-                throw new FileNotFoundException("Could not open output file: " + e.getMessage());
+            } catch (FileNotFoundException var29) {
+                throw new FileNotFoundException("Could not open output file: " + var29.getMessage());
             }
 
             ZipEntry entry;
-            while ((entry = inJar.getNextEntry()) != null)
-            {
-                if (entry.isDirectory())
-                {
+            while((entry = inJar.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
                     outJar.putNextEntry(entry);
-                    continue;
-                }
+                } else {
+                    byte[] data = new byte[4096];
+                    ByteArrayOutputStream entryBuffer = new ByteArrayOutputStream();
 
-                byte[] data = new byte[4096];
-                ByteArrayOutputStream entryBuffer = new ByteArrayOutputStream();
+                    int len;
+                    do {
+                        len = inJar.read(data);
+                        if (len > 0) {
+                            entryBuffer.write(data, 0, len);
+                        }
+                    } while(len != -1);
 
-                int len;
-                do
-                {
-                    len = inJar.read(data);
-                    if (len > 0)
-                    {
-                        entryBuffer.write(data, 0, len);
+                    byte[] entryData = entryBuffer.toByteArray();
+                    String entryName = entry.getName();
+                    if (entryName.endsWith(".class") && !entryName.startsWith(".")) {
+                        ClassNode cls = new ClassNode();
+                        ClassReader rdr = new ClassReader(entryData);
+                        rdr.accept(cls, 0);
+                        String name = cls.name.replace('/', '.').replace('\\', '.');
+
+                        for(AccessTransformer trans : transformers) {
+                            entryData = trans.transform(name, entryData);
+                        }
                     }
+
+                    ZipEntry newEntry = new ZipEntry(entryName);
+                    outJar.putNextEntry(newEntry);
+                    outJar.write(entryData);
                 }
-                while (len != -1);
-
-                byte[] entryData = entryBuffer.toByteArray();
-
-                String entryName = entry.getName();
-
-                if (entryName.endsWith(".class") && !entryName.startsWith("."))
-                {
-                    ClassNode cls = new ClassNode();
-                    ClassReader rdr = new ClassReader(entryData);
-                    rdr.accept(cls, 0);
-                    String name = cls.name.replace('/', '.').replace('\\', '.');
-
-                    for (AccessTransformer trans : transformers)
-                    {
-                        entryData = trans.transform(name, entryData);
-                    }
-                }
-
-                ZipEntry newEntry = new ZipEntry(entryName);
-                outJar.putNextEntry(newEntry);
-                outJar.write(entryData);
             }
-        }
-        finally
-        {
-            if (outJar != null)
-            {
-                try
-                {
+        } finally {
+            if (outJar != null) {
+                try {
                     outJar.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException var28) {
                 }
             }
 
-            if (inJar != null)
-            {
-                try
-                {
+            if (inJar != null) {
+                try {
                     inJar.close();
-                }
-                catch (IOException e)
-                {
+                } catch (IOException var27) {
                 }
             }
+
         }
+
     }
 
     public void ensurePublicAccessFor(String modClazzName) {
@@ -337,23 +289,16 @@ public class AccessTransformer implements IClassTransformer {
     }
 
     private class Modifier {
-        public String name;
-        public String desc;
-        public int oldAccess;
-        public int newAccess;
-        public int targetAccess;
-        public boolean changeFinal;
-        public boolean markFinal;
+        public String name = "";
+        public String desc = "";
+        public int oldAccess = 0;
+        public int newAccess = 0;
+        public int targetAccess = 0;
+        public boolean changeFinal = false;
+        public boolean markFinal = false;
         protected boolean modifyClassVisibility;
 
         private Modifier() {
-            this.name = "";
-            this.desc = "";
-            this.oldAccess = 0;
-            this.newAccess = 0;
-            this.targetAccess = 0;
-            this.changeFinal = false;
-            this.markFinal = false;
         }
 
         private void setTargetAccess(String name) {

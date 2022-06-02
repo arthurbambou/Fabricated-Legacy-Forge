@@ -1,7 +1,6 @@
 package cpw.mods.fml.common.asm;
 
 import cpw.mods.fml.common.Side;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
