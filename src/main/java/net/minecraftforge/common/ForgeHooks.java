@@ -1,37 +1,50 @@
 package net.minecraftforge.common;
 
-import fr.catcore.fabricatedforge.mixininterface.IBlock;
-import fr.catcore.fabricatedforge.mixininterface.IItem;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
+import net.minecraft.item.ArmorItem;
+import net.minecraft.item.AxeItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.PickaxeItem;
+import net.minecraft.item.ShovelItem;
 import net.minecraft.util.collection.Weight;
 import net.minecraft.util.collection.Weighting;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResultType;
 import net.minecraft.world.World;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
-import net.minecraftforge.event.entity.living.*;
-
-import java.util.*;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.LivingSetAttackTargetEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
+import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 
 public class ForgeHooks {
-    static final List<ForgeHooks.GrassEntry> grassList = new ArrayList<>();
-    static final List<ForgeHooks.SeedEntry> seedList = new ArrayList<>();
+    static final List<ForgeHooks.GrassEntry> grassList = new ArrayList();
+    static final List<ForgeHooks.SeedEntry> seedList = new ArrayList();
     private static boolean toolInit = false;
-    static HashMap<Item, List> toolClasses = new HashMap<>();
-    static HashMap<List, Integer> toolHarvestLevels = new HashMap<>();
-    static HashSet<List> toolEffectiveness = new HashSet<>();
+    static HashMap<Item, List> toolClasses = new HashMap();
+    static HashMap<List, Integer> toolHarvestLevels = new HashMap();
+    static HashSet<List> toolEffectiveness = new HashSet();
 
     public ForgeHooks() {
     }
 
     public static void plantGrass(World world, int x, int y, int z) {
-        ForgeHooks.GrassEntry grass = (ForgeHooks.GrassEntry) Weighting.getRandom(world.random, grassList);
+        ForgeHooks.GrassEntry grass = (ForgeHooks.GrassEntry)Weighting.getRandom(world.random, grassList);
         if (grass != null && grass.block != null && grass.block.method_450(world, x, y, z)) {
             world.method_3683(x, y, z, grass.block.id, grass.metadata);
         }
@@ -56,7 +69,7 @@ public class ForgeHooks {
                 } else {
                     Object[] tmp = info.toArray();
                     String toolClass = (String)tmp[0];
-                    int harvestLevel = (Integer)tmp[1];
+                    int harvestLevel = (int) tmp[1];
                     Integer blockHarvestLevel = (Integer)toolHarvestLevels.get(Arrays.asList(block, metadata, toolClass));
                     if (blockHarvestLevel == null) {
                         return player.isUsingEffectiveTool(block);
@@ -105,18 +118,15 @@ public class ForgeHooks {
             MinecraftForge.setToolClass(Item.GOLD_SHOVEL, "shovel", 0);
             MinecraftForge.setToolClass(Item.DIAMOND_SHOVEL, "shovel", 3);
 
-            for (Block block : PickaxeItem.field_4382)
-            {
+            for(Block block : PickaxeItem.field_4382) {
                 MinecraftForge.setBlockHarvestLevel(block, "pickaxe", 0);
             }
 
-            for (Block block : ShovelItem.field_4396)
-            {
+            for(Block block : ShovelItem.field_4396) {
                 MinecraftForge.setBlockHarvestLevel(block, "shovel", 0);
             }
 
-            for (Block block : AxeItem.field_4207)
-            {
+            for(Block block : AxeItem.field_4207) {
                 MinecraftForge.setBlockHarvestLevel(block, "axe", 0);
             }
 
@@ -140,9 +150,9 @@ public class ForgeHooks {
 
     public static String getTexture(String _default, Object obj) {
         if (obj instanceof Item) {
-            return ((IItem)obj).getTextureFile();
+            return ((Item)obj).getTextureFile();
         } else {
-            return obj instanceof Block ? ((IBlock)obj).getTextureFile() : _default;
+            return obj instanceof Block ? ((Block)obj).getTextureFile() : _default;
         }
     }
 
@@ -161,20 +171,19 @@ public class ForgeHooks {
         return ret;
     }
 
-    public static boolean onPickBlock(HitResult target, PlayerEntity player, World world) {
+    public static boolean onPickBlock(BlockHitResult target, PlayerEntity player, World world) {
         ItemStack result = null;
         boolean isCreative = player.abilities.creativeMode;
-        int slot;
         if (target.field_595 == HitResultType.TILE) {
-            slot = target.x;
+            int x = target.x;
             int y = target.y;
             int z = target.z;
-            Block var8 = Block.BLOCKS[world.getBlock(slot, y, z)];
+            Block var8 = Block.BLOCKS[world.getBlock(x, y, z)];
             if (var8 == null) {
                 return false;
             }
 
-            result = ((IBlock)var8).getPickBlock(target, world, slot, y, z);
+            result = var8.getPickBlock(target, world, x, y, z);
         } else {
             if (target.field_595 != HitResultType.ENTITY || target.entity == null || !isCreative) {
                 return false;
@@ -186,10 +195,10 @@ public class ForgeHooks {
         if (result == null) {
             return false;
         } else {
-            for(slot = 0; slot < 9; ++slot) {
-                ItemStack stack = player.inventory.getInvStack(slot);
+            for(int x = 0; x < 9; ++x) {
+                ItemStack stack = player.inventory.getInvStack(x);
                 if (stack != null && stack.equalsIgnoreNbt(result)) {
-                    player.inventory.selectedSlot = slot;
+                    player.inventory.selectedSlot = x;
                     return true;
                 }
             }
@@ -197,7 +206,7 @@ public class ForgeHooks {
             if (!isCreative) {
                 return false;
             } else {
-                slot = player.inventory.method_3146();
+                int slot = player.inventory.method_3146();
                 if (slot < 0 || slot >= 9) {
                     slot = player.inventory.selectedSlot;
                 }
@@ -214,7 +223,7 @@ public class ForgeHooks {
     }
 
     public static boolean onLivingUpdate(MobEntity entity) {
-        return MinecraftForge.EVENT_BUS.post(new LivingEvent.LivingUpdateEvent(entity));
+        return MinecraftForge.EVENT_BUS.post(new LivingUpdateEvent(entity));
     }
 
     public static boolean onLivingAttack(MobEntity entity, DamageSource src, int amount) {
@@ -230,7 +239,9 @@ public class ForgeHooks {
         return MinecraftForge.EVENT_BUS.post(new LivingDeathEvent(entity, src));
     }
 
-    public static boolean onLivingDrops(MobEntity entity, DamageSource source, ArrayList<ItemEntity> drops, int lootingLevel, boolean recentlyHit, int specialDropValue) {
+    public static boolean onLivingDrops(
+            MobEntity entity, DamageSource source, ArrayList<ItemEntity> drops, int lootingLevel, boolean recentlyHit, int specialDropValue
+    ) {
         return MinecraftForge.EVENT_BUS.post(new LivingDropsEvent(entity, source, drops, lootingLevel, recentlyHit, specialDropValue));
     }
 
@@ -240,18 +251,18 @@ public class ForgeHooks {
     }
 
     public static boolean isLivingOnLadder(Block block, World world, int x, int y, int z) {
-        return block != null && ((IBlock)block).isLadder(world, x, y, z);
+        return block != null && block.isLadder(world, x, y, z);
     }
 
     public static void onLivingJump(MobEntity entity) {
-        MinecraftForge.EVENT_BUS.post(new LivingEvent.LivingJumpEvent(entity));
+        MinecraftForge.EVENT_BUS.post(new LivingJumpEvent(entity));
     }
 
     public static ItemEntity onPlayerTossEvent(PlayerEntity player, ItemStack item) {
-        player.captureDrops(true);
+        player.captureDrops = true;
         ItemEntity ret = player.dropStack(item, false);
-        player.getCapturedDrops().clear();
-        player.captureDrops(false);
+        player.capturedDrops.clear();
+        player.captureDrops = false;
         ItemTossEvent event = new ItemTossEvent(ret, player);
         if (MinecraftForge.EVENT_BUS.post(event)) {
             return null;
@@ -268,15 +279,6 @@ public class ForgeHooks {
         initTools();
     }
 
-    static class SeedEntry extends Weight {
-        public final ItemStack seed;
-
-        public SeedEntry(ItemStack seed, int weight) {
-            super(weight);
-            this.seed = seed;
-        }
-    }
-
     static class GrassEntry extends Weight {
         public final Block block;
         public final int metadata;
@@ -285,6 +287,15 @@ public class ForgeHooks {
             super(weight);
             this.block = block;
             this.metadata = meta;
+        }
+    }
+
+    static class SeedEntry extends Weight {
+        public final ItemStack seed;
+
+        public SeedEntry(ItemStack seed, int weight) {
+            super(weight);
+            this.seed = seed;
         }
     }
 }

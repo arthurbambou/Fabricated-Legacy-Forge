@@ -14,14 +14,14 @@ public class ChunkEvent extends WorldEvent {
         return this.chunk;
     }
 
-    public static class Unload extends ChunkEvent {
-        public Unload(Chunk chunk) {
+    public static class Load extends ChunkEvent {
+        public Load(Chunk chunk) {
             super(chunk);
         }
     }
 
-    public static class Load extends ChunkEvent {
-        public Load(Chunk chunk) {
+    public static class Unload extends ChunkEvent {
+        public Unload(Chunk chunk) {
             super(chunk);
         }
     }

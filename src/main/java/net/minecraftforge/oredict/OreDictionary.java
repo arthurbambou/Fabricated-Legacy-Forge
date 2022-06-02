@@ -1,15 +1,13 @@
 package net.minecraftforge.oredict;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.Event;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 public class OreDictionary {
     private static int maxID = 0;
@@ -31,13 +29,12 @@ public class OreDictionary {
     }
 
     public static String getOreName(int id) {
-        for (Map.Entry<String, Integer> entry : oreIDs.entrySet())
-        {
-            if (id == entry.getValue())
-            {
-                return entry.getKey();
+        for(Entry<String, Integer> entry : oreIDs.entrySet()) {
+            if (id == entry.getValue()) {
+                return (String)entry.getKey();
             }
         }
+
         return "Unknown";
     }
 

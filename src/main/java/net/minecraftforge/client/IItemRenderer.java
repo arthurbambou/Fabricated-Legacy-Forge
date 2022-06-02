@@ -9,6 +9,16 @@ public interface IItemRenderer {
 
     void renderItem(IItemRenderer.ItemRenderType itemRenderType, ItemStack arg, Object... objects);
 
+    public static enum ItemRenderType {
+        ENTITY,
+        EQUIPPED,
+        INVENTORY,
+        FIRST_PERSON_MAP;
+
+        private ItemRenderType() {
+        }
+    }
+
     public static enum ItemRendererHelper {
         ENTITY_ROTATION,
         ENTITY_BOBBING,
@@ -17,16 +27,6 @@ public interface IItemRenderer {
         INVENTORY_BLOCK;
 
         private ItemRendererHelper() {
-        }
-    }
-
-    public static enum ItemRenderType {
-        ENTITY,
-        EQUIPPED,
-        INVENTORY,
-        FIRST_PERSON_MAP;
-
-        private ItemRenderType() {
         }
     }
 }

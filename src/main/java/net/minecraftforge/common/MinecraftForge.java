@@ -1,15 +1,16 @@
 package net.minecraftforge.common;
 
 import cpw.mods.fml.common.FMLLog;
+import java.util.Arrays;
+import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.entity.mob.EndermanEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.ForgeHooks.GrassEntry;
+import net.minecraftforge.common.ForgeHooks.SeedEntry;
 import net.minecraftforge.event.EventBus;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class MinecraftForge {
     public static final EventBus EVENT_BUS = new EventBus();
@@ -20,11 +21,11 @@ public class MinecraftForge {
     }
 
     public static void addGrassPlant(Block block, int metadata, int weight) {
-        ForgeHooks.grassList.add(new ForgeHooks.GrassEntry(block, metadata, weight));
+        ForgeHooks.grassList.add(new GrassEntry(block, metadata, weight));
     }
 
     public static void addGrassSeed(ItemStack seed, int weight) {
-        ForgeHooks.seedList.add(new ForgeHooks.SeedEntry(seed, weight));
+        ForgeHooks.seedList.add(new SeedEntry(seed, weight));
     }
 
     public static void setToolClass(Item tool, String toolClass, int harvestLevel) {
@@ -54,7 +55,7 @@ public class MinecraftForge {
     public static int getBlockHarvestLevel(Block block, int metadata, String toolClass) {
         ForgeHooks.initTools();
         List key = Arrays.asList(block, metadata, toolClass);
-        Integer harvestLevel = (Integer) ForgeHooks.toolHarvestLevels.get(key);
+        Integer harvestLevel = (Integer)ForgeHooks.toolHarvestLevels.get(key);
         return harvestLevel == null ? -1 : harvestLevel;
     }
 
@@ -68,7 +69,7 @@ public class MinecraftForge {
 
     public static void initialize() {
         System.out.printf("MinecraftForge v%s Initialized\n", ForgeVersion.getVersion());
-        FMLLog.info("MinecraftForge v%s Initialized", ForgeVersion.getVersion());
+        FMLLog.info("MinecraftForge v%s Initialized", new Object[]{ForgeVersion.getVersion()});
         Block filler = new Block(0, Material.AIR);
         Block.BLOCKS[0] = null;
         Block.field_493[0] = false;
@@ -82,7 +83,9 @@ public class MinecraftForge {
 
         boolean[] temp = new boolean[4096];
 
-        System.arraycopy(EndermanEntity.field_3919, 0, temp, 0, EndermanEntity.field_3919.length);
+        for(int x = 0; x < EndermanEntity.field_3919.length; ++x) {
+            temp[x] = EndermanEntity.field_3919[x];
+        }
 
         EndermanEntity.field_3919 = temp;
         EVENT_BUS.register(INTERNAL_HANDLER);

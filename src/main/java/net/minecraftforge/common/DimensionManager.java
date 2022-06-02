@@ -4,12 +4,16 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Maps;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
-import fr.catcore.fabricatedforge.mixininterface.IMinecraftServer;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ServerWorldManager;
-import net.minecraft.util.ProgressListener;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.MultiServerWorld;
 import net.minecraft.world.SaveHandler;
@@ -20,10 +24,8 @@ import net.minecraft.world.dimension.TheEndDimension;
 import net.minecraft.world.dimension.TheNetherDimension;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.storage.WorldSaveException;
-import net.minecraftforge.event.world.WorldEvent;
-
-import java.util.*;
-import java.util.logging.Level;
+import net.minecraftforge.event.world.WorldEvent.Load;
+import net.minecraftforge.event.world.WorldEvent.Unload;
 
 public class DimensionManager {
     private static Hashtable<Integer, Class<? extends Dimension>> providers = new Hashtable();
@@ -85,7 +87,7 @@ public class DimensionManager {
         if (!dimensions.containsKey(dim)) {
             throw new IllegalArgumentException(String.format("Could not get provider type for dimension %d, does not exist", dim));
         } else {
-            return (Integer)dimensions.get(dim);
+            return dimensions.get(dim);
         }
     }
 
@@ -100,11 +102,11 @@ public class DimensionManager {
     public static void setWorld(int id, ServerWorld world) {
         if (world != null) {
             worlds.put(id, world);
-            ((IMinecraftServer)MinecraftServer.getServer()).getWorldTickTimes().put(id, new long[100]);
+            MinecraftServer.getServer().worldTickTimes.put(id, new long[100]);
             FMLLog.info("Loading dimension %d (%s) (%s)", new Object[]{id, world.getLevelProperties().getLevelName(), world.getServer()});
         } else {
             worlds.remove(id);
-            ((IMinecraftServer)MinecraftServer.getServer()).getWorldTickTimes().remove(id);
+            MinecraftServer.getServer().worldTickTimes.remove(id);
             FMLLog.info("Unloading dimension %d", new Object[]{id});
         }
 
@@ -121,17 +123,14 @@ public class DimensionManager {
             tmp.add(worlds.get(1));
         }
 
-        for (Map.Entry<Integer, ServerWorld> entry : worlds.entrySet())
-        {
+        for(Entry<Integer, ServerWorld> entry : worlds.entrySet()) {
             int dim = entry.getKey();
-            if (dim >= -1 && dim <= 1)
-            {
-                continue;
+            if (dim < -1 || dim > 1) {
+                tmp.add(entry.getValue());
             }
-            tmp.add(entry.getValue());
         }
 
-        MinecraftServer.getServer().worlds = tmp.toArray(new ServerWorld[0]);
+        MinecraftServer.getServer().worlds = (ServerWorld[])tmp.toArray(new ServerWorld[0]);
     }
 
     public static void initDimension(int dim) {
@@ -149,11 +148,13 @@ public class DimensionManager {
             MinecraftServer mcServer = overworld.getServer();
             SaveHandler savehandler = overworld.getSaveHandler();
             LevelInfo worldSettings = new LevelInfo(overworld.getLevelProperties());
-            ServerWorld world = dim == 0 ? overworld : new MultiServerWorld(mcServer, savehandler, overworld.getLevelProperties().getLevelName(), dim, worldSettings, overworld, mcServer.profiler);
-            ((ServerWorld)world).addListener(new ServerWorldManager(mcServer, (ServerWorld)world));
-            MinecraftForge.EVENT_BUS.post(new WorldEvent.Load((World)world));
+            ServerWorld world = (ServerWorld)(dim == 0
+                    ? overworld
+                    : new MultiServerWorld(mcServer, savehandler, overworld.getLevelProperties().getLevelName(), dim, worldSettings, overworld, mcServer.profiler));
+            world.addListener(new ServerWorldManager(mcServer, world));
+            MinecraftForge.EVENT_BUS.post(new Load(world));
             if (!mcServer.isSinglePlayer()) {
-                ((ServerWorld)world).getLevelProperties().method_207(mcServer.method_3026());
+                world.getLevelProperties().method_207(mcServer.method_3026());
             }
 
             mcServer.method_3016(mcServer.method_3029());
@@ -170,7 +171,7 @@ public class DimensionManager {
 
     public static boolean shouldLoadSpawn(int dim) {
         int id = getProviderType(dim);
-        return spawnSettings.contains(id) && (Boolean)spawnSettings.get(id);
+        return spawnSettings.contains(id) && spawnSettings.get(id);
     }
 
     public static Integer[] getStaticDimensionIDs() {
@@ -187,7 +188,17 @@ public class DimensionManager {
                 throw new RuntimeException(String.format("No WorldProvider bound for dimension %d", dim));
             }
         } catch (Exception var2) {
-            FMLCommonHandler.instance().getFMLLogger().log(Level.SEVERE, String.format("An error occured trying to create an instance of WorldProvider %d (%s)", dim, ((Class)providers.get(getProviderType(dim))).getSimpleName()), var2);
+            FMLCommonHandler.instance()
+                    .getFMLLogger()
+                    .log(
+                            Level.SEVERE,
+                            String.format(
+                                    "An error occured trying to create an instance of WorldProvider %d (%s)",
+                                    dim,
+                                    ((Class)providers.get(getProviderType(dim))).getSimpleName()
+                            ),
+                            var2
+                    );
             throw new RuntimeException(var2);
         }
     }
@@ -197,13 +208,14 @@ public class DimensionManager {
     }
 
     public static void unloadWorlds(Hashtable<Integer, long[]> worldTickTimes) {
-        for (int id : unloadQueue) {
+        for(int id : unloadQueue) {
             try {
-                worlds.get(id).method_2138(true, null);
-            } catch (Exception e) {
-                e.printStackTrace();
+                ((ServerWorld)worlds.get(id)).method_2138(true, null);
+            } catch (WorldSaveException var4) {
+                var4.printStackTrace();
             }
-            MinecraftForge.EVENT_BUS.post(new WorldEvent.Unload(worlds.get(id)));
+
+            MinecraftForge.EVENT_BUS.post(new Unload((World)worlds.get(id)));
             ((ServerWorld)worlds.get(id)).close();
             setWorld(id, null);
         }
@@ -245,10 +257,9 @@ public class DimensionManager {
     public static void loadDimensionDataMap(NbtCompound compoundTag) {
         if (compoundTag == null) {
             dimensionMap.clear();
-            for (Integer id : dimensions.keySet())
-            {
-                if (id >= 0)
-                {
+
+            for(Integer id : dimensions.keySet()) {
+                if (id >= 0) {
                     dimensionMap.set(id);
                 }
             }

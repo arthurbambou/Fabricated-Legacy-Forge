@@ -1,8 +1,11 @@
 package net.minecraftforge.common;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import net.minecraft.advancement.Achievement;
-
-import java.util.*;
 
 public class AchievementPage {
     private String name;
@@ -35,18 +38,13 @@ public class AchievementPage {
     }
 
     public static AchievementPage getAchievementPage(String name) {
-        Iterator i$ = achievementPages.iterator();
-
-        AchievementPage page;
-        do {
-            if (!i$.hasNext()) {
-                return null;
+        for(AchievementPage page : achievementPages) {
+            if (page.getName().equals(name)) {
+                return page;
             }
+        }
 
-            page = (AchievementPage)i$.next();
-        } while(!page.getName().equals(name));
-
-        return page;
+        return null;
     }
 
     public static Set<AchievementPage> getAchievementPages() {
@@ -54,18 +52,13 @@ public class AchievementPage {
     }
 
     public static boolean isAchievementInPages(Achievement achievement) {
-        Iterator i$ = achievementPages.iterator();
-
-        AchievementPage page;
-        do {
-            if (!i$.hasNext()) {
-                return false;
+        for(AchievementPage page : achievementPages) {
+            if (page.getAchievements().contains(achievement)) {
+                return true;
             }
+        }
 
-            page = (AchievementPage)i$.next();
-        } while(!page.getAchievements().contains(achievement));
-
-        return true;
+        return false;
     }
 
     public static String getTitle(int index) {

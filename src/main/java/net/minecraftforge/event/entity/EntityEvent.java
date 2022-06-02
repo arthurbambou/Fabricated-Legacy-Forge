@@ -10,6 +10,14 @@ public class EntityEvent extends Event {
         this.entity = entity;
     }
 
+    public static class CanUpdate extends EntityEvent {
+        public boolean canUpdate = false;
+
+        public CanUpdate(Entity entity) {
+            super(entity);
+        }
+    }
+
     public static class EnteringChunk extends EntityEvent {
         public int newChunkX;
         public int newChunkZ;
@@ -22,14 +30,6 @@ public class EntityEvent extends Event {
             this.newChunkZ = newChunkZ;
             this.oldChunkX = oldChunkX;
             this.oldChunkZ = oldChunkZ;
-        }
-    }
-
-    public static class CanUpdate extends EntityEvent {
-        public boolean canUpdate = false;
-
-        public CanUpdate(Entity entity) {
-            super(entity);
         }
     }
 }

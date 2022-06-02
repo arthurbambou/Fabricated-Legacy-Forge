@@ -1,11 +1,10 @@
 package net.minecraftforge.event.entity.living;
 
+import java.util.ArrayList;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraftforge.event.Cancelable;
-
-import java.util.ArrayList;
 
 @Cancelable
 public class LivingDropsEvent extends LivingEvent {

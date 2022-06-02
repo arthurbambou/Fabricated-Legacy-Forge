@@ -15,14 +15,14 @@ public class ChunkDataEvent extends ChunkEvent {
         return this.data;
     }
 
-    public static class Save extends ChunkDataEvent {
-        public Save(Chunk chunk, NbtCompound data) {
+    public static class Load extends ChunkDataEvent {
+        public Load(Chunk chunk, NbtCompound data) {
             super(chunk, data);
         }
     }
 
-    public static class Load extends ChunkDataEvent {
-        public Load(Chunk chunk, NbtCompound data) {
+    public static class Save extends ChunkDataEvent {
+        public Save(Chunk chunk, NbtCompound data) {
             super(chunk, data);
         }
     }

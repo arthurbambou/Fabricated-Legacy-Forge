@@ -1,10 +1,9 @@
 package net.minecraftforge.event;
 
+import java.lang.reflect.Method;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
-
-import java.lang.reflect.Method;
 
 public class ASMEventHandler implements IEventListener {
     private static int IDs = 0;
@@ -36,10 +35,10 @@ public class ASMEventHandler implements IEventListener {
         String desc = name.replace('.', '/');
         String instType = Type.getInternalName(callback.getDeclaringClass());
         String eventType = Type.getInternalName(callback.getParameterTypes()[0]);
-        cw.visit(50, 33, desc, (String)null, "java/lang/Object", new String[]{HANDLER_DESC});
-        cw.visitSource(".dynamic", (String)null);
-        cw.visitField(1, "instance", "Ljava/lang/Object;", (String)null, (Object)null).visitEnd();
-        MethodVisitor mv = cw.visitMethod(1, "<init>", "(Ljava/lang/Object;)V", (String)null, (String[])null);
+        cw.visit(50, 33, desc, null, "java/lang/Object", new String[]{HANDLER_DESC});
+        cw.visitSource(".dynamic", null);
+        cw.visitField(1, "instance", "Ljava/lang/Object;", null, null).visitEnd();
+        MethodVisitor mv = cw.visitMethod(1, "<init>", "(Ljava/lang/Object;)V", null, null);
         mv.visitCode();
         mv.visitVarInsn(25, 0);
         mv.visitMethodInsn(183, "java/lang/Object", "<init>", "()V");
@@ -49,7 +48,7 @@ public class ASMEventHandler implements IEventListener {
         mv.visitInsn(177);
         mv.visitMaxs(2, 2);
         mv.visitEnd();
-        mv = cw.visitMethod(1, "invoke", HANDLER_FUNC_DESC, (String)null, (String[])null);
+        mv = cw.visitMethod(1, "invoke", HANDLER_FUNC_DESC, null, null);
         mv.visitCode();
         mv.visitVarInsn(25, 0);
         mv.visitFieldInsn(180, desc, "instance", "Ljava/lang/Object;");
@@ -65,7 +64,14 @@ public class ASMEventHandler implements IEventListener {
     }
 
     private String getUniqueName(Method callback) {
-        return String.format("%s_%d_%s_%s_%s", this.getClass().getName(), IDs++, callback.getDeclaringClass().getSimpleName(), callback.getName(), callback.getParameterTypes()[0].getSimpleName());
+        return String.format(
+                "%s_%d_%s_%s_%s",
+                this.getClass().getName(),
+                IDs++,
+                callback.getDeclaringClass().getSimpleName(),
+                callback.getName(),
+                callback.getParameterTypes()[0].getSimpleName()
+        );
     }
 
     private static class ASMClassLoader extends ClassLoader {

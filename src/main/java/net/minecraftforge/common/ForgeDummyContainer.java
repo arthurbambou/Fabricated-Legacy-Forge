@@ -8,13 +8,12 @@ import cpw.mods.fml.common.ModMetadata;
 import cpw.mods.fml.common.WorldAccessContainer;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import java.util.Arrays;
+import java.util.Map;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.world.WorldSaveHandler;
 import net.minecraft.world.level.LevelProperties;
-
-import java.util.Arrays;
-import java.util.Map;
 
 public class ForgeDummyContainer extends DummyModContainer implements WorldAccessContainer {
     public ForgeDummyContainer() {
@@ -22,7 +21,7 @@ public class ForgeDummyContainer extends DummyModContainer implements WorldAcces
         ModMetadata meta = this.getMetadata();
         meta.modId = "Forge";
         meta.name = "Minecraft Forge";
-        meta.version = String.format("%d.%d.%d.%d", 4, 3, 5, 318);
+        meta.version = String.format("%d.%d.%d.%d", 5, 0, 0, 326);
         meta.credits = "Made possible with help from many people";
         meta.authorList = Arrays.asList("LexManos", "Eloraam", "Spacetoad");
         meta.description = "Minecraft Forge is a common open source API allowing a broad range of mods to work cooperatively together. It allows many mods to be created without them editing the main Minecraft code.";

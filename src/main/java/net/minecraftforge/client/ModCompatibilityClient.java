@@ -2,7 +2,10 @@ package net.minecraftforge.client;
 
 import cpw.mods.fml.client.FMLClientHandler;
 import cpw.mods.fml.common.FMLLog;
-import fr.catcore.fabricatedforge.mixininterface.ISoundSystem;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.logging.Level;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.sound.Sound;
 import net.minecraft.client.sound.SoundLoader;
@@ -13,11 +16,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import paulscode.sound.SoundSystemConfig;
 import paulscode.sound.codecs.CodecIBXM;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.logging.Level;
 
 public class ModCompatibilityClient {
     public static SoundLoader audioModSoundPoolCave;
@@ -44,8 +42,8 @@ public class ModCompatibilityClient {
         audioModLoadModAudio("resources/mod/streaming", mngr.bgmusicLoader);
         audioModLoadModAudio("resources/mod/music", mngr.musicLoader);
         audioModLoadModAudio("resources/mod/cavemusic", audioModSoundPoolCave);
-        if (((ISoundSystem)mngr).getMUSIC_INTERVAL() == 12000) {
-            ((ISoundSystem)mngr).setMUSIC_INTERVAL(6000);
+        if (SoundSystem.MUSIC_INTERVAL == 12000) {
+            SoundSystem.MUSIC_INTERVAL = 6000;
         }
 
     }
@@ -63,24 +61,19 @@ public class ModCompatibilityClient {
     }
 
     private static void audioModWalkFolder(File base, File folder, SoundLoader pool) throws IOException {
-        if (folder.exists() || folder.mkdirs())
-        {
-            for (File file : folder.listFiles())
-            {
-                if (!file.getName().startsWith("."))
-                {
-                    if (file.isDirectory())
-                    {
+        if (folder.exists() || folder.mkdirs()) {
+            for(File file : folder.listFiles()) {
+                if (!file.getName().startsWith(".")) {
+                    if (file.isDirectory()) {
                         audioModWalkFolder(base, file, pool);
-                    }
-                    else if (file.isFile())
-                    {
+                    } else if (file.isFile()) {
                         String subpath = file.getPath().substring(base.getPath().length() + 1).replace('\\', '/');
                         pool.getSound(subpath, file);
                     }
                 }
             }
         }
+
     }
 
     public static void audioModAddCodecs() {
@@ -113,7 +106,7 @@ public class ModCompatibilityClient {
     public static Object mlmpVehicleSpawn(int type, World world, double x, double y, double z, Entity thrower, Object currentEntity) throws Exception {
         Class mlmp = getClass("ModLoaderMp");
         if (isMLMPInstalled() && mlmp != null) {
-            Object entry = mlmp.getDeclaredMethod("handleNetClientHandlerEntities", Integer.TYPE).invoke((Object)null, type);
+            Object entry = mlmp.getDeclaredMethod("handleNetClientHandlerEntities", Integer.TYPE).invoke(null, type);
             if (entry == null) {
                 return currentEntity;
             } else {
@@ -130,7 +123,9 @@ public class ModCompatibilityClient {
                         FMLLog.fine("Received spawn packet for entity with owner, but owner was not found.", new Object[0]);
                     } else {
                         if (!owner.getType().isAssignableFrom(thrower.getClass())) {
-                            throw new Exception(String.format("Tried to assign an entity of type %s to entity owner, which is of type %s.", thrower.getClass(), owner.getType()));
+                            throw new Exception(
+                                    String.format("Tried to assign an entity of type %s to entity owner, which is of type %s.", thrower.getClass(), owner.getType())
+                            );
                         }
 
                         owner.set(ret, thrower);
@@ -148,7 +143,7 @@ public class ModCompatibilityClient {
         Class mlmp = getClass("ModLoaderMp");
         if (isMLMPInstalled() && mlmp != null) {
             try {
-                mlmp.getDeclaredMethod("handleGUI", OpenScreen_S2CPacket.class).invoke((Object)null, pkt);
+                mlmp.getDeclaredMethod("handleGUI", OpenScreen_S2CPacket.class).invoke(null, pkt);
             } catch (Exception var3) {
                 var3.printStackTrace();
             }

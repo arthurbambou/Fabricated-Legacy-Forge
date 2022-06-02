@@ -1,157 +1,129 @@
 package net.minecraftforge.oredict;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.RecipeType;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import net.minecraft.world.World;
 
 public class ShapedOreRecipe implements RecipeType {
     private static final int MAX_CRAFT_GRID_WIDTH = 3;
     private static final int MAX_CRAFT_GRID_HEIGHT = 3;
-    private ItemStack output;
-    private Object[] input;
-    private int width;
-    private int height;
-    private boolean mirriored;
+    private ItemStack output = null;
+    private Object[] input = null;
+    private int width = 0;
+    private int height = 0;
+    private boolean mirrored = true;
 
     public ShapedOreRecipe(Block result, Object... recipe) {
-        this(result, true, recipe);
+        this(new ItemStack(result), recipe);
     }
 
     public ShapedOreRecipe(Item result, Object... recipe) {
-        this(result, true, recipe);
+        this(new ItemStack(result), recipe);
     }
 
     public ShapedOreRecipe(ItemStack result, Object... recipe) {
-        this(result, true, recipe);
-    }
-
-    public ShapedOreRecipe(Block result, boolean mirrior, Object... recipe) {
-        this(new ItemStack(result), mirrior, recipe);
-    }
-
-    public ShapedOreRecipe(Item result, boolean mirrior, Object... recipe) {
-        this(new ItemStack(result), mirrior, recipe);
-    }
-
-    public ShapedOreRecipe(ItemStack result, boolean mirrior, Object... recipe) {
         this.output = result.copy();
-        this.mirriored = mirrior;
-
         String shape = "";
         int idx = 0;
+        if (recipe[idx] instanceof Boolean) {
+            this.mirrored = (boolean) recipe[idx];
+            if (recipe[idx + 1] instanceof Object[]) {
+                recipe = (Object[]) recipe[idx + 1];
+            } else {
+                idx = 1;
+            }
+        }
 
-        if (recipe[idx] instanceof String[])
-        {
-            String[] parts = ((String[])recipe[idx++]);
+        if (recipe[idx] instanceof String[]) {
+            String[] parts = (String[])recipe[idx++];
 
-            for (String s : parts)
-            {
+            for(String s : parts) {
                 this.width = s.length();
-                shape += s;
+                shape = shape + s;
             }
 
             this.height = parts.length;
-        }
-        else
-        {
-            while (recipe[idx] instanceof String)
-            {
+        } else {
+            while(recipe[idx] instanceof String) {
                 String s = (String)recipe[idx++];
-                shape += s;
+                shape = shape + s;
                 this.width = s.length();
-                this.height++;
+                ++this.height;
             }
         }
 
-        if (this.width * this.height != shape.length())
-        {
+        if (this.width * this.height != shape.length()) {
             String ret = "Invalid shaped ore recipe: ";
-            for (Object tmp :  recipe)
-            {
-                ret += tmp + ", ";
+
+            for(Object tmp : recipe) {
+                ret = ret + tmp + ", ";
             }
-            ret += this.output;
+
+            ret = ret + this.output;
             throw new RuntimeException(ret);
-        }
+        } else {
+            HashMap<Character, Object> itemMap;
+            for(itemMap = new HashMap<>(); idx < recipe.length; idx += 2) {
+                Character chr = (Character)recipe[idx];
+                Object in = recipe[idx + 1];
+                Object val = null;
+                if (in instanceof ItemStack) {
+                    itemMap.put(chr, ((ItemStack)in).copy());
+                } else if (in instanceof Item) {
+                    itemMap.put(chr, new ItemStack((Item)in));
+                } else if (in instanceof Block) {
+                    itemMap.put(chr, new ItemStack((Block)in, 1, -1));
+                } else {
+                    if (!(in instanceof String)) {
+                        String ret = "Invalid shaped ore recipe: ";
 
-        HashMap<Character, Object> itemMap = new HashMap<Character, Object>();
+                        for(Object tmp : recipe) {
+                            ret = ret + tmp + ", ";
+                        }
 
-        for (; idx < recipe.length; idx += 2)
-        {
-            Character chr = (Character)recipe[idx];
-            Object in = recipe[idx + 1];
-            Object val = null;
+                        ret = ret + this.output;
+                        throw new RuntimeException(ret);
+                    }
 
-            if (in instanceof ItemStack)
-            {
-                itemMap.put(chr, ((ItemStack)in).copy());
-            }
-            else if (in instanceof Item)
-            {
-                itemMap.put(chr, new ItemStack((Item)in));
-            }
-            else if (in instanceof Block)
-            {
-                itemMap.put(chr, new ItemStack((Block)in, 1, -1));
-            }
-            else if (in instanceof String)
-            {
-                itemMap.put(chr, OreDictionary.getOres((String)in));
-            }
-            else
-            {
-                String ret = "Invalid shaped ore recipe: ";
-                for (Object tmp :  recipe)
-                {
-                    ret += tmp + ", ";
+                    itemMap.put(chr, OreDictionary.getOres((String)in));
                 }
-                ret += this.output;
-                throw new RuntimeException(ret);
             }
-        }
 
-        this.input = new Object[this.width * this.height];
-        int x = 0;
-        for (char chr : shape.toCharArray())
-        {
-            this.input[x++] = itemMap.get(chr);
+            this.input = new Object[this.width * this.height];
+            int x = 0;
+
+            for(char chr : shape.toCharArray()) {
+                this.input[x++] = itemMap.get(chr);
+            }
+
         }
     }
 
-    @Override
     public ItemStack getResult(CraftingInventory var1) {
         return this.output.copy();
     }
 
-    @Override
     public int getSize() {
         return this.input.length;
     }
 
-    @Override
     public ItemStack getOutput() {
         return this.output;
     }
 
-    @Override
-    public boolean method_3500(CraftingInventory inv) {
-        for (int x = 0; x <= MAX_CRAFT_GRID_WIDTH - width; x++)
-        {
-            for (int y = 0; y <= MAX_CRAFT_GRID_HEIGHT - height; ++y)
-            {
-                if (this.checkMatch(inv, x, y, true))
-                {
+    public boolean matches(CraftingInventory inv, World world) {
+        for(int x = 0; x <= 3 - this.width; ++x) {
+            for(int y = 0; y <= 3 - this.height; ++y) {
+                if (this.checkMatch(inv, x, y, true)) {
                     return true;
                 }
 
-                if (this.mirriored && this.checkMatch(inv, x, y, false))
-                {
+                if (this.mirrored && this.checkMatch(inv, x, y, false)) {
                     return true;
                 }
             }
@@ -160,53 +132,39 @@ public class ShapedOreRecipe implements RecipeType {
         return false;
     }
 
-    private boolean checkMatch(CraftingInventory inv, int startX, int startY, boolean mirrior) {
-        for (int x = 0; x < MAX_CRAFT_GRID_WIDTH; x++)
-        {
-            for (int y = 0; y < MAX_CRAFT_GRID_HEIGHT; y++)
-            {
+    private boolean checkMatch(CraftingInventory inv, int startX, int startY, boolean mirror) {
+        for(int x = 0; x < 3; ++x) {
+            for(int y = 0; y < 3; ++y) {
                 int subX = x - startX;
                 int subY = y - startY;
                 Object target = null;
-
-                if (subX >= 0 && subY >= 0 && subX < this.width && subY < this.height)
-                {
-                    if (mirrior)
-                    {
+                if (subX >= 0 && subY >= 0 && subX < this.width && subY < this.height) {
+                    if (mirror) {
                         target = this.input[this.width - subX - 1 + subY * this.width];
-                    }
-                    else
-                    {
+                    } else {
                         target = this.input[subX + subY * this.width];
                     }
                 }
 
                 ItemStack slot = inv.method_3280(x, y);
-
-                if (target instanceof ItemStack)
-                {
-                    if (!this.checkItemEquals((ItemStack)target, slot))
-                    {
+                if (target instanceof ItemStack) {
+                    if (!this.checkItemEquals((ItemStack)target, slot)) {
                         return false;
                     }
-                }
-                else if (target instanceof ArrayList)
-                {
+                } else if (!(target instanceof ArrayList)) {
+                    if (target == null && slot != null) {
+                        return false;
+                    }
+                } else {
                     boolean matched = false;
 
-                    for (ItemStack item : (ArrayList<ItemStack>)target)
-                    {
+                    for(ItemStack item : (ArrayList<ItemStack>)target) {
                         matched = matched || this.checkItemEquals(item, slot);
                     }
 
-                    if (!matched)
-                    {
+                    if (!matched) {
                         return false;
                     }
-                }
-                else if (target == null && slot != null)
-                {
-                    return false;
                 }
             }
         }
@@ -222,7 +180,8 @@ public class ShapedOreRecipe implements RecipeType {
         }
     }
 
-    public void setMirriored(boolean mirrior) {
-        this.mirriored = mirrior;
+    public ShapedOreRecipe setMirrored(boolean mirror) {
+        this.mirrored = mirror;
+        return this;
     }
 }

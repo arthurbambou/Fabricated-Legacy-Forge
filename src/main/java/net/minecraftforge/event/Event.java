@@ -1,23 +1,31 @@
 package net.minecraftforge.event;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 public class Event {
     private boolean isCanceled = false;
     private final boolean isCancelable;
+    private Event.Result result = Event.Result.DEFAULT;
+    private final boolean hasResult;
     private static ListenerList listeners = new ListenerList();
 
     public Event() {
         this.setup();
-        Class cls = this.getClass();
+        this.isCancelable = this.hasAnnotation(Cancelable.class);
+        this.hasResult = this.hasAnnotation(Event.HasResult.class);
+    }
 
-        boolean found;
-        for(found = false; cls != Event.class; cls = cls.getSuperclass()) {
+    private boolean hasAnnotation(Class annotation) {
+        for(Class cls = this.getClass(); cls != Event.class; cls = cls.getSuperclass()) {
             if (cls.isAnnotationPresent(Cancelable.class)) {
-                found = true;
-                break;
+                return true;
             }
         }
 
-        this.isCancelable = found;
+        return false;
     }
 
     public boolean isCancelable() {
@@ -36,11 +44,28 @@ public class Event {
         }
     }
 
+    public boolean hasResult() {
+        return this.hasResult;
+    }
+
+    public Event.Result getResult() {
+        return this.result;
+    }
+
+    public void setResult(Event.Result value) {
+        this.result = value;
+    }
+
     protected void setup() {
     }
 
     public ListenerList getListenerList() {
         return listeners;
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target({ElementType.TYPE})
+    public @interface HasResult {
     }
 
     public static enum Result {

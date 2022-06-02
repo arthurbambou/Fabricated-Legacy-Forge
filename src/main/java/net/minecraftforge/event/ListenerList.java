@@ -2,7 +2,6 @@ package net.minecraftforge.event;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 public class ListenerList {
     private static ArrayList<ListenerList> allLists = new ArrayList();
@@ -22,15 +21,13 @@ public class ListenerList {
     }
 
     public static void resize(int max) {
-        if (max <= maxSize)
-        {
-            return;
+        if (max > maxSize) {
+            for(ListenerList list : allLists) {
+                list.resizeLists(max);
+            }
+
+            maxSize = max;
         }
-        for (ListenerList list : allLists)
-        {
-            list.resizeLists(max);
-        }
-        maxSize = max;
     }
 
     public void resizeLists(int max) {
@@ -59,10 +56,10 @@ public class ListenerList {
     }
 
     public static void clearBusID(int id) {
-        for (ListenerList list : allLists)
-        {
+        for(ListenerList list : allLists) {
             list.lists[id].dispose();
         }
+
     }
 
     protected ListenerList.ListenerListInst getInstance(int id) {
@@ -82,36 +79,36 @@ public class ListenerList {
     }
 
     public static void unregiterAll(int id, IEventListener listener) {
-        for (ListenerList list : allLists)
-        {
+        for(ListenerList list : allLists) {
             list.unregister(id, listener);
         }
+
     }
 
     private class ListenerListInst {
-        private boolean rebuild;
+        private boolean rebuild = true;
         private IEventListener[] listeners;
         private ArrayList<ArrayList<IEventListener>> priorities;
         private ListenerList.ListenerListInst parent;
 
         private ListenerListInst() {
             int count = EventPriority.values().length;
-            priorities = new ArrayList<ArrayList<IEventListener>>(count);
+            this.priorities = new ArrayList(count);
 
-            for (int x = 0; x < count; x++)
-            {
-                priorities.add(new ArrayList<IEventListener>());
+            for(int x = 0; x < count; ++x) {
+                this.priorities.add(new ArrayList());
             }
+
         }
 
         public void dispose() {
-            for (ArrayList<IEventListener> listeners : priorities)
-            {
+            for(ArrayList<IEventListener> listeners : this.priorities) {
                 listeners.clear();
             }
-            priorities.clear();
-            parent = null;
-            listeners = null;
+
+            this.priorities.clear();
+            this.parent = null;
+            this.listeners = null;
         }
 
         private ListenerListInst(ListenerList.ListenerListInst parent) {
@@ -141,25 +138,26 @@ public class ListenerList {
         }
 
         private void buildCache() {
-            ArrayList<IEventListener> ret = new ArrayList<IEventListener>();
-            for (EventPriority value : EventPriority.values())
-            {
-                ret.addAll(getListeners(value));
+            ArrayList<IEventListener> ret = new ArrayList();
+
+            for(EventPriority value : EventPriority.values()) {
+                ret.addAll(this.getListeners(value));
             }
-            listeners = ret.toArray(new IEventListener[0]);
-            rebuild = false;
+
+            this.listeners = (IEventListener[])ret.toArray(new IEventListener[0]);
+            this.rebuild = false;
         }
 
         public void register(EventPriority priority, IEventListener listener) {
-            priorities.get(priority.ordinal()).add(listener);
-            rebuild = true;
+            ((ArrayList)this.priorities.get(priority.ordinal())).add(listener);
+            this.rebuild = true;
         }
 
         public void unregister(IEventListener listener) {
-            for(ArrayList<IEventListener> list : priorities)
-            {
+            for(ArrayList<IEventListener> list : this.priorities) {
                 list.remove(listener);
             }
+
         }
     }
 }

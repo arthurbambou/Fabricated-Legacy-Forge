@@ -4,9 +4,10 @@ import net.minecraft.block.Block;
 import net.minecraft.client.class_535;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.IItemRenderer.ItemRenderType;
 
 public class MinecraftForgeClient {
-    private static IItemRenderer[] customItemRenderers;
+    private static IItemRenderer[] customItemRenderers = new IItemRenderer[Item.ITEMS.length];
 
     public MinecraftForgeClient() {
     }
@@ -33,12 +34,8 @@ public class MinecraftForgeClient {
         customItemRenderers[itemID] = renderer;
     }
 
-    public static IItemRenderer getItemRenderer(ItemStack item, IItemRenderer.ItemRenderType type) {
+    public static IItemRenderer getItemRenderer(ItemStack item, ItemRenderType type) {
         IItemRenderer renderer = customItemRenderers[item.id];
         return renderer != null && renderer.handleRenderType(item, type) ? customItemRenderers[item.id] : null;
-    }
-
-    static {
-        customItemRenderers = new IItemRenderer[Item.ITEMS.length];
     }
 }

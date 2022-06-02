@@ -1,13 +1,11 @@
 package net.minecraftforge.common;
 
+import java.util.ArrayList;
+import java.util.Random;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.Weight;
 import net.minecraft.util.collection.Weighting;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
 
 public class DungeonHooks {
     private static int dungeonLootAttempts = 8;
@@ -28,34 +26,31 @@ public class DungeonHooks {
     public static float addDungeonMob(String name, int rarity) {
         if (rarity <= 0) {
             throw new IllegalArgumentException("Rarity must be greater then zero");
-        }
-
-        for (DungeonMob mob : dungeonMobs)
-        {
-            if (name.equals(mob.type))
-            {
-                return mob.weight += rarity;
+        } else {
+            for(DungeonHooks.DungeonMob mob : dungeonMobs) {
+                if (name.equals(mob.type)) {
+                    return (float)(mob.weight += rarity);
+                }
             }
-        }
 
-        dungeonMobs.add(new DungeonMob(rarity, name));
-        return rarity;
+            dungeonMobs.add(new DungeonHooks.DungeonMob(rarity, name));
+            return (float)rarity;
+        }
     }
 
     public static int removeDungeonMob(String name) {
-        for (DungeonMob mob : dungeonMobs)
-        {
-            if (name.equals(mob.type))
-            {
+        for(DungeonHooks.DungeonMob mob : dungeonMobs) {
+            if (name.equals(mob.type)) {
                 dungeonMobs.remove(mob);
                 return mob.weight;
             }
         }
+
         return 0;
     }
 
     public static String getRandomDungeonMob(Random rand) {
-        DungeonHooks.DungeonMob mob = (DungeonHooks.DungeonMob) Weighting.getRandom(rand, dungeonMobs);
+        DungeonHooks.DungeonMob mob = (DungeonHooks.DungeonMob)Weighting.getRandom(rand, dungeonMobs);
         return mob == null ? "" : mob.type;
     }
 
@@ -64,16 +59,14 @@ public class DungeonHooks {
     }
 
     public static float addDungeonLoot(ItemStack item, int rarity, int minCount, int maxCount) {
-        for (DungeonLoot loot : dungeonLoot)
-        {
-            if (loot.equals(item, minCount, maxCount))
-            {
-                return loot.weight += rarity;
+        for(DungeonHooks.DungeonLoot loot : dungeonLoot) {
+            if (loot.equals(item, minCount, maxCount)) {
+                return (float)(loot.weight += rarity);
             }
         }
 
-        dungeonLoot.add(new DungeonLoot(rarity, item, minCount, maxCount));
-        return rarity;
+        dungeonLoot.add(new DungeonHooks.DungeonLoot(rarity, item, minCount, maxCount));
+        return (float)rarity;
     }
 
     public static void removeDungeonLoot(ItemStack item) {
@@ -81,27 +74,21 @@ public class DungeonHooks {
     }
 
     public static void removeDungeonLoot(ItemStack item, int minCount, int maxCount) {
-        ArrayList<DungeonLoot> lootTmp = (ArrayList<DungeonLoot>)dungeonLoot.clone();
-        if (minCount < 0)
-        {
-            for (DungeonLoot loot : lootTmp)
-            {
-                if (loot.equals(item))
-                {
+        ArrayList<DungeonHooks.DungeonLoot> lootTmp = (ArrayList)dungeonLoot.clone();
+        if (minCount < 0) {
+            for(DungeonHooks.DungeonLoot loot : lootTmp) {
+                if (loot.equals(item)) {
+                    dungeonLoot.remove(loot);
+                }
+            }
+        } else {
+            for(DungeonHooks.DungeonLoot loot : lootTmp) {
+                if (loot.equals(item, minCount, maxCount)) {
                     dungeonLoot.remove(loot);
                 }
             }
         }
-        else
-        {
-            for (DungeonLoot loot : lootTmp)
-            {
-                if (loot.equals(item, minCount, maxCount))
-                {
-                    dungeonLoot.remove(loot);
-                }
-            }
-        }
+
     }
 
     public static ItemStack getRandomDungeonLoot(Random rand) {
@@ -135,19 +122,6 @@ public class DungeonHooks {
         addDungeonLoot(new ItemStack(Item.DYES, 1, 3), 100);
     }
 
-    public static class DungeonMob extends Weight {
-        public String type;
-
-        public DungeonMob(int weight, String type) {
-            super(weight);
-            this.type = type;
-        }
-
-        public boolean equals(Object target) {
-            return target instanceof DungeonHooks.DungeonMob ? this.type.equals(((DungeonHooks.DungeonMob)target).type) : false;
-        }
-    }
-
     public static class DungeonLoot extends Weight {
         private ItemStack itemStack;
         private int minCount = 1;
@@ -172,6 +146,19 @@ public class DungeonHooks {
 
         public boolean equals(ItemStack item) {
             return item.equalsIgnoreNbt(this.itemStack);
+        }
+    }
+
+    public static class DungeonMob extends Weight {
+        public String type;
+
+        public DungeonMob(int weight, String type) {
+            super(weight);
+            this.type = type;
+        }
+
+        public boolean equals(Object target) {
+            return target instanceof DungeonHooks.DungeonMob ? this.type.equals(((DungeonHooks.DungeonMob)target).type) : false;
         }
     }
 }

@@ -1,15 +1,19 @@
 package net.minecraftforge.common;
 
-import fr.catcore.fabricatedforge.mixininterface.IWeightedRandomChestContent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.structure.*;
-import net.minecraft.util.WeightedRandomChestContent;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Random;
+import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.structure.MineshaftPieces;
+import net.minecraft.structure.class_15;
+import net.minecraft.structure.class_19;
+import net.minecraft.structure.class_24;
+import net.minecraft.structure.class_49;
+import net.minecraft.structure.class_5;
+import net.minecraft.structure.class_6;
+import net.minecraft.util.WeightedRandomChestContent;
 
 public class ChestGenHooks {
     public static final String MINESHAFT_CORRIDOR = "mineshaftCorridor";
@@ -24,9 +28,9 @@ public class ChestGenHooks {
     private static final HashMap<String, ChestGenHooks> chestInfo = new HashMap();
     private static boolean hasInit = false;
     private String category;
-    private int countMin;
-    private int countMax;
-    private ArrayList<WeightedRandomChestContent> contents;
+    private int countMin = 0;
+    private int countMax = 0;
+    private ArrayList<WeightedRandomChestContent> contents = new ArrayList();
 
     private static void init() {
         if (!hasInit) {
@@ -67,7 +71,8 @@ public class ChestGenHooks {
                 ret[x].count = 1;
             }
         } else {
-            ret = new ItemStack[]{source.copy()};
+            ret = new ItemStack[1];
+            ret[0] = source.copy();
             ret[0].count = count;
         }
 
@@ -91,19 +96,13 @@ public class ChestGenHooks {
     }
 
     public ChestGenHooks(String category) {
-        this.countMin = 0;
-        this.countMax = 0;
-        this.contents = new ArrayList();
         this.category = category;
     }
 
     public ChestGenHooks(String category, WeightedRandomChestContent[] items, int min, int max) {
         this(category);
-        WeightedRandomChestContent[] arr$ = items;
-        int len$ = items.length;
 
-        for(int i$ = 0; i$ < len$; ++i$) {
-            WeightedRandomChestContent item = arr$[i$];
+        for(WeightedRandomChestContent item : items) {
             this.contents.add(item);
         }
 
@@ -118,18 +117,13 @@ public class ChestGenHooks {
     public void removeItem(ItemStack item) {
         Iterator<WeightedRandomChestContent> itr = this.contents.iterator();
 
-        while(true) {
-            WeightedRandomChestContent cont;
-            do {
-                if (!itr.hasNext()) {
-                    return;
-                }
-
-                cont = (WeightedRandomChestContent)itr.next();
-            } while(!item.equalsIgnoreNbt(((IWeightedRandomChestContent)cont).getItemStack()) && (item.getMeta() != -1 || item.id != ((IWeightedRandomChestContent)cont).getItemStack().id));
-
-            itr.remove();
+        while(itr.hasNext()) {
+            WeightedRandomChestContent cont = (WeightedRandomChestContent)itr.next();
+            if (item.equalsIgnoreNbt(cont.itemStack) || item.getMeta() == -1 && item.id == cont.itemStack.id) {
+                itr.remove();
+            }
         }
+
     }
 
     public WeightedRandomChestContent[] getItems() {

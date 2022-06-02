@@ -3,49 +3,47 @@ package net.minecraftforge.common;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PushbackInputStream;
+import java.io.Reader;
+import java.text.DateFormat;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
-
-import java.io.*;
-import java.text.DateFormat;
-import java.util.*;
+import net.minecraftforge.common.Property.Type;
 
 public class Configuration {
-    private static boolean[] configBlocks;
-    private static boolean[] configItems;
+    private static boolean[] configBlocks = new boolean[Block.BLOCKS.length];
+    private static boolean[] configItems = new boolean[Item.ITEMS.length];
     private static final int ITEM_SHIFT = 256;
     public static final String CATEGORY_GENERAL = "general";
     public static final String CATEGORY_BLOCK = "block";
     public static final String CATEGORY_ITEM = "item";
     public static final String ALLOWED_CHARS = "._-";
     public static final String DEFAULT_ENCODING = "UTF-8";
-    private static final CharMatcher allowedProperties;
+    private static final CharMatcher allowedProperties = CharMatcher.JAVA_LETTER_OR_DIGIT.or(CharMatcher.anyOf("._-"));
     File file;
-    public Map<String, Map<String, Property>> categories;
-    /** @deprecated */
-    @Deprecated
-    public TreeMap<String, Property> blockProperties;
-    /** @deprecated */
-    @Deprecated
-    public TreeMap<String, Property> itemProperties;
-    /** @deprecated */
-    @Deprecated
-    public TreeMap<String, Property> generalProperties;
-    private Map<String, String> customCategoryComments;
+    public Map<String, Map<String, Property>> categories = new TreeMap();
+    private Map<String, String> customCategoryComments = Maps.newHashMap();
     private boolean caseSensitiveCustomCategories;
-    public String defaultEncoding;
+    public String defaultEncoding = "UTF-8";
 
     public Configuration(File file) {
-        this.categories = new TreeMap();
-        this.blockProperties = new TreeMap();
-        this.itemProperties = new TreeMap();
-        this.generalProperties = new TreeMap();
-        this.customCategoryComments = Maps.newHashMap();
-        this.defaultEncoding = "UTF-8";
         this.file = file;
-        this.categories.put("general", this.generalProperties);
-        this.categories.put("block", this.blockProperties);
-        this.categories.put("item", this.itemProperties);
     }
 
     public Configuration(File file, boolean caseSensitiveCustomCategories) {
@@ -107,7 +105,7 @@ public class Configuration {
     }
 
     public Property get(String category, String key, int defaultValue) {
-        Property prop = this.get(category, key, Integer.toString(defaultValue), Property.Type.INTEGER);
+        Property prop = this.get(category, key, Integer.toString(defaultValue), Type.INTEGER);
         if (!prop.isIntValue()) {
             prop.value = Integer.toString(defaultValue);
         }
@@ -116,7 +114,7 @@ public class Configuration {
     }
 
     public Property get(String category, String key, boolean defaultValue) {
-        Property prop = this.get(category, key, Boolean.toString(defaultValue), Property.Type.BOOLEAN);
+        Property prop = this.get(category, key, Boolean.toString(defaultValue), Type.BOOLEAN);
         if (!prop.isBooleanValue()) {
             prop.value = Boolean.toString(defaultValue);
         }
@@ -125,10 +123,10 @@ public class Configuration {
     }
 
     public Property get(String category, String key, String defaultValue) {
-        return this.get(category, key, defaultValue, Property.Type.STRING);
+        return this.get(category, key, defaultValue, Type.STRING);
     }
 
-    public Property get(String category, String key, String defaultValue, Property.Type type) {
+    public Property get(String category, String key, String defaultValue, Type type) {
         if (!this.caseSensitiveCustomCategories) {
             category = category.toLowerCase(Locale.ENGLISH);
         }
@@ -139,11 +137,11 @@ public class Configuration {
             this.categories.put(category, source);
         }
 
-        if (((Map)source).containsKey(key)) {
-            return (Property)((Map)source).get(key);
+        if (source.containsKey(key)) {
+            return (Property)source.get(key);
         } else if (defaultValue != null) {
             Property prop = new Property(key, defaultValue, type);
-            ((Map)source).put(key, prop);
+            source.put(key, prop);
             return prop;
         } else {
             return null;
@@ -167,84 +165,86 @@ public class Configuration {
                 this.file.getParentFile().mkdirs();
             }
 
-            if (!this.file.exists() && !this.file.createNewFile()) {
-                return;
-            }
+            if (this.file.exists() || this.file.createNewFile()) {
+                if (this.file.canRead()) {
+                    Configuration.UnicodeInputStreamReader input = new Configuration.UnicodeInputStreamReader(
+                            new FileInputStream(this.file), this.defaultEncoding
+                    );
+                    this.defaultEncoding = input.getEncoding();
+                    buffer = new BufferedReader(input);
+                    Map<String, Property> currentMap = null;
 
-            if (this.file.canRead()) {
-                Configuration.UnicodeInputStreamReader input = new Configuration.UnicodeInputStreamReader(new FileInputStream(this.file), this.defaultEncoding);
-                this.defaultEncoding = input.getEncoding();
-                buffer = new BufferedReader(input);
-                Map<String, Property> currentMap = null;
+                    boolean quoted;
+                    do {
+                        String line = buffer.readLine();
+                        if (line == null) {
+                            return;
+                        }
 
-                while(true) {
-                    String line = buffer.readLine();
-                    if (line == null) {
-                        break;
-                    }
+                        int nameStart = -1;
+                        int nameEnd = -1;
+                        boolean skip = false;
+                        quoted = false;
 
-                    int nameStart = -1;
-                    int nameEnd = -1;
-                    boolean skip = false;
-                    boolean quoted = false;
+                        for(int i = 0; i < line.length() && !skip; ++i) {
+                            if (Character.isLetterOrDigit(line.charAt(i)) || "._-".indexOf(line.charAt(i)) != -1 || quoted && line.charAt(i) != '"') {
+                                if (nameStart == -1) {
+                                    nameStart = i;
+                                }
 
-                    for(int i = 0; i < line.length() && !skip; ++i) {
-                        if (Character.isLetterOrDigit(line.charAt(i)) || "._-".indexOf(line.charAt(i)) != -1 || quoted && line.charAt(i) != '"') {
-                            if (nameStart == -1) {
-                                nameStart = i;
-                            }
+                                nameEnd = i;
+                            } else if (!Character.isWhitespace(line.charAt(i))) {
+                                switch(line.charAt(i)) {
+                                    case '"':
+                                        if (quoted) {
+                                            quoted = false;
+                                        }
 
-                            nameEnd = i;
-                        } else if (!Character.isWhitespace(line.charAt(i))) {
-                            switch (line.charAt(i)) {
-                                case '"':
-                                    if (quoted) {
-                                        quoted = false;
-                                    }
+                                        if (!quoted && nameStart == -1) {
+                                            quoted = true;
+                                        }
+                                        break;
+                                    case '#':
+                                        skip = true;
+                                        break;
+                                    case '=':
+                                        String propertyName = line.substring(nameStart, nameEnd + 1);
+                                        if (currentMap == null) {
+                                            throw new RuntimeException("property " + propertyName + " has no scope");
+                                        }
 
-                                    if (!quoted && nameStart == -1) {
-                                        quoted = true;
-                                    }
-                                    break;
-                                case '#':
-                                    skip = true;
-                                    break;
-                                case '=':
-                                    String propertyName = line.substring(nameStart, nameEnd + 1);
-                                    if (currentMap == null) {
-                                        throw new RuntimeException("property " + propertyName + " has no scope");
-                                    }
-
-                                    Property prop = new Property();
-                                    prop.setName(propertyName);
-                                    prop.value = line.substring(i + 1);
-                                    i = line.length();
-                                    ((Map)currentMap).put(propertyName, prop);
-                                    break;
-                                case '{':
-                                    String scopeName = line.substring(nameStart, nameEnd + 1);
-                                    currentMap = (Map)this.categories.get(scopeName);
-                                    if (currentMap == null) {
-                                        currentMap = new TreeMap();
-                                        this.categories.put(scopeName, currentMap);
-                                    }
-                                    break;
-                                case '}':
-                                    currentMap = null;
-                                    break;
-                                default:
-                                    throw new RuntimeException("unknown character " + line.charAt(i));
+                                        Property prop = new Property();
+                                        prop.setName(propertyName);
+                                        prop.value = line.substring(i + 1);
+                                        i = line.length();
+                                        currentMap.put(propertyName, prop);
+                                        break;
+                                    case '{':
+                                        String scopeName = line.substring(nameStart, nameEnd + 1);
+                                        currentMap = (Map)this.categories.get(scopeName);
+                                        if (currentMap == null) {
+                                            currentMap = new TreeMap();
+                                            this.categories.put(scopeName, currentMap);
+                                        }
+                                        break;
+                                    case '}':
+                                        currentMap = null;
+                                        break;
+                                    default:
+                                        throw new RuntimeException("unknown character " + line.charAt(i));
+                                }
                             }
                         }
-                    }
+                    } while(!quoted);
 
-                    if (quoted) {
-                        throw new RuntimeException("unmatched quote");
-                    }
+                    throw new RuntimeException("unmatched quote");
                 }
+
+                return;
             }
         } catch (IOException var22) {
             var22.printStackTrace();
+            return;
         } finally {
             if (buffer != null) {
                 try {
@@ -258,62 +258,54 @@ public class Configuration {
     }
 
     public void save() {
-        try
-        {
-            if (file.getParentFile() != null)
-            {
-                file.getParentFile().mkdirs();
+        try {
+            if (this.file.getParentFile() != null) {
+                this.file.getParentFile().mkdirs();
             }
 
-            if (!file.exists() && !file.createNewFile())
-            {
+            if (!this.file.exists() && !this.file.createNewFile()) {
                 return;
             }
 
-            if (file.canWrite())
-            {
-                FileOutputStream fos = new FileOutputStream(file);
-                BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, defaultEncoding));
-
+            if (this.file.canWrite()) {
+                FileOutputStream fos = new FileOutputStream(this.file);
+                BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(fos, this.defaultEncoding));
                 buffer.write("# Configuration file\r\n");
                 buffer.write("# Generated on " + DateFormat.getInstance().format(new Date()) + "\r\n");
                 buffer.write("\r\n");
 
-                for(Map.Entry<String, Map<String, Property>> category : categories.entrySet())
-                {
+                for(Entry<String, Map<String, Property>> category : this.categories.entrySet()) {
                     buffer.write("####################\r\n");
-                    buffer.write("# " + category.getKey() + " \r\n");
-                    if (customCategoryComments.containsKey(category.getKey()))
-                    {
+                    buffer.write("# " + (String)category.getKey() + " \r\n");
+                    if (this.customCategoryComments.containsKey(category.getKey())) {
                         buffer.write("#===================\r\n");
-                        String comment = customCategoryComments.get(category.getKey());
+                        String comment = (String)this.customCategoryComments.get(category.getKey());
                         Splitter splitter = Splitter.onPattern("\r?\n");
-                        for (String commentLine : splitter.split(comment))
-                        {
+
+                        for(String commentLine : splitter.split(comment)) {
                             buffer.write("# ");
-                            buffer.write(commentLine+"\r\n");
+                            buffer.write(commentLine + "\r\n");
                         }
                     }
-                    buffer.write("####################\r\n\r\n");
 
-                    String catKey = category.getKey();
-                    if (!allowedProperties.matchesAllOf(catKey))
-                    {
-                        catKey = '"'+catKey+'"';
+                    buffer.write("####################\r\n\r\n");
+                    String catKey = (String)category.getKey();
+                    if (!allowedProperties.matchesAllOf(catKey)) {
+                        catKey = '"' + catKey + '"';
                     }
+
                     buffer.write(catKey + " {\r\n");
-                    writeProperties(buffer, category.getValue().values());
+                    this.writeProperties(buffer, ((Map)category.getValue()).values());
                     buffer.write("}\r\n\r\n");
                 }
 
                 buffer.close();
                 fos.close();
             }
+        } catch (IOException var9) {
+            var9.printStackTrace();
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+
     }
 
     public void addCustomCategoryComment(String category, String comment) {
@@ -325,54 +317,27 @@ public class Configuration {
     }
 
     private void writeProperties(BufferedWriter buffer, Collection<Property> props) throws IOException {
-        for (Property property : props)
-        {
-            if (property.comment != null)
-            {
+        for(Property property : props) {
+            if (property.comment != null) {
                 Splitter splitter = Splitter.onPattern("\r?\n");
-                for (String commentLine : splitter.split(property.comment))
-                {
+
+                for(String commentLine : splitter.split(property.comment)) {
                     buffer.write("   # " + commentLine + "\r\n");
                 }
             }
+
             String propName = property.getName();
-            if (!allowedProperties.matchesAllOf(propName))
-            {
-                propName = '"'+propName+'"';
+            if (!allowedProperties.matchesAllOf(propName)) {
+                propName = '"' + propName + '"';
             }
+
             buffer.write("   " + propName + "=" + property.value);
             buffer.write("\r\n");
         }
-    }
 
-    /** @deprecated */
-    @Deprecated
-    public Property getOrCreateIntProperty(String key, String category, int defaultValue) {
-        return this.get(category, key, defaultValue);
-    }
-
-    /** @deprecated */
-    @Deprecated
-    public Property getOrCreateProperty(String key, String category, String defaultValue) {
-        return this.get(category, key, defaultValue);
-    }
-
-    /** @deprecated */
-    @Deprecated
-    public Property getOrCreateBooleanProperty(String key, String category, boolean defaultValue) {
-        return this.get(category, key, defaultValue);
-    }
-
-    /** @deprecated */
-    @Deprecated
-    public Property getOrCreateBlockIdProperty(String key, int defaultID) {
-        return this.getBlock("block", key, defaultID);
     }
 
     static {
-        configBlocks = new boolean[Block.BLOCKS.length];
-        configItems = new boolean[Item.ITEMS.length];
-        allowedProperties = CharMatcher.JAVA_LETTER_OR_DIGIT.or(CharMatcher.anyOf("._-"));
         Arrays.fill(configBlocks, false);
         Arrays.fill(configItems, false);
     }

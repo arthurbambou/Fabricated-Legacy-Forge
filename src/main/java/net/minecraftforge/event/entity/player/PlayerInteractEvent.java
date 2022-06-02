@@ -2,7 +2,7 @@ package net.minecraftforge.event.entity.player;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.event.Cancelable;
-import net.minecraftforge.event.Event;
+import net.minecraftforge.event.Event.Result;
 
 @Cancelable
 public class PlayerInteractEvent extends PlayerEvent {
@@ -11,13 +11,11 @@ public class PlayerInteractEvent extends PlayerEvent {
     public final int y;
     public final int z;
     public final int face;
-    public Event.Result useBlock;
-    public Event.Result useItem;
+    public Result useBlock = Result.DEFAULT;
+    public Result useItem = Result.DEFAULT;
 
     public PlayerInteractEvent(PlayerEntity player, PlayerInteractEvent.Action action, int x, int y, int z, int face) {
         super(player);
-        this.useBlock = Result.DEFAULT;
-        this.useItem = Result.DEFAULT;
         this.action = action;
         this.x = x;
         this.y = y;
