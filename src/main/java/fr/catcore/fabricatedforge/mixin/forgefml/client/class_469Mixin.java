@@ -1,14 +1,10 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.client;
 
 import cpw.mods.fml.common.network.FMLNetworkHandler;
-import fr.catcore.fabricatedforge.mixininterface.IBlockEntity;
-import fr.catcore.fabricatedforge.mixininterface.IPacketListener;
 import fr.catcore.fabricatedforge.mixininterface.Iclass_469;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.MobSpawnerBlockEntity;
+import net.minecraft.block.entity.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.class_469;
-import net.minecraft.client.class_470;
 import net.minecraft.client.gui.screen.ConfirmScreen;
 import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -36,7 +32,6 @@ import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -46,7 +41,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 
 @Mixin(class_469.class)
-public abstract class class_469Mixin extends PacketListener implements Iclass_469, IPacketListener {
+public abstract class class_469Mixin extends PacketListener implements Iclass_469 {
 
     @Shadow private Connection connection;
 
@@ -70,7 +65,7 @@ public abstract class class_469Mixin extends PacketListener implements Iclass_46
         this.sendPacket(FMLNetworkHandler.getFMLFakeLoginPacket());
     }
 
-    @Inject(method = "onGameJoin", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/class_469;sendPacket(Lnet/minecraft/network/Packet;)V"))
+    @Inject(method = "onGameJoin", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/options/GameOptions;onPlayerModelPartChange()V"))
     private void FMLOnConnectionEstablishedToServer(class_690 par1Packet1Login, CallbackInfo ci) {
         FMLNetworkHandler.onConnectionEstablishedToServer((class_469)(Object)this, this.connection, par1Packet1Login);
     }
@@ -84,7 +79,8 @@ public abstract class class_469Mixin extends PacketListener implements Iclass_46
         this.connection.disconnect("disconnect.kicked", par1Packet255KickDisconnect.reason);
         this.disconnected = true;
         this.field_1623.connect((ClientWorld)null);
-        this.field_1623.openScreen(new DisconnectedScreen("disconnect.disconnected", "disconnect.genericReason", par1Packet255KickDisconnect.reason));
+        this.field_1623
+                .openScreen(new DisconnectedScreen("disconnect.disconnected", "disconnect.genericReason", new Object[]{par1Packet255KickDisconnect.reason}));
     }
 
     @Inject(method = "sendPacketAndDisconnect", at = @At(value = "RETURN"))
@@ -98,11 +94,12 @@ public abstract class class_469Mixin extends PacketListener implements Iclass_46
      */
     @Overwrite
     public void onChatMessage(ChatMessage_S2CPacket par1Packet3Chat) {
-        par1Packet3Chat = FMLNetworkHandler.handleChatMessage((class_469)(Object)this, par1Packet3Chat);
+        par1Packet3Chat = FMLNetworkHandler.handleChatMessage(this, par1Packet3Chat);
         ClientChatReceivedEvent event = new ClientChatReceivedEvent(par1Packet3Chat.message);
         if (!MinecraftForge.EVENT_BUS.post(event) && event.message != null) {
             this.field_1623.inGameHud.getChatHud().method_898(par1Packet3Chat.message);
         }
+
     }
 
     /**
@@ -113,12 +110,21 @@ public abstract class class_469Mixin extends PacketListener implements Iclass_46
     public void onBlockEntityUpdate(BlockEntityUpdate_S2CPacket par1Packet132TileEntityData) {
         if (this.field_1623.world.isPosLoaded(par1Packet132TileEntityData.x, par1Packet132TileEntityData.y, par1Packet132TileEntityData.z)) {
             BlockEntity var2 = this.field_1623.world.method_3781(par1Packet132TileEntityData.x, par1Packet132TileEntityData.y, par1Packet132TileEntityData.z);
-            if (var2 != null && par1Packet132TileEntityData.type == 1 && var2 instanceof MobSpawnerBlockEntity) {
-                var2.fromNbt(par1Packet132TileEntityData.nbt);
-            } else if (var2 != null) {
-                ((IBlockEntity)var2).onDataPacket(this.connection, par1Packet132TileEntityData);
+            if (var2 != null) {
+                if (par1Packet132TileEntityData.type == 1 && var2 instanceof MobSpawnerBlockEntity) {
+                    var2.fromNbt(par1Packet132TileEntityData.nbt);
+                } else if (par1Packet132TileEntityData.type == 2 && var2 instanceof CommandBlockBlockEntity) {
+                    var2.fromNbt(par1Packet132TileEntityData.nbt);
+                } else if (par1Packet132TileEntityData.type == 3 && var2 instanceof BeaconBlockEntity) {
+                    var2.fromNbt(par1Packet132TileEntityData.nbt);
+                } else if (par1Packet132TileEntityData.type == 4 && var2 instanceof SkullBlockEntity) {
+                    var2.fromNbt(par1Packet132TileEntityData.nbt);
+                } else {
+                    var2.onDataPacket(this.connection, par1Packet132TileEntityData);
+                }
             }
         }
+
     }
 
     /**
@@ -127,7 +133,7 @@ public abstract class class_469Mixin extends PacketListener implements Iclass_46
      */
     @Overwrite
     public void onMapUpdate(MapUpdate_S2CPacket par1Packet131MapData) {
-        FMLNetworkHandler.handlePacket131Packet((class_469)(Object)this, par1Packet131MapData);
+        FMLNetworkHandler.handlePacket131Packet(this, par1Packet131MapData);
     }
 
     @Override
@@ -146,19 +152,27 @@ public abstract class class_469Mixin extends PacketListener implements Iclass_46
      */
     @Overwrite
     public void onCustomPayload(CustomPayloadC2SPacket par1Packet250CustomPayload) {
-        FMLNetworkHandler.handlePacket250Packet(par1Packet250CustomPayload, this.connection, (class_469)(Object)this);
+        FMLNetworkHandler.handlePacket250Packet(par1Packet250CustomPayload, this.connection, this);
     }
 
     @Override
     public void handleVanilla250Packet(CustomPayloadC2SPacket par1Packet250CustomPayload) {
         if ("MC|TPack".equals(par1Packet250CustomPayload.channel)) {
-            String[] var2 = (new String(par1Packet250CustomPayload.field_2455)).split("\u0000");
+            String[] var2 = new String(par1Packet250CustomPayload.field_2455).split("\u0000");
             String var3 = var2[0];
             if (var2[1].equals("16")) {
                 if (this.field_1623.texturePackManager.method_1691()) {
                     this.field_1623.texturePackManager.method_1683(var3);
                 } else if (this.field_1623.texturePackManager.method_1690()) {
-                    this.field_1623.openScreen(new ConfirmScreen(class_470Accessor.newInstance((class_469)(Object) this, var3), Language.getInstance().translate("multiplayer.texturePrompt.line1"), Language.getInstance().translate("multiplayer.texturePrompt.line2"), 0));
+                    this.field_1623
+                            .openScreen(
+                                    new ConfirmScreen(
+                                            class_470Accessor.newInstance((class_469)(Object) this, var3),
+                                            Language.getInstance().translate("multiplayer.texturePrompt.line1"),
+                                            Language.getInstance().translate("multiplayer.texturePrompt.line2"),
+                                            0
+                                    )
+                            );
                 }
             }
         } else if ("MC|TrList".equals(par1Packet250CustomPayload.channel)) {
@@ -172,8 +186,8 @@ public abstract class class_469Mixin extends PacketListener implements Iclass_46
                     TraderOfferList var6 = TraderOfferList.method_3559(var8);
                     var5.setTraderOfferList(var6);
                 }
-            } catch (IOException var7) {
-                var7.printStackTrace();
+            } catch (IOException var71) {
+                var71.printStackTrace();
             }
         }
 

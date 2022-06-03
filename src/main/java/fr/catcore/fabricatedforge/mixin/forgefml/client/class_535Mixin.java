@@ -1,17 +1,12 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.client;
 
-import fr.catcore.fabricatedforge.mixininterface.IBlock;
-import fr.catcore.fabricatedforge.mixininterface.IFireBlock;
-import fr.catcore.fabricatedforge.mixininterface.ITessellator;
 import net.minecraft.FMLRenderAccessLibrary;
 import net.minecraft.block.*;
 import net.minecraft.client.class_523;
 import net.minecraft.client.class_535;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.util.math.Axis;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.WorldView;
+import net.minecraft.world.BlockView;
 import net.minecraftforge.common.ForgeDirection;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,8 +15,6 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(class_535.class)
 public abstract class class_535Mixin {
-
-    @Shadow public WorldView field_2017;
 
     @Shadow public abstract boolean method_1482(Block block, int i, int j, int k);
 
@@ -38,8 +31,6 @@ public abstract class class_535Mixin {
     @Shadow public abstract boolean method_1475(Block block, int i, int j, int k);
 
     @Shadow public abstract boolean method_1441(RailBlock railBlock, int i, int j, int k);
-
-    @Shadow public abstract boolean method_1485(Block block, int i, int j, int k);
 
     @Shadow public abstract boolean method_1440(FenceBlock fenceBlock, int i, int j, int k);
 
@@ -257,13 +248,35 @@ public abstract class class_535Mixin {
 
     @Shadow public boolean field_2048;
 
-    @Shadow public abstract void method_1445(Block block, int i, double d, double e, double f);
-
     @Shadow public abstract void method_1446(Block block, int i, double d, double e, double f, double g);
 
     @Shadow public abstract void method_1457(Block block, int i, double d, double e, double f);
 
     @Shadow public abstract void method_1443(Block block, double d, double e, double f, double g, double h);
+
+    @Shadow public abstract boolean method_4321(WallBlock wallBlock, int i, int j, int k);
+
+    @Shadow public abstract boolean method_4318(FlowerPotBlock flowerPotBlock, int i, int j, int k);
+
+    @Shadow public abstract boolean method_4317(BeaconBlock beaconBlock, int i, int j, int k);
+
+    @Shadow public abstract boolean method_4314(AnvilBlock anvilBlock, int i, int j, int k);
+
+    @Shadow public BlockView field_2017;
+
+    @Shadow public abstract boolean method_4319(StairsBlock stairsBlock, int i, int j, int k);
+
+    @Shadow public abstract boolean method_1442(PaneBlock paneBlock, int i, int j, int k);
+
+    @Shadow public abstract void method_1445(Block block, int i, double d, double e, double f, float g);
+
+    @Shadow public abstract boolean method_4316(AnvilBlock anvilBlock, int i, int j, int k, int l, boolean bl);
+
+    @Shadow public abstract void method_4312(int i);
+
+    @Shadow public abstract void method_1431();
+
+    @Shadow public abstract boolean method_1481(Block block, int i, int j, int k);
 
     /**
      * @author Minecraft Forge
@@ -273,7 +286,7 @@ public abstract class class_535Mixin {
     public boolean method_1458(Block par1Block, int par2, int par3, int par4) {
         int var5 = par1Block.getBlockType();
         par1Block.method_425(this.field_2017, par2, par3, par4);
-        switch (var5) {
+        switch(var5) {
             case 0:
                 return this.method_1482(par1Block, par2, par3, par4);
             case 1:
@@ -295,7 +308,7 @@ public abstract class class_535Mixin {
             case 9:
                 return this.method_1441((RailBlock)par1Block, par2, par3, par4);
             case 10:
-                return this.method_1485(par1Block, par2, par3, par4);
+                return this.method_4319((StairsBlock)par1Block, par2, par3, par4);
             case 11:
                 return this.method_1440((FenceBlock)par1Block, par2, par3, par4);
             case 12:
@@ -339,6 +352,14 @@ public abstract class class_535Mixin {
                 return this.method_1472(par1Block, par2, par3, par4);
             case 31:
                 return this.method_1483(par1Block, par2, par3, par4);
+            case 32:
+                return this.method_4321((WallBlock)par1Block, par2, par3, par4);
+            case 33:
+                return this.method_4318((FlowerPotBlock)par1Block, par2, par3, par4);
+            case 34:
+                return this.method_4317((BeaconBlock)par1Block, par2, par3, par4);
+            case 35:
+                return this.method_4314((AnvilBlock)par1Block, par2, par3, par4);
         }
     }
 
@@ -349,8 +370,8 @@ public abstract class class_535Mixin {
     @Overwrite
     public boolean method_1488(Block par1Block, int par2, int par3, int par4) {
         Tessellator var5 = Tessellator.INSTANCE;
-        int var7 = ((IBlock)par1Block).getBedDirection(this.field_2017, par2, par3, par4);
-        boolean var8 = ((IBlock)par1Block).isBedFoot(this.field_2017, par2, par3, par4);
+        int var7 = par1Block.getBedDirection(this.field_2017, par2, par3, par4);
+        boolean var8 = par1Block.isBedFoot(this.field_2017, par2, par3, par4);
         float var9 = 0.5F;
         float var10 = 1.0F;
         float var11 = 0.8F;
@@ -435,7 +456,7 @@ public abstract class class_535Mixin {
         }
 
         byte var65 = 4;
-        switch (var7) {
+        switch(var7) {
             case 0:
                 var65 = 5;
                 break;
@@ -501,14 +522,7 @@ public abstract class class_535Mixin {
         double var13 = (double)((float)var8 / 256.0F);
         double var15 = (double)(((float)var8 + 15.99F) / 256.0F);
         float var17 = 1.4F;
-        double var32;
-        double var20;
-        double var22;
-        double var24;
-        double var26;
-        double var28;
-        double var30;
-        if (!this.field_2017.method_3784(par2, par3 - 1, par4) && !((IFireBlock)Block.FIRE).canBlockCatchFire(this.field_2017, par2, par3 - 1, par4, ForgeDirection.UP)) {
+        if (!this.field_2017.method_3784(par2, par3 - 1, par4) && !Block.FIRE.canBlockCatchFire(this.field_2017, par2, par3 - 1, par4, ForgeDirection.UP)) {
             float var36 = 0.2F;
             float var19 = 0.0625F;
             if ((par2 + par3 + par4 & 1) == 1) {
@@ -519,12 +533,12 @@ public abstract class class_535Mixin {
             }
 
             if ((par2 / 2 + par3 / 2 + par4 / 2 & 1) == 1) {
-                var20 = var11;
+                double var20 = var11;
                 var11 = var9;
                 var9 = var20;
             }
 
-            if (((IFireBlock)Block.FIRE).canBlockCatchFire(this.field_2017, par2 - 1, par3, par4, ForgeDirection.EAST)) {
+            if (Block.FIRE.canBlockCatchFire(this.field_2017, par2 - 1, par3, par4, ForgeDirection.EAST)) {
                 var5.method_1399((double)((float)par2 + var36), (double)((float)par3 + var17 + var19), (double)(par4 + 1), var11, var13);
                 var5.method_1399((double)(par2 + 0), (double)((float)(par3 + 0) + var19), (double)(par4 + 1), var11, var15);
                 var5.method_1399((double)(par2 + 0), (double)((float)(par3 + 0) + var19), (double)(par4 + 0), var9, var15);
@@ -535,7 +549,7 @@ public abstract class class_535Mixin {
                 var5.method_1399((double)((float)par2 + var36), (double)((float)par3 + var17 + var19), (double)(par4 + 1), var11, var13);
             }
 
-            if (((IFireBlock)Block.FIRE).canBlockCatchFire(this.field_2017, par2 + 1, par3, par4, ForgeDirection.WEST)) {
+            if (Block.FIRE.canBlockCatchFire(this.field_2017, par2 + 1, par3, par4, ForgeDirection.WEST)) {
                 var5.method_1399((double)((float)(par2 + 1) - var36), (double)((float)par3 + var17 + var19), (double)(par4 + 0), var9, var13);
                 var5.method_1399((double)(par2 + 1 - 0), (double)((float)(par3 + 0) + var19), (double)(par4 + 0), var9, var15);
                 var5.method_1399((double)(par2 + 1 - 0), (double)((float)(par3 + 0) + var19), (double)(par4 + 1), var11, var15);
@@ -546,7 +560,7 @@ public abstract class class_535Mixin {
                 var5.method_1399((double)((float)(par2 + 1) - var36), (double)((float)par3 + var17 + var19), (double)(par4 + 0), var9, var13);
             }
 
-            if (((IFireBlock)Block.FIRE).canBlockCatchFire(this.field_2017, par2, par3, par4 - 1, ForgeDirection.SOUTH)) {
+            if (Block.FIRE.canBlockCatchFire(this.field_2017, par2, par3, par4 - 1, ForgeDirection.SOUTH)) {
                 var5.method_1399((double)(par2 + 0), (double)((float)par3 + var17 + var19), (double)((float)par4 + var36), var11, var13);
                 var5.method_1399((double)(par2 + 0), (double)((float)(par3 + 0) + var19), (double)(par4 + 0), var11, var15);
                 var5.method_1399((double)(par2 + 1), (double)((float)(par3 + 0) + var19), (double)(par4 + 0), var9, var15);
@@ -557,7 +571,7 @@ public abstract class class_535Mixin {
                 var5.method_1399((double)(par2 + 0), (double)((float)par3 + var17 + var19), (double)((float)par4 + var36), var11, var13);
             }
 
-            if (((IFireBlock)Block.FIRE).canBlockCatchFire(this.field_2017, par2, par3, par4 + 1, ForgeDirection.NORTH)) {
+            if (Block.FIRE.canBlockCatchFire(this.field_2017, par2, par3, par4 + 1, ForgeDirection.NORTH)) {
                 var5.method_1399((double)(par2 + 1), (double)((float)par3 + var17 + var19), (double)((float)(par4 + 1) - var36), var9, var13);
                 var5.method_1399((double)(par2 + 1), (double)((float)(par3 + 0) + var19), (double)(par4 + 1 - 0), var9, var15);
                 var5.method_1399((double)(par2 + 0), (double)((float)(par3 + 0) + var19), (double)(par4 + 1 - 0), var11, var15);
@@ -568,14 +582,14 @@ public abstract class class_535Mixin {
                 var5.method_1399((double)(par2 + 1), (double)((float)par3 + var17 + var19), (double)((float)(par4 + 1) - var36), var9, var13);
             }
 
-            if (((IFireBlock)Block.FIRE).canBlockCatchFire(this.field_2017, par2, par3 + 1, par4, ForgeDirection.DOWN)) {
-                var20 = (double)par2 + 0.5 + 0.5;
-                var22 = (double)par2 + 0.5 - 0.5;
-                var24 = (double)par4 + 0.5 + 0.5;
-                var26 = (double)par4 + 0.5 - 0.5;
-                var28 = (double)par2 + 0.5 - 0.5;
-                var30 = (double)par2 + 0.5 + 0.5;
-                var32 = (double)par4 + 0.5 - 0.5;
+            if (Block.FIRE.canBlockCatchFire(this.field_2017, par2, par3 + 1, par4, ForgeDirection.DOWN)) {
+                double var20 = (double)par2 + 0.5 + 0.5;
+                double var22 = (double)par2 + 0.5 - 0.5;
+                double var24 = (double)par4 + 0.5 + 0.5;
+                double var26 = (double)par4 + 0.5 - 0.5;
+                double var28 = (double)par2 + 0.5 - 0.5;
+                double var30 = (double)par2 + 0.5 + 0.5;
+                double var32 = (double)par4 + 0.5 - 0.5;
                 double var34 = (double)par4 + 0.5 + 0.5;
                 var9 = (double)((float)var7 / 256.0F);
                 var11 = (double)(((float)var7 + 15.99F) / 256.0F);
@@ -613,13 +627,13 @@ public abstract class class_535Mixin {
             }
         } else {
             double var18 = (double)par2 + 0.5 + 0.2;
-            var20 = (double)par2 + 0.5 - 0.2;
-            var22 = (double)par4 + 0.5 + 0.2;
-            var24 = (double)par4 + 0.5 - 0.2;
-            var26 = (double)par2 + 0.5 - 0.3;
-            var28 = (double)par2 + 0.5 + 0.3;
-            var30 = (double)par4 + 0.5 - 0.3;
-            var32 = (double)par4 + 0.5 + 0.3;
+            double var20 = (double)par2 + 0.5 - 0.2;
+            double var22 = (double)par4 + 0.5 + 0.2;
+            double var24 = (double)par4 + 0.5 - 0.2;
+            double var26 = (double)par2 + 0.5 - 0.3;
+            double var28 = (double)par2 + 0.5 + 0.3;
+            double var30 = (double)par4 + 0.5 - 0.3;
+            double var32 = (double)par4 + 0.5 + 0.3;
             var5.method_1399(var26, (double)((float)par3 + var17), (double)(par4 + 1), var11, var13);
             var5.method_1399(var18, (double)(par3 + 0), (double)(par4 + 1), var11, var15);
             var5.method_1399(var18, (double)(par3 + 0), (double)(par4 + 0), var9, var15);
@@ -671,561 +685,6 @@ public abstract class class_535Mixin {
         }
 
         return true;
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    public boolean method_1442(PaneBlock par1BlockPane, int par2, int par3, int par4) {
-        int var5 = this.field_2017.method_3771();
-        Tessellator var6 = Tessellator.INSTANCE;
-        var6.method_1411(par1BlockPane.method_455(this.field_2017, par2, par3, par4));
-        float var7 = 1.0F;
-        int var8 = par1BlockPane.method_438(this.field_2017, par2, par3, par4);
-        float var9 = (float)(var8 >> 16 & 255) / 255.0F;
-        float var10 = (float)(var8 >> 8 & 255) / 255.0F;
-        float var11 = (float)(var8 & 255) / 255.0F;
-        if (GameRenderer.anaglyphEnabled) {
-            float var12 = (var9 * 30.0F + var10 * 59.0F + var11 * 11.0F) / 100.0F;
-            float var13 = (var9 * 30.0F + var10 * 70.0F) / 100.0F;
-            float var14 = (var9 * 30.0F + var11 * 70.0F) / 100.0F;
-            var9 = var12;
-            var10 = var13;
-            var11 = var14;
-        }
-
-        var6.method_1400(var7 * var9, var7 * var10, var7 * var11);
-        boolean var64 = false;
-        boolean var67 = false;
-        int var65;
-        int var66;
-        int var68;
-        if (this.field_2049 >= 0) {
-            var65 = this.field_2049;
-            var66 = this.field_2049;
-        } else {
-            var68 = this.field_2017.getBlockData(par2, par3, par4);
-            var65 = par1BlockPane.method_396(0, var68);
-            var66 = par1BlockPane.method_391();
-        }
-
-        var68 = (var65 & 15) << 4;
-        int var15 = var65 & 240;
-        double var16 = (double)((float)var68 / 256.0F);
-        double var18 = (double)(((float)var68 + 7.99F) / 256.0F);
-        double var20 = (double)(((float)var68 + 15.99F) / 256.0F);
-        double var22 = (double)((float)var15 / 256.0F);
-        double var24 = (double)(((float)var15 + 15.99F) / 256.0F);
-        int var26 = (var66 & 15) << 4;
-        int var27 = var66 & 240;
-        double var28 = (double)((float)(var26 + 7) / 256.0F);
-        double var30 = (double)(((float)var26 + 8.99F) / 256.0F);
-        double var32 = (double)((float)var27 / 256.0F);
-        double var34 = (double)((float)(var27 + 8) / 256.0F);
-        double var36 = (double)(((float)var27 + 15.99F) / 256.0F);
-        double var38 = (double)par2;
-        double var40 = (double)par2 + 0.5;
-        double var42 = (double)(par2 + 1);
-        double var44 = (double)par4;
-        double var46 = (double)par4 + 0.5;
-        double var48 = (double)(par4 + 1);
-        double var50 = (double)par2 + 0.5 - 0.0625;
-        double var52 = (double)par2 + 0.5 + 0.0625;
-        double var54 = (double)par4 + 0.5 - 0.0625;
-        double var56 = (double)par4 + 0.5 + 0.0625;
-        boolean var58 = par1BlockPane.method_390(this.field_2017.getBlock(par2, par3, par4 - 1));
-        boolean var59 = par1BlockPane.method_390(this.field_2017.getBlock(par2, par3, par4 + 1));
-        boolean var60 = par1BlockPane.method_390(this.field_2017.getBlock(par2 - 1, par3, par4));
-        boolean var61 = par1BlockPane.method_390(this.field_2017.getBlock(par2 + 1, par3, par4));
-        boolean var62 = par1BlockPane.method_447(this.field_2017, par2, par3 + 1, par4, 1);
-        boolean var63 = par1BlockPane.method_447(this.field_2017, par2, par3 - 1, par4, 0);
-        if ((!var60 || !var61) && (var60 || var61 || var58 || var59)) {
-            if (var60 && !var61) {
-                var6.method_1399(var38, (double)(par3 + 1), var46, var16, var22);
-                var6.method_1399(var38, (double)(par3 + 0), var46, var16, var24);
-                var6.method_1399(var40, (double)(par3 + 0), var46, var18, var24);
-                var6.method_1399(var40, (double)(par3 + 1), var46, var18, var22);
-                var6.method_1399(var40, (double)(par3 + 1), var46, var16, var22);
-                var6.method_1399(var40, (double)(par3 + 0), var46, var16, var24);
-                var6.method_1399(var38, (double)(par3 + 0), var46, var18, var24);
-                var6.method_1399(var38, (double)(par3 + 1), var46, var18, var22);
-                if (!var59 && !var58) {
-                    var6.method_1399(var40, (double)(par3 + 1), var56, var28, var32);
-                    var6.method_1399(var40, (double)(par3 + 0), var56, var28, var36);
-                    var6.method_1399(var40, (double)(par3 + 0), var54, var30, var36);
-                    var6.method_1399(var40, (double)(par3 + 1), var54, var30, var32);
-                    var6.method_1399(var40, (double)(par3 + 1), var54, var28, var32);
-                    var6.method_1399(var40, (double)(par3 + 0), var54, var28, var36);
-                    var6.method_1399(var40, (double)(par3 + 0), var56, var30, var36);
-                    var6.method_1399(var40, (double)(par3 + 1), var56, var30, var32);
-                }
-
-                if (var62 || par3 < var5 - 1 && this.field_2017.isAir(par2 - 1, par3 + 1, par4)) {
-                    var6.method_1399(var38, (double)(par3 + 1) + 0.01, var56, var30, var34);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var56, var30, var36);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var54, var28, var36);
-                    var6.method_1399(var38, (double)(par3 + 1) + 0.01, var54, var28, var34);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var56, var30, var34);
-                    var6.method_1399(var38, (double)(par3 + 1) + 0.01, var56, var30, var36);
-                    var6.method_1399(var38, (double)(par3 + 1) + 0.01, var54, var28, var36);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var54, var28, var34);
-                }
-
-                if (var63 || par3 > 1 && this.field_2017.isAir(par2 - 1, par3 - 1, par4)) {
-                    var6.method_1399(var38, (double)par3 - 0.01, var56, var30, var34);
-                    var6.method_1399(var40, (double)par3 - 0.01, var56, var30, var36);
-                    var6.method_1399(var40, (double)par3 - 0.01, var54, var28, var36);
-                    var6.method_1399(var38, (double)par3 - 0.01, var54, var28, var34);
-                    var6.method_1399(var40, (double)par3 - 0.01, var56, var30, var34);
-                    var6.method_1399(var38, (double)par3 - 0.01, var56, var30, var36);
-                    var6.method_1399(var38, (double)par3 - 0.01, var54, var28, var36);
-                    var6.method_1399(var40, (double)par3 - 0.01, var54, var28, var34);
-                }
-            } else if (!var60 && var61) {
-                var6.method_1399(var40, (double)(par3 + 1), var46, var18, var22);
-                var6.method_1399(var40, (double)(par3 + 0), var46, var18, var24);
-                var6.method_1399(var42, (double)(par3 + 0), var46, var20, var24);
-                var6.method_1399(var42, (double)(par3 + 1), var46, var20, var22);
-                var6.method_1399(var42, (double)(par3 + 1), var46, var18, var22);
-                var6.method_1399(var42, (double)(par3 + 0), var46, var18, var24);
-                var6.method_1399(var40, (double)(par3 + 0), var46, var20, var24);
-                var6.method_1399(var40, (double)(par3 + 1), var46, var20, var22);
-                if (!var59 && !var58) {
-                    var6.method_1399(var40, (double)(par3 + 1), var54, var28, var32);
-                    var6.method_1399(var40, (double)(par3 + 0), var54, var28, var36);
-                    var6.method_1399(var40, (double)(par3 + 0), var56, var30, var36);
-                    var6.method_1399(var40, (double)(par3 + 1), var56, var30, var32);
-                    var6.method_1399(var40, (double)(par3 + 1), var56, var28, var32);
-                    var6.method_1399(var40, (double)(par3 + 0), var56, var28, var36);
-                    var6.method_1399(var40, (double)(par3 + 0), var54, var30, var36);
-                    var6.method_1399(var40, (double)(par3 + 1), var54, var30, var32);
-                }
-
-                if (var62 || par3 < var5 - 1 && this.field_2017.isAir(par2 + 1, par3 + 1, par4)) {
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var56, var30, var32);
-                    var6.method_1399(var42, (double)(par3 + 1) + 0.01, var56, var30, var34);
-                    var6.method_1399(var42, (double)(par3 + 1) + 0.01, var54, var28, var34);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var54, var28, var32);
-                    var6.method_1399(var42, (double)(par3 + 1) + 0.01, var56, var30, var32);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var56, var30, var34);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var54, var28, var34);
-                    var6.method_1399(var42, (double)(par3 + 1) + 0.01, var54, var28, var32);
-                }
-
-                if (var63 || par3 > 1 && this.field_2017.isAir(par2 + 1, par3 - 1, par4)) {
-                    var6.method_1399(var40, (double)par3 - 0.01, var56, var30, var32);
-                    var6.method_1399(var42, (double)par3 - 0.01, var56, var30, var34);
-                    var6.method_1399(var42, (double)par3 - 0.01, var54, var28, var34);
-                    var6.method_1399(var40, (double)par3 - 0.01, var54, var28, var32);
-                    var6.method_1399(var42, (double)par3 - 0.01, var56, var30, var32);
-                    var6.method_1399(var40, (double)par3 - 0.01, var56, var30, var34);
-                    var6.method_1399(var40, (double)par3 - 0.01, var54, var28, var34);
-                    var6.method_1399(var42, (double)par3 - 0.01, var54, var28, var32);
-                }
-            }
-        } else {
-            var6.method_1399(var38, (double)(par3 + 1), var46, var16, var22);
-            var6.method_1399(var38, (double)(par3 + 0), var46, var16, var24);
-            var6.method_1399(var42, (double)(par3 + 0), var46, var20, var24);
-            var6.method_1399(var42, (double)(par3 + 1), var46, var20, var22);
-            var6.method_1399(var42, (double)(par3 + 1), var46, var16, var22);
-            var6.method_1399(var42, (double)(par3 + 0), var46, var16, var24);
-            var6.method_1399(var38, (double)(par3 + 0), var46, var20, var24);
-            var6.method_1399(var38, (double)(par3 + 1), var46, var20, var22);
-            if (var62) {
-                var6.method_1399(var38, (double)(par3 + 1) + 0.01, var56, var30, var36);
-                var6.method_1399(var42, (double)(par3 + 1) + 0.01, var56, var30, var32);
-                var6.method_1399(var42, (double)(par3 + 1) + 0.01, var54, var28, var32);
-                var6.method_1399(var38, (double)(par3 + 1) + 0.01, var54, var28, var36);
-                var6.method_1399(var42, (double)(par3 + 1) + 0.01, var56, var30, var36);
-                var6.method_1399(var38, (double)(par3 + 1) + 0.01, var56, var30, var32);
-                var6.method_1399(var38, (double)(par3 + 1) + 0.01, var54, var28, var32);
-                var6.method_1399(var42, (double)(par3 + 1) + 0.01, var54, var28, var36);
-            } else {
-                if (par3 < var5 - 1 && this.field_2017.isAir(par2 - 1, par3 + 1, par4)) {
-                    var6.method_1399(var38, (double)(par3 + 1) + 0.01, var56, var30, var34);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var56, var30, var36);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var54, var28, var36);
-                    var6.method_1399(var38, (double)(par3 + 1) + 0.01, var54, var28, var34);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var56, var30, var34);
-                    var6.method_1399(var38, (double)(par3 + 1) + 0.01, var56, var30, var36);
-                    var6.method_1399(var38, (double)(par3 + 1) + 0.01, var54, var28, var36);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var54, var28, var34);
-                }
-
-                if (par3 < var5 - 1 && this.field_2017.isAir(par2 + 1, par3 + 1, par4)) {
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var56, var30, var32);
-                    var6.method_1399(var42, (double)(par3 + 1) + 0.01, var56, var30, var34);
-                    var6.method_1399(var42, (double)(par3 + 1) + 0.01, var54, var28, var34);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var54, var28, var32);
-                    var6.method_1399(var42, (double)(par3 + 1) + 0.01, var56, var30, var32);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var56, var30, var34);
-                    var6.method_1399(var40, (double)(par3 + 1) + 0.01, var54, var28, var34);
-                    var6.method_1399(var42, (double)(par3 + 1) + 0.01, var54, var28, var32);
-                }
-            }
-
-            if (var63) {
-                var6.method_1399(var38, (double)par3 - 0.01, var56, var30, var36);
-                var6.method_1399(var42, (double)par3 - 0.01, var56, var30, var32);
-                var6.method_1399(var42, (double)par3 - 0.01, var54, var28, var32);
-                var6.method_1399(var38, (double)par3 - 0.01, var54, var28, var36);
-                var6.method_1399(var42, (double)par3 - 0.01, var56, var30, var36);
-                var6.method_1399(var38, (double)par3 - 0.01, var56, var30, var32);
-                var6.method_1399(var38, (double)par3 - 0.01, var54, var28, var32);
-                var6.method_1399(var42, (double)par3 - 0.01, var54, var28, var36);
-            } else {
-                if (par3 > 1 && this.field_2017.isAir(par2 - 1, par3 - 1, par4)) {
-                    var6.method_1399(var38, (double)par3 - 0.01, var56, var30, var34);
-                    var6.method_1399(var40, (double)par3 - 0.01, var56, var30, var36);
-                    var6.method_1399(var40, (double)par3 - 0.01, var54, var28, var36);
-                    var6.method_1399(var38, (double)par3 - 0.01, var54, var28, var34);
-                    var6.method_1399(var40, (double)par3 - 0.01, var56, var30, var34);
-                    var6.method_1399(var38, (double)par3 - 0.01, var56, var30, var36);
-                    var6.method_1399(var38, (double)par3 - 0.01, var54, var28, var36);
-                    var6.method_1399(var40, (double)par3 - 0.01, var54, var28, var34);
-                }
-
-                if (par3 > 1 && this.field_2017.isAir(par2 + 1, par3 - 1, par4)) {
-                    var6.method_1399(var40, (double)par3 - 0.01, var56, var30, var32);
-                    var6.method_1399(var42, (double)par3 - 0.01, var56, var30, var34);
-                    var6.method_1399(var42, (double)par3 - 0.01, var54, var28, var34);
-                    var6.method_1399(var40, (double)par3 - 0.01, var54, var28, var32);
-                    var6.method_1399(var42, (double)par3 - 0.01, var56, var30, var32);
-                    var6.method_1399(var40, (double)par3 - 0.01, var56, var30, var34);
-                    var6.method_1399(var40, (double)par3 - 0.01, var54, var28, var34);
-                    var6.method_1399(var42, (double)par3 - 0.01, var54, var28, var32);
-                }
-            }
-        }
-
-        if ((!var58 || !var59) && (var60 || var61 || var58 || var59)) {
-            if (var58 && !var59) {
-                var6.method_1399(var40, (double)(par3 + 1), var44, var16, var22);
-                var6.method_1399(var40, (double)(par3 + 0), var44, var16, var24);
-                var6.method_1399(var40, (double)(par3 + 0), var46, var18, var24);
-                var6.method_1399(var40, (double)(par3 + 1), var46, var18, var22);
-                var6.method_1399(var40, (double)(par3 + 1), var46, var16, var22);
-                var6.method_1399(var40, (double)(par3 + 0), var46, var16, var24);
-                var6.method_1399(var40, (double)(par3 + 0), var44, var18, var24);
-                var6.method_1399(var40, (double)(par3 + 1), var44, var18, var22);
-                if (!var61 && !var60) {
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var28, var32);
-                    var6.method_1399(var50, (double)(par3 + 0), var46, var28, var36);
-                    var6.method_1399(var52, (double)(par3 + 0), var46, var30, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var30, var32);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var28, var32);
-                    var6.method_1399(var52, (double)(par3 + 0), var46, var28, var36);
-                    var6.method_1399(var50, (double)(par3 + 0), var46, var30, var36);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var30, var32);
-                }
-
-                if (var62 || par3 < var5 - 1 && this.field_2017.isAir(par2, par3 + 1, par4 - 1)) {
-                    var6.method_1399(var50, (double)(par3 + 1), var44, var30, var32);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var30, var34);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var28, var34);
-                    var6.method_1399(var52, (double)(par3 + 1), var44, var28, var32);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var30, var32);
-                    var6.method_1399(var50, (double)(par3 + 1), var44, var30, var34);
-                    var6.method_1399(var52, (double)(par3 + 1), var44, var28, var34);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var28, var32);
-                }
-
-                if (var63 || par3 > 1 && this.field_2017.isAir(par2, par3 - 1, par4 - 1)) {
-                    var6.method_1399(var50, (double)par3, var44, var30, var32);
-                    var6.method_1399(var50, (double)par3, var46, var30, var34);
-                    var6.method_1399(var52, (double)par3, var46, var28, var34);
-                    var6.method_1399(var52, (double)par3, var44, var28, var32);
-                    var6.method_1399(var50, (double)par3, var46, var30, var32);
-                    var6.method_1399(var50, (double)par3, var44, var30, var34);
-                    var6.method_1399(var52, (double)par3, var44, var28, var34);
-                    var6.method_1399(var52, (double)par3, var46, var28, var32);
-                }
-            } else if (!var58 && var59) {
-                var6.method_1399(var40, (double)(par3 + 1), var46, var18, var22);
-                var6.method_1399(var40, (double)(par3 + 0), var46, var18, var24);
-                var6.method_1399(var40, (double)(par3 + 0), var48, var20, var24);
-                var6.method_1399(var40, (double)(par3 + 1), var48, var20, var22);
-                var6.method_1399(var40, (double)(par3 + 1), var48, var18, var22);
-                var6.method_1399(var40, (double)(par3 + 0), var48, var18, var24);
-                var6.method_1399(var40, (double)(par3 + 0), var46, var20, var24);
-                var6.method_1399(var40, (double)(par3 + 1), var46, var20, var22);
-                if (!var61 && !var60) {
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var28, var32);
-                    var6.method_1399(var52, (double)(par3 + 0), var46, var28, var36);
-                    var6.method_1399(var50, (double)(par3 + 0), var46, var30, var36);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var30, var32);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var28, var32);
-                    var6.method_1399(var50, (double)(par3 + 0), var46, var28, var36);
-                    var6.method_1399(var52, (double)(par3 + 0), var46, var30, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var30, var32);
-                }
-
-                if (var62 || par3 < var5 - 1 && this.field_2017.isAir(par2, par3 + 1, par4 + 1)) {
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var28, var34);
-                    var6.method_1399(var50, (double)(par3 + 1), var48, var28, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var48, var30, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var30, var34);
-                    var6.method_1399(var50, (double)(par3 + 1), var48, var28, var34);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var28, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var30, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var48, var30, var34);
-                }
-
-                if (var63 || par3 > 1 && this.field_2017.isAir(par2, par3 - 1, par4 + 1)) {
-                    var6.method_1399(var50, (double)par3, var46, var28, var34);
-                    var6.method_1399(var50, (double)par3, var48, var28, var36);
-                    var6.method_1399(var52, (double)par3, var48, var30, var36);
-                    var6.method_1399(var52, (double)par3, var46, var30, var34);
-                    var6.method_1399(var50, (double)par3, var48, var28, var34);
-                    var6.method_1399(var50, (double)par3, var46, var28, var36);
-                    var6.method_1399(var52, (double)par3, var46, var30, var36);
-                    var6.method_1399(var52, (double)par3, var48, var30, var34);
-                }
-            }
-        } else {
-            var6.method_1399(var40, (double)(par3 + 1), var48, var16, var22);
-            var6.method_1399(var40, (double)(par3 + 0), var48, var16, var24);
-            var6.method_1399(var40, (double)(par3 + 0), var44, var20, var24);
-            var6.method_1399(var40, (double)(par3 + 1), var44, var20, var22);
-            var6.method_1399(var40, (double)(par3 + 1), var44, var16, var22);
-            var6.method_1399(var40, (double)(par3 + 0), var44, var16, var24);
-            var6.method_1399(var40, (double)(par3 + 0), var48, var20, var24);
-            var6.method_1399(var40, (double)(par3 + 1), var48, var20, var22);
-            if (var62) {
-                var6.method_1399(var52, (double)(par3 + 1), var48, var30, var36);
-                var6.method_1399(var52, (double)(par3 + 1), var44, var30, var32);
-                var6.method_1399(var50, (double)(par3 + 1), var44, var28, var32);
-                var6.method_1399(var50, (double)(par3 + 1), var48, var28, var36);
-                var6.method_1399(var52, (double)(par3 + 1), var44, var30, var36);
-                var6.method_1399(var52, (double)(par3 + 1), var48, var30, var32);
-                var6.method_1399(var50, (double)(par3 + 1), var48, var28, var32);
-                var6.method_1399(var50, (double)(par3 + 1), var44, var28, var36);
-            } else {
-                if (par3 < var5 - 1 && this.field_2017.isAir(par2, par3 + 1, par4 - 1)) {
-                    var6.method_1399(var50, (double)(par3 + 1), var44, var30, var32);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var30, var34);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var28, var34);
-                    var6.method_1399(var52, (double)(par3 + 1), var44, var28, var32);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var30, var32);
-                    var6.method_1399(var50, (double)(par3 + 1), var44, var30, var34);
-                    var6.method_1399(var52, (double)(par3 + 1), var44, var28, var34);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var28, var32);
-                }
-
-                if (par3 < var5 - 1 && this.field_2017.isAir(par2, par3 + 1, par4 + 1)) {
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var28, var34);
-                    var6.method_1399(var50, (double)(par3 + 1), var48, var28, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var48, var30, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var30, var34);
-                    var6.method_1399(var50, (double)(par3 + 1), var48, var28, var34);
-                    var6.method_1399(var50, (double)(par3 + 1), var46, var28, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var46, var30, var36);
-                    var6.method_1399(var52, (double)(par3 + 1), var48, var30, var34);
-                }
-            }
-
-            if (var63) {
-                var6.method_1399(var52, (double)par3, var48, var30, var36);
-                var6.method_1399(var52, (double)par3, var44, var30, var32);
-                var6.method_1399(var50, (double)par3, var44, var28, var32);
-                var6.method_1399(var50, (double)par3, var48, var28, var36);
-                var6.method_1399(var52, (double)par3, var44, var30, var36);
-                var6.method_1399(var52, (double)par3, var48, var30, var32);
-                var6.method_1399(var50, (double)par3, var48, var28, var32);
-                var6.method_1399(var50, (double)par3, var44, var28, var36);
-            } else {
-                if (par3 > 1 && this.field_2017.isAir(par2, par3 - 1, par4 - 1)) {
-                    var6.method_1399(var50, (double)par3, var44, var30, var32);
-                    var6.method_1399(var50, (double)par3, var46, var30, var34);
-                    var6.method_1399(var52, (double)par3, var46, var28, var34);
-                    var6.method_1399(var52, (double)par3, var44, var28, var32);
-                    var6.method_1399(var50, (double)par3, var46, var30, var32);
-                    var6.method_1399(var50, (double)par3, var44, var30, var34);
-                    var6.method_1399(var52, (double)par3, var44, var28, var34);
-                    var6.method_1399(var52, (double)par3, var46, var28, var32);
-                }
-
-                if (par3 > 1 && this.field_2017.isAir(par2, par3 - 1, par4 + 1)) {
-                    var6.method_1399(var50, (double)par3, var46, var28, var34);
-                    var6.method_1399(var50, (double)par3, var48, var28, var36);
-                    var6.method_1399(var52, (double)par3, var48, var30, var36);
-                    var6.method_1399(var52, (double)par3, var46, var30, var34);
-                    var6.method_1399(var50, (double)par3, var48, var28, var34);
-                    var6.method_1399(var50, (double)par3, var46, var28, var36);
-                    var6.method_1399(var52, (double)par3, var46, var30, var36);
-                    var6.method_1399(var52, (double)par3, var48, var30, var34);
-                }
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    public boolean method_1481(Block par1Block, int par2, int par3, int par4) {
-        Tessellator var5 = Tessellator.INSTANCE;
-        int var6 = par1Block.method_438(this.field_2017, par2, par3, par4);
-        float var7 = (float)(var6 >> 16 & 255) / 255.0F;
-        float var8 = (float)(var6 >> 8 & 255) / 255.0F;
-        float var9 = (float)(var6 & 255) / 255.0F;
-        boolean var10 = par1Block.method_447(this.field_2017, par2, par3 + 1, par4, 1);
-        boolean var11 = par1Block.method_447(this.field_2017, par2, par3 - 1, par4, 0);
-        boolean[] var12 = new boolean[]{par1Block.method_447(this.field_2017, par2, par3, par4 - 1, 2), par1Block.method_447(this.field_2017, par2, par3, par4 + 1, 3), par1Block.method_447(this.field_2017, par2 - 1, par3, par4, 4), par1Block.method_447(this.field_2017, par2 + 1, par3, par4, 5)};
-        if (!var10 && !var11 && !var12[0] && !var12[1] && !var12[2] && !var12[3]) {
-            return false;
-        } else {
-            boolean var13 = false;
-            float var14 = 0.5F;
-            float var15 = 1.0F;
-            float var16 = 0.8F;
-            float var17 = 0.6F;
-            double var18 = 0.0;
-            double var20 = 1.0;
-            Material var22 = par1Block.material;
-            int var23 = this.field_2017.getBlockData(par2, par3, par4);
-            double var24 = (double)this.method_1434(par2, par3, par4, var22);
-            double var26 = (double)this.method_1434(par2, par3, par4 + 1, var22);
-            double var28 = (double)this.method_1434(par2 + 1, par3, par4 + 1, var22);
-            double var30 = (double)this.method_1434(par2 + 1, par3, par4, var22);
-            double var32 = 0.0010000000474974513;
-            int var34;
-            int var37;
-            float var35;
-            int var66;
-            double var43;
-            double var41;
-            double var47;
-            if (this.field_2051 || var10) {
-                var13 = true;
-                var34 = par1Block.method_396(1, var23);
-                var35 = (float)AbstractFluidBlock.method_329(this.field_2017, par2, par3, par4, var22);
-                if (var35 > -999.0F) {
-                    var34 = par1Block.method_396(2, var23);
-                }
-
-                var24 -= var32;
-                var26 -= var32;
-                var28 -= var32;
-                var30 -= var32;
-                var66 = (var34 & 15) << 4;
-                var37 = var34 & 240;
-                double var38 = ((double)var66 + 8.0) / 256.0;
-                var43 = ((double)var37 + 8.0) / 256.0;
-                if (var35 < -999.0F) {
-                    var35 = 0.0F;
-                } else {
-                    var38 = (double)((float)(var66 + 16) / 256.0F);
-                    var43 = (double)((float)(var37 + 16) / 256.0F);
-                }
-
-                var41 = (double)(MathHelper.sin(var35) * 8.0F) / 256.0;
-                var47 = (double)(MathHelper.cos(var35) * 8.0F) / 256.0;
-                var5.method_1411(par1Block.method_455(this.field_2017, par2, par3, par4));
-                float var46 = 1.0F;
-                var5.method_1400(var15 * var46 * var7, var15 * var46 * var8, var15 * var46 * var9);
-                var5.method_1399((double)(par2 + 0), (double)par3 + var24, (double)(par4 + 0), var38 - var47 - var41, var43 - var47 + var41);
-                var5.method_1399((double)(par2 + 0), (double)par3 + var26, (double)(par4 + 1), var38 - var47 + var41, var43 + var47 + var41);
-                var5.method_1399((double)(par2 + 1), (double)par3 + var28, (double)(par4 + 1), var38 + var47 + var41, var43 + var47 - var41);
-                var5.method_1399((double)(par2 + 1), (double)par3 + var30, (double)(par4 + 0), var38 + var47 - var41, var43 - var47 - var41);
-            }
-
-            if (this.field_2051 || var11) {
-                var5.method_1411(par1Block.method_455(this.field_2017, par2, par3 - 1, par4));
-                var35 = 1.0F;
-                var5.method_1400(var14 * var35, var14 * var35, var14 * var35);
-                this.method_1444(par1Block, (double)par2, (double)par3 + var32, (double)par4, par1Block.method_395(0));
-                var13 = true;
-            }
-
-            for(var34 = 0; var34 < 4; ++var34) {
-                int var64 = par2;
-                var37 = par4;
-                if (var34 == 0) {
-                    var37 = par4 - 1;
-                }
-
-                if (var34 == 1) {
-                    ++var37;
-                }
-
-                if (var34 == 2) {
-                    var64 = par2 - 1;
-                }
-
-                if (var34 == 3) {
-                    ++var64;
-                }
-
-                var66 = par1Block.method_396(var34 + 2, var23);
-                int var39 = (var66 & 15) << 4;
-                int var67 = var66 & 240;
-                if (this.field_2051 || var12[var34]) {
-                    double var45;
-                    double var51;
-                    double var49;
-                    if (var34 == 0) {
-                        var41 = var24;
-                        var43 = var30;
-                        var45 = (double)par2;
-                        var49 = (double)(par2 + 1);
-                        var47 = (double)par4 + var32;
-                        var51 = (double)par4 + var32;
-                    } else if (var34 == 1) {
-                        var41 = var28;
-                        var43 = var26;
-                        var45 = (double)(par2 + 1);
-                        var49 = (double)par2;
-                        var47 = (double)(par4 + 1) - var32;
-                        var51 = (double)(par4 + 1) - var32;
-                    } else if (var34 == 2) {
-                        var41 = var26;
-                        var43 = var24;
-                        var45 = (double)par2 + var32;
-                        var49 = (double)par2 + var32;
-                        var47 = (double)(par4 + 1);
-                        var51 = (double)par4;
-                    } else {
-                        var41 = var30;
-                        var43 = var28;
-                        var45 = (double)(par2 + 1) - var32;
-                        var49 = (double)(par2 + 1) - var32;
-                        var47 = (double)par4;
-                        var51 = (double)(par4 + 1);
-                    }
-
-                    var13 = true;
-                    double var53 = (double)((float)(var39 + 0) / 256.0F);
-                    double var55 = ((double)(var39 + 16) - 0.01) / 256.0;
-                    double var57 = ((double)var67 + (1.0 - var41) * 16.0) / 256.0;
-                    double var59 = ((double)var67 + (1.0 - var43) * 16.0) / 256.0;
-                    double var61 = ((double)(var67 + 16) - 0.01) / 256.0;
-                    var5.method_1411(par1Block.method_455(this.field_2017, var64, par3, var37));
-                    float var63 = 1.0F;
-                    if (var34 < 2) {
-                        var63 *= var16;
-                    } else {
-                        var63 *= var17;
-                    }
-
-                    var5.method_1400(var15 * var63 * var7, var15 * var63 * var8, var15 * var63 * var9);
-                    var5.method_1399(var45, (double)par3 + var41, var47, var53, var57);
-                    var5.method_1399(var49, (double)par3 + var43, var51, var55, var59);
-                    var5.method_1399(var49, (double)(par3 + 0), var51, var55, var61);
-                    var5.method_1399(var45, (double)(par3 + 0), var47, var53, var61);
-                }
-            }
-
-            par1Block.boundingBoxMinY = var18;
-            par1Block.boundingBoxMaxY = var20;
-            return var13;
-        }
     }
 
     /**
@@ -1484,7 +943,6 @@ public abstract class class_535Mixin {
             var8 = true;
         }
 
-        int var27;
         if (this.field_2051 || par1Block.method_447(this.field_2017, par2, par3, par4 - 1, 2)) {
             if (this.field_2033 > 0) {
                 if (par1Block.boundingBoxMinZ <= 0.0) {
@@ -1566,9 +1024,9 @@ public abstract class class_535Mixin {
             this.field_2041 *= var12;
             this.field_2045 *= var12;
             this.field_2007 *= var12;
-            var27 = par1Block.method_439(this.field_2017, par2, par3, par4, 2);
+            int var27 = par1Block.method_439(this.field_2017, par2, par3, par4, 2);
             this.method_1461(par1Block, (double)par2, (double)par3, (double)par4, var27);
-            if (((ITessellator)Tessellator.INSTANCE).defaultTexture() && field_2047 && var27 == 3 && this.field_2049 < 0) {
+            if (Tessellator.INSTANCE.defaultTexture && field_2047 && var27 == 3 && this.field_2049 < 0) {
                 this.field_2038 *= par5;
                 this.field_2039 *= par5;
                 this.field_2040 *= par5;
@@ -1668,9 +1126,9 @@ public abstract class class_535Mixin {
             this.field_2041 *= var12;
             this.field_2045 *= var12;
             this.field_2007 *= var12;
-            var27 = par1Block.method_439(this.field_2017, par2, par3, par4, 3);
+            int var27 = par1Block.method_439(this.field_2017, par2, par3, par4, 3);
             this.method_1465(par1Block, (double)par2, (double)par3, (double)par4, par1Block.method_439(this.field_2017, par2, par3, par4, 3));
-            if (((ITessellator)Tessellator.INSTANCE).defaultTexture() && field_2047 && var27 == 3 && this.field_2049 < 0) {
+            if (Tessellator.INSTANCE.defaultTexture && field_2047 && var27 == 3 && this.field_2049 < 0) {
                 this.field_2038 *= par5;
                 this.field_2039 *= par5;
                 this.field_2040 *= par5;
@@ -1770,9 +1228,9 @@ public abstract class class_535Mixin {
             this.field_2041 *= var12;
             this.field_2045 *= var12;
             this.field_2007 *= var12;
-            var27 = par1Block.method_439(this.field_2017, par2, par3, par4, 4);
+            int var27 = par1Block.method_439(this.field_2017, par2, par3, par4, 4);
             this.method_1468(par1Block, (double)par2, (double)par3, (double)par4, var27);
-            if (((ITessellator)Tessellator.INSTANCE).defaultTexture() && field_2047 && var27 == 3 && this.field_2049 < 0) {
+            if (Tessellator.INSTANCE.defaultTexture && field_2047 && var27 == 3 && this.field_2049 < 0) {
                 this.field_2038 *= par5;
                 this.field_2039 *= par5;
                 this.field_2040 *= par5;
@@ -1872,9 +1330,9 @@ public abstract class class_535Mixin {
             this.field_2041 *= var12;
             this.field_2045 *= var12;
             this.field_2007 *= var12;
-            var27 = par1Block.method_439(this.field_2017, par2, par3, par4, 5);
+            int var27 = par1Block.method_439(this.field_2017, par2, par3, par4, 5);
             this.method_1470(par1Block, (double)par2, (double)par3, (double)par4, var27);
-            if (((ITessellator)Tessellator.INSTANCE).defaultTexture() && field_2047 && var27 == 3 && this.field_2049 < 0) {
+            if (Tessellator.INSTANCE.defaultTexture && field_2047 && var27 == 3 && this.field_2049 < 0) {
                 this.field_2038 *= par5;
                 this.field_2039 *= par5;
                 this.field_2040 *= par5;
@@ -1949,13 +1407,12 @@ public abstract class class_535Mixin {
             var9 = true;
         }
 
-        int var28;
         if (this.field_2051 || par1Block.method_447(this.field_2017, par2, par3, par4 - 1, 2)) {
             var8.method_1411(par1Block.boundingBoxMinZ > 0.0 ? var26 : par1Block.method_455(this.field_2017, par2, par3, par4 - 1));
             var8.method_1400(var18, var21, var24);
-            var28 = par1Block.method_439(this.field_2017, par2, par3, par4, 2);
+            int var28 = par1Block.method_439(this.field_2017, par2, par3, par4, 2);
             this.method_1461(par1Block, (double)par2, (double)par3, (double)par4, var28);
-            if (((ITessellator)Tessellator.INSTANCE).defaultTexture() && field_2047 && var28 == 3 && this.field_2049 < 0) {
+            if (Tessellator.INSTANCE.defaultTexture && field_2047 && var28 == 3 && this.field_2049 < 0) {
                 var8.method_1400(var18 * par5, var21 * par6, var24 * par7);
                 this.method_1461(par1Block, (double)par2, (double)par3, (double)par4, 38);
             }
@@ -1966,9 +1423,9 @@ public abstract class class_535Mixin {
         if (this.field_2051 || par1Block.method_447(this.field_2017, par2, par3, par4 + 1, 3)) {
             var8.method_1411(par1Block.boundingBoxMaxZ < 1.0 ? var26 : par1Block.method_455(this.field_2017, par2, par3, par4 + 1));
             var8.method_1400(var18, var21, var24);
-            var28 = par1Block.method_439(this.field_2017, par2, par3, par4, 3);
+            int var28 = par1Block.method_439(this.field_2017, par2, par3, par4, 3);
             this.method_1465(par1Block, (double)par2, (double)par3, (double)par4, var28);
-            if (((ITessellator)Tessellator.INSTANCE).defaultTexture() && field_2047 && var28 == 3 && this.field_2049 < 0) {
+            if (Tessellator.INSTANCE.defaultTexture && field_2047 && var28 == 3 && this.field_2049 < 0) {
                 var8.method_1400(var18 * par5, var21 * par6, var24 * par7);
                 this.method_1465(par1Block, (double)par2, (double)par3, (double)par4, 38);
             }
@@ -1979,9 +1436,9 @@ public abstract class class_535Mixin {
         if (this.field_2051 || par1Block.method_447(this.field_2017, par2 - 1, par3, par4, 4)) {
             var8.method_1411(par1Block.boundingBoxMinX > 0.0 ? var26 : par1Block.method_455(this.field_2017, par2 - 1, par3, par4));
             var8.method_1400(var19, var22, var25);
-            var28 = par1Block.method_439(this.field_2017, par2, par3, par4, 4);
+            int var28 = par1Block.method_439(this.field_2017, par2, par3, par4, 4);
             this.method_1468(par1Block, (double)par2, (double)par3, (double)par4, var28);
-            if (((ITessellator)Tessellator.INSTANCE).defaultTexture() && field_2047 && var28 == 3 && this.field_2049 < 0) {
+            if (Tessellator.INSTANCE.defaultTexture && field_2047 && var28 == 3 && this.field_2049 < 0) {
                 var8.method_1400(var19 * par5, var22 * par6, var25 * par7);
                 this.method_1468(par1Block, (double)par2, (double)par3, (double)par4, 38);
             }
@@ -1992,9 +1449,9 @@ public abstract class class_535Mixin {
         if (this.field_2051 || par1Block.method_447(this.field_2017, par2 + 1, par3, par4, 5)) {
             var8.method_1411(par1Block.boundingBoxMaxX < 1.0 ? var26 : par1Block.method_455(this.field_2017, par2 + 1, par3, par4));
             var8.method_1400(var19, var22, var25);
-            var28 = par1Block.method_439(this.field_2017, par2, par3, par4, 5);
+            int var28 = par1Block.method_439(this.field_2017, par2, par3, par4, 5);
             this.method_1470(par1Block, (double)par2, (double)par3, (double)par4, var28);
-            if (((ITessellator)Tessellator.INSTANCE).defaultTexture() && field_2047 && var28 == 3 && this.field_2049 < 0) {
+            if (Tessellator.INSTANCE.defaultTexture && field_2047 && var28 == 3 && this.field_2049 < 0) {
                 var8.method_1400(var19 * par5, var22 * par6, var25 * par7);
                 this.method_1470(par1Block, (double)par2, (double)par3, (double)par4, 38);
             }
@@ -2013,29 +1470,24 @@ public abstract class class_535Mixin {
     public void method_1447(Block par1Block, int par2, float par3) {
         Tessellator var4 = Tessellator.INSTANCE;
         boolean var5 = par1Block.id == Block.GRASS_BLOCK.id;
-        int var6;
-        float var7;
-        float var8;
-        float var9;
         if (this.field_2048) {
-            var6 = par1Block.method_459(par2);
+            int var6 = par1Block.method_459(par2);
             if (var5) {
                 var6 = 16777215;
             }
 
-            var7 = (float)(var6 >> 16 & 255) / 255.0F;
-            var8 = (float)(var6 >> 8 & 255) / 255.0F;
-            var9 = (float)(var6 & 255) / 255.0F;
+            float var7 = (float)(var6 >> 16 & 0xFF) / 255.0F;
+            float var8 = (float)(var6 >> 8 & 0xFF) / 255.0F;
+            float var9 = (float)(var6 & 0xFF) / 255.0F;
             GL11.glColor4f(var7 * par3, var8 * par3, var9 * par3, 1.0F);
         }
 
-        var6 = par1Block.getBlockType();
-        int var14;
+        int var6 = par1Block.getBlockType();
         if (var6 != 0 && var6 != 31 && var6 != 16 && var6 != 26) {
             if (var6 == 1) {
                 var4.method_1405();
                 var4.method_1407(0.0F, -1.0F, 0.0F);
-                this.method_1445(par1Block, par2, -0.5, -0.5, -0.5);
+                this.method_1445(par1Block, par2, -0.5, -0.5, -0.5, 1.0F);
                 var4.method_1396();
             } else if (var6 == 19) {
                 var4.method_1405();
@@ -2051,7 +1503,7 @@ public abstract class class_535Mixin {
             } else if (var6 == 13) {
                 par1Block.setBlockItemBounds();
                 GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
-                var7 = 0.0625F;
+                float var7 = 0.0625F;
                 var4.method_1405();
                 var4.method_1407(0.0F, -1.0F, 0.0F);
                 this.method_1444(par1Block, 0.0, 0.0, 0.0, par1Block.method_395(0));
@@ -2101,7 +1553,7 @@ public abstract class class_535Mixin {
                 this.method_1443(par1Block, -0.5, -0.5, -0.5, 0.0, 0.0);
                 var4.method_1396();
             } else if (var6 == 10) {
-                for(var14 = 0; var14 < 2; ++var14) {
+                for(int var14 = 0; var14 < 2; ++var14) {
                     if (var14 == 0) {
                         par1Block.setBoundingBox(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.5F);
                     }
@@ -2138,7 +1590,7 @@ public abstract class class_535Mixin {
                     GL11.glTranslatef(0.5F, 0.5F, 0.5F);
                 }
             } else if (var6 == 27) {
-                var14 = 0;
+                int var14 = 0;
                 GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
                 var4.method_1405();
 
@@ -2204,8 +1656,8 @@ public abstract class class_535Mixin {
                 GL11.glTranslatef(0.5F, 0.5F, 0.5F);
                 par1Block.setBoundingBox(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
             } else if (var6 == 11) {
-                for(var14 = 0; var14 < 4; ++var14) {
-                    var8 = 0.125F;
+                for(int var14 = 0; var14 < 4; ++var14) {
+                    float var8 = 0.125F;
                     if (var14 == 0) {
                         par1Block.setBoundingBox(0.5F - var8, 0.0F, 0.0F, 0.5F + var8, 1.0F, var8 * 2.0F);
                     }
@@ -2253,8 +1705,8 @@ public abstract class class_535Mixin {
 
                 par1Block.setBoundingBox(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
             } else if (var6 == 21) {
-                for(var14 = 0; var14 < 3; ++var14) {
-                    var8 = 0.0625F;
+                for(int var14 = 0; var14 < 3; ++var14) {
+                    float var8 = 0.0625F;
                     if (var14 == 0) {
                         par1Block.setBoundingBox(0.5F - var8, 0.3F, 0.0F, 0.5F + var8, 1.0F, var8 * 2.0F);
                     }
@@ -2295,8 +1747,92 @@ public abstract class class_535Mixin {
                     var4.method_1396();
                     GL11.glTranslatef(0.5F, 0.5F, 0.5F);
                 }
+            } else if (var6 == 32) {
+                for(int var14 = 0; var14 < 2; ++var14) {
+                    if (var14 == 0) {
+                        par1Block.setBoundingBox(0.0F, 0.0F, 0.3125F, 1.0F, 0.8125F, 0.6875F);
+                    }
+
+                    if (var14 == 1) {
+                        par1Block.setBoundingBox(0.25F, 0.0F, 0.25F, 0.75F, 1.0F, 0.75F);
+                    }
+
+                    GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+                    var4.method_1405();
+                    var4.method_1407(0.0F, -1.0F, 0.0F);
+                    this.method_1444(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(0, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(0.0F, 1.0F, 0.0F);
+                    this.method_1456(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(1, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(0.0F, 0.0F, -1.0F);
+                    this.method_1461(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(2, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(0.0F, 0.0F, 1.0F);
+                    this.method_1465(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(3, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(-1.0F, 0.0F, 0.0F);
+                    this.method_1468(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(4, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(1.0F, 0.0F, 0.0F);
+                    this.method_1470(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(5, par2));
+                    var4.method_1396();
+                    GL11.glTranslatef(0.5F, 0.5F, 0.5F);
+                }
 
                 par1Block.setBoundingBox(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+            } else if (var6 == 35) {
+                GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+                this.method_4316((AnvilBlock)par1Block, 0, 0, 0, par2, true);
+                GL11.glTranslatef(0.5F, 0.5F, 0.5F);
+            } else if (var6 == 34) {
+                for(int var14 = 0; var14 < 3; ++var14) {
+                    if (var14 == 0) {
+                        par1Block.setBoundingBox(0.125F, 0.0F, 0.125F, 0.875F, 0.1875F, 0.875F);
+                        this.method_4312(Block.OBSIDIAN.field_439);
+                    } else if (var14 == 1) {
+                        par1Block.setBoundingBox(0.1875F, 0.1875F, 0.1875F, 0.8125F, 0.875F, 0.8125F);
+                        this.method_4312(41);
+                    } else if (var14 == 2) {
+                        par1Block.setBoundingBox(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                        this.method_4312(Block.GLASS_BLOCK.field_439);
+                    }
+
+                    GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
+                    var4.method_1405();
+                    var4.method_1407(0.0F, -1.0F, 0.0F);
+                    this.method_1444(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(0, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(0.0F, 1.0F, 0.0F);
+                    this.method_1456(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(1, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(0.0F, 0.0F, -1.0F);
+                    this.method_1461(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(2, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(0.0F, 0.0F, 1.0F);
+                    this.method_1465(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(3, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(-1.0F, 0.0F, 0.0F);
+                    this.method_1468(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(4, par2));
+                    var4.method_1396();
+                    var4.method_1405();
+                    var4.method_1407(1.0F, 0.0F, 0.0F);
+                    this.method_1470(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(5, par2));
+                    var4.method_1396();
+                    GL11.glTranslatef(0.5F, 0.5F, 0.5F);
+                }
+
+                par1Block.setBoundingBox(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+                this.method_1431();
             } else {
                 FMLRenderAccessLibrary.renderInventoryBlock((class_535)(Object) this, par1Block, par2, var6);
             }
@@ -2313,10 +1849,10 @@ public abstract class class_535Mixin {
             this.method_1444(par1Block, 0.0, 0.0, 0.0, par1Block.method_396(0, par2));
             var4.method_1396();
             if (var5 && this.field_2048) {
-                var14 = par1Block.method_459(par2);
-                var8 = (float)(var14 >> 16 & 255) / 255.0F;
-                var9 = (float)(var14 >> 8 & 255) / 255.0F;
-                float var10 = (float)(var14 & 255) / 255.0F;
+                int var14 = par1Block.method_459(par2);
+                float var8 = (float)(var14 >> 16 & 0xFF) / 255.0F;
+                float var9 = (float)(var14 >> 8 & 0xFF) / 255.0F;
+                float var10 = (float)(var14 & 0xFF) / 255.0F;
                 GL11.glColor4f(var8 * par3, var9 * par3, var10 * par3, 1.0F);
             }
 
@@ -2355,17 +1891,8 @@ public abstract class class_535Mixin {
      */
     @Overwrite
     public static boolean method_1455(int par0) {
-        switch (par0) {
+        switch(par0) {
             case 0:
-            case 10:
-            case 11:
-            case 13:
-            case 16:
-            case 21:
-            case 22:
-            case 26:
-            case 27:
-            case 31:
                 return true;
             case 1:
             case 2:
@@ -2389,8 +1916,33 @@ public abstract class class_535Mixin {
             case 28:
             case 29:
             case 30:
+            case 33:
             default:
                 return FMLRenderAccessLibrary.renderItemAsFull3DBlock(par0);
+            case 10:
+                return true;
+            case 11:
+                return true;
+            case 13:
+                return true;
+            case 16:
+                return true;
+            case 21:
+                return true;
+            case 22:
+                return true;
+            case 26:
+                return true;
+            case 27:
+                return true;
+            case 31:
+                return true;
+            case 32:
+                return true;
+            case 34:
+                return true;
+            case 35:
+                return true;
         }
     }
 }

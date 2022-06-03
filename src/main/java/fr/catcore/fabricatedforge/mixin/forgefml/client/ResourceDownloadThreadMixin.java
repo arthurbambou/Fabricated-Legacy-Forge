@@ -63,6 +63,7 @@ public abstract class ResourceDownloadThreadMixin {
             this.method_800(this.gameFolder, "");
             var14.printStackTrace();
         }
+
     }
 
     /**

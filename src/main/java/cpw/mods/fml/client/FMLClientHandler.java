@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import fr.catcore.fabricatedforge.forged.ReflectionUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.class_469;
 import net.minecraft.client.gui.screen.Screen;
@@ -76,7 +78,7 @@ public class FMLClientHandler implements IFMLSidedHandler {
             try {
                 Class<?> optifineConfig = Class.forName("Config", false, Loader.instance().getModClassLoader());
                 String optifineVersion = (String)optifineConfig.getField("VERSION").get(null);
-                Map<String, Object> dummyOptifineMeta = ImmutableMap.builder().put("name", "Optifine").put("version", optifineVersion).build();
+                Map<String, Object> dummyOptifineMeta = ImmutableMap.<String, Object>builder().put("name", "Optifine").put("version", optifineVersion).build();
                 ModMetadata optifineMetadata = MetadataCollection.from(this.getClass().getResourceAsStream("optifinemod.info"), "optifine")
                         .getMetadataForId("optifine", dummyOptifineMeta);
                 this.optifineContainer = new DummyModContainer(optifineMetadata);
@@ -279,10 +281,10 @@ public class FMLClientHandler implements IFMLSidedHandler {
     }
 
     public void setClientCompatibilityLevel(byte compatibilityLevel) {
-        class_469.setConnectionCompatibilityLevel(compatibilityLevel);
+        ReflectionUtils.class_469_setConnectionCompatibilityLevel(compatibilityLevel);
     }
 
     public byte getClientCompatibilityLevel() {
-        return class_469.getConnectionCompatibilityLevel();
+        return ReflectionUtils.class_469_getConnectionCompatibilityLevel();
     }
 }

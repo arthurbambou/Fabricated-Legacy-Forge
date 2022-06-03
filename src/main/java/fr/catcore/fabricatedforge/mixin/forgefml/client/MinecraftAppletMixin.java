@@ -28,7 +28,7 @@ public class MinecraftAppletMixin extends Applet implements IMinecraftApplet {
      */
     @Overwrite
     public void init() {
-        FMLRelauncher.appletEntry((MinecraftApplet)(Object)this);
+        FMLRelauncher.appletEntry(this);
     }
 
     @Unique
@@ -46,9 +46,9 @@ public class MinecraftAppletMixin extends Applet implements IMinecraftApplet {
 
     @Unique
     public void fmlInitReentry() {
-        this.canvas = new AppletCanvas((MinecraftApplet)(Object)this);
+        this.canvas = new AppletCanvas((MinecraftApplet)(Object) this);
         boolean var1 = "true".equalsIgnoreCase(this.getParameter("fullscreen"));
-        this.clientInstance = new AppletMinecraft((MinecraftApplet)(Object)this, this.canvas, (MinecraftApplet)(Object)this, this.getWidth(), this.getHeight(), var1);
+        this.clientInstance = new AppletMinecraft((MinecraftApplet)(Object) this, this.canvas, (MinecraftApplet)(Object) this, this.getWidth(), this.getHeight(), var1);
         this.clientInstance.host = this.getDocumentBase().getHost();
         if (this.getDocumentBase().getPort() > 0) {
             this.clientInstance.host = this.clientInstance.host + ":" + this.getDocumentBase().getPort();
@@ -79,7 +79,7 @@ public class MinecraftAppletMixin extends Applet implements IMinecraftApplet {
      */
     @Overwrite
     public void start() {
-        FMLRelauncher.appletStart((MinecraftApplet)(Object)this);
+        FMLRelauncher.appletStart(this);
     }
 
     @Unique

@@ -73,7 +73,10 @@
       "net/minecraft/class_794": ["fr/catcore/fabricatedforge/mixininterface/IServerChunkProvider"],
       "net/minecraft/class_1208": ["fr/catcore/fabricatedforge/mixininterface/IDimension"],
       "net/minecraft/class_100": ["fr/catcore/fabricatedforge/mixininterface/ILevelProperties"],
-      "net/minecraft/class_1160": ["fr/catcore/fabricatedforge/mixininterface/ILevelGeneratorType"]
+      "net/minecraft/class_1160": ["fr/catcore/fabricatedforge/mixininterface/ILevelGeneratorType"],
+      "net/minecraft/class_701": ["fr/catcore/fabricatedforge/mixininterface/IPacketListener"],
+      "net/minecraft/class_469": ["fr/catcore/fabricatedforge/mixininterface/Iclass_469"],
+      "net/minecraft/client/MinecraftApplet": ["fr/catcore/fabricatedforge/mixininterface/IMinecraftApplet"]
     }
   }
 }

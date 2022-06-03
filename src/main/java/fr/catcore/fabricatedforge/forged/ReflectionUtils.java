@@ -1,17 +1,19 @@
 package fr.catcore.fabricatedforge.forged;
 
+import cpw.mods.fml.common.FMLLog;
 import fr.catcore.fabricatedforge.mixin.forgefml.block.class_174Accessor;
 import fr.catcore.fabricatedforge.mixininterface.IRailBlock;
 import net.minecraft.block.RailBlock;
 import net.minecraft.block.class_174;
+import net.minecraft.client.class_469;
+
+import java.util.logging.Logger;
 
 public class ReflectionUtils {
 //    public static double World_MAX_ENTITY_RADIUS = 2.0;
 //
 //    public static final Biome[] LevelGeneratorType_base11Biomes = new Biome[]{Biome.DESERT, Biome.FOREST, Biome.EXTREME_HILLS, Biome.SWAMPLAND, Biome.PLAINS, Biome.TAIGA};
 //    public static final Biome[] LevelGeneratorType_base12Biomes = ObjectArrays.concat(LevelGeneratorType_base11Biomes, Biome.JUNGLE);
-//
-//    public static byte class_469_connectionCompatibilityLevel;
 
     public static int[] Block_blockFireSpreadSpeed = new int[4096];
 
@@ -31,4 +33,16 @@ public class ReflectionUtils {
     }
 
     public static boolean TrapdoorBlock_disableValidation = false;
+
+    private static byte class_469_connectionCompatibilityLevel;
+
+    public static void class_469_setConnectionCompatibilityLevel(byte connectionCompatibilityLevel) {
+        ReflectionUtils.class_469_connectionCompatibilityLevel = connectionCompatibilityLevel;
+    }
+
+    public static byte class_469_getConnectionCompatibilityLevel() {
+        return class_469_connectionCompatibilityLevel;
+    }
+
+    public static Logger class_534_log = FMLLog.getLogger();
 }

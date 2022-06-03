@@ -42,6 +42,24 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                 "(Lnet/minecraft/class_173;)Z",
                 "fr/catcore/fabricatedforge/forged/ReflectionUtils"
         ));
+        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+                "setConnectionCompatibilityLevel",
+                "(B)V",
+                "net/minecraft/class_469"
+        ), new ForgeModRemapper.Entry(
+                "class_469_setConnectionCompatibilityLevel",
+                "(B)V",
+                "fr/catcore/fabricatedforge/forged/ReflectionUtils"
+        ));
+        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+                "getConnectionCompatibilityLevel",
+                "()B",
+                "net/minecraft/class_469"
+        ), new ForgeModRemapper.Entry(
+                "class_469_getConnectionCompatibilityLevel",
+                "()B",
+                "fr/catcore/fabricatedforge/forged/ReflectionUtils"
+        ));
 //        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
 //                "<init>",
 //                "(Ljava/lang/String;)V",
@@ -171,6 +189,18 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                                 if (fieldName.equals("disableValidation")) {
                                     fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
                                     fieldName = "TrapdoorBlock_disableValidation";
+                                }
+                                break;
+                            case "net/minecraft/class_469":
+                                if (fieldName.equals("connectionCompatibilityLevel")) {
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                    fieldName = "class_469_connectionCompatibilityLevel";
+                                }
+                                break;
+                            case "net/minecraft/class_534":
+                                if (fieldName.equals("log")) {
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                    fieldName = "class_534_log";
                                 }
                                 break;
 //                            // Mystcraft

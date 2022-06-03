@@ -15,7 +15,6 @@ public class class_590Forged extends FMLTextureFX {
         this.setup();
     }
 
-    @Override
     public void setup() {
         super.setup();
         this.field_2176 = new float[this.tileSizeSquare];
@@ -25,22 +24,16 @@ public class class_590Forged extends FMLTextureFX {
         this.field_2180 = 0;
     }
 
-    @Override
     public void method_1613() {
         ++this.field_2180;
 
-        int var1;
-        int var2;
-        float var3;
-        int var5;
-        int var6;
-        for(var1 = 0; var1 < this.tileSizeBase; ++var1) {
-            for(var2 = 0; var2 < this.tileSizeBase; ++var2) {
-                var3 = 0.0F;
+        for(int var1 = 0; var1 < this.tileSizeBase; ++var1) {
+            for(int var2 = 0; var2 < this.tileSizeBase; ++var2) {
+                float var3 = 0.0F;
 
                 for(int var4 = var1 - 1; var4 <= var1 + 1; ++var4) {
-                    var5 = var4 & this.tileSizeMask;
-                    var6 = var2 & this.tileSizeMask;
+                    int var5 = var4 & this.tileSizeMask;
+                    int var6 = var2 & this.tileSizeMask;
                     var3 += this.field_2176[var5 + var6 * this.tileSizeBase];
                 }
 
@@ -48,20 +41,16 @@ public class class_590Forged extends FMLTextureFX {
             }
         }
 
-        for(var1 = 0; var1 < this.tileSizeBase; ++var1) {
-            for(var2 = 0; var2 < this.tileSizeBase; ++var2) {
-                float[] var10000 = this.field_2178;
-                int var10001 = var1 + var2 * this.tileSizeBase;
-                var10000[var10001] += this.field_2179[var1 + var2 * this.tileSizeBase] * 0.05F;
-                if (this.field_2178[var1 + var2 * this.tileSizeBase] < 0.0F) {
-                    this.field_2178[var1 + var2 * this.tileSizeBase] = 0.0F;
+        for(int var131 = 0; var131 < this.tileSizeBase; ++var131) {
+            for(int var2 = 0; var2 < this.tileSizeBase; ++var2) {
+                this.field_2178[var131 + var2 * this.tileSizeBase] += this.field_2179[var131 + var2 * this.tileSizeBase] * 0.05F;
+                if (this.field_2178[var131 + var2 * this.tileSizeBase] < 0.0F) {
+                    this.field_2178[var131 + var2 * this.tileSizeBase] = 0.0F;
                 }
 
-                var10000 = this.field_2179;
-                var10001 = var1 + var2 * this.tileSizeBase;
-                var10000[var10001] -= 0.1F;
+                this.field_2179[var131 + var2 * this.tileSizeBase] -= 0.1F;
                 if (Math.random() < 0.05) {
-                    this.field_2179[var1 + var2 * this.tileSizeBase] = 0.5F;
+                    this.field_2179[var131 + var2 * this.tileSizeBase] = 0.5F;
                 }
             }
         }
@@ -70,8 +59,8 @@ public class class_590Forged extends FMLTextureFX {
         this.field_2177 = this.field_2176;
         this.field_2176 = var12;
 
-        for(var2 = 0; var2 < this.tileSizeSquare; ++var2) {
-            var3 = this.field_2176[var2];
+        for(int var2 = 0; var2 < this.tileSizeSquare; ++var2) {
+            float var3 = this.field_2176[var2];
             if (var3 > 1.0F) {
                 var3 = 1.0F;
             }
@@ -81,8 +70,8 @@ public class class_590Forged extends FMLTextureFX {
             }
 
             float var13 = var3 * var3;
-            var5 = (int)(32.0F + var13 * 32.0F);
-            var6 = (int)(50.0F + var13 * 64.0F);
+            int var5 = (int)(32.0F + var13 * 32.0F);
+            int var6 = (int)(50.0F + var13 * 64.0F);
             int var7 = 255;
             int var8 = (int)(146.0F + var13 * 50.0F);
             if (this.field_2154) {
@@ -99,5 +88,6 @@ public class class_590Forged extends FMLTextureFX {
             this.field_2152[var2 * 4 + 2] = (byte)var7;
             this.field_2152[var2 * 4 + 3] = (byte)var8;
         }
+
     }
 }
