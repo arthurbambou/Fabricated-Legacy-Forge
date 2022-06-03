@@ -303,8 +303,8 @@ mutable field net/minecraft/world/World villageState Lnet/minecraft/village/Vill
 
 ### Fabricated Forge
 accessible class net/minecraft/client/class_470
-#accessible class net/minecraft/client/class_416
-#accessible class net/minecraft/client/class_417
+accessible class net/minecraft/client/class_416
+accessible class net/minecraft/client/class_417
 #accessible class net/minecraft/server/class_793
 #accessible class net/minecraft/server/dedicated/class_772
 #accessible class net/minecraft/util/class_797

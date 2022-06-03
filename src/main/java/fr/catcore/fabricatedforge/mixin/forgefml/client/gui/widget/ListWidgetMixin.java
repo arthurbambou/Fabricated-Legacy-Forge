@@ -1,14 +1,17 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.client.gui.widget;
 
+import fr.catcore.fabricatedforge.mixininterface.IListWidget;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.widget.ListWidget;
 import net.minecraft.client.render.Tessellator;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(ListWidget.class)
-public abstract class ListWidgetMixin /*implements IListWidget*/ {
+public abstract class ListWidgetMixin implements IListWidget {
 
     @Shadow protected int lastMouseX;
     @Shadow protected int lastMouseY;
@@ -58,6 +61,10 @@ public abstract class ListWidgetMixin /*implements IListWidget*/ {
     @Shadow protected abstract void renderDecorations(int mouseX, int mouseY);
 
     @Shadow @Final private Minecraft field_1241;
+
+    @Shadow protected abstract void renderHoleBackground(int top, int bottom, int topAlpha, int bottomAlpha);
+
+    // Forge Field
     @Unique
     public String BACKGROUND_IMAGE = "/gui/background.png";
 
@@ -73,38 +80,32 @@ public abstract class ListWidgetMixin /*implements IListWidget*/ {
         int var4 = this.getEntryCount();
         int var5 = this.getScrollbarPosition();
         int var6 = var5 + 6;
-        int var9;
-        int var10;
-        int var11;
-        int var13;
-        int var19;
-        int var14;
         if (Mouse.isButtonDown(0)) {
             if (this.field_1253 == -1.0F) {
                 boolean var7 = true;
                 if (par2 >= this.yStart && par2 <= this.yEnd) {
-                    var14 = this.field_1247 / 2 - 110;
-                    var9 = this.field_1247 / 2 + 110;
-                    var10 = par2 - this.yStart - this.headerHeight + (int)this.scrollAmount - 4;
-                    var11 = var10 / this.entryHeight;
-                    if (par1 >= var14 && par1 <= var9 && var11 >= 0 && var10 >= 0 && var11 < var4) {
+                    int var8 = this.field_1247 / 2 - 110;
+                    int var9 = this.field_1247 / 2 + 110;
+                    int var10 = par2 - this.yStart - this.headerHeight + (int)this.scrollAmount - 4;
+                    int var11 = var10 / this.entryHeight;
+                    if (par1 >= var8 && par1 <= var9 && var11 >= 0 && var10 >= 0 && var11 < var4) {
                         boolean var12 = var11 == this.field_1256 && Minecraft.getTime() - this.time < 250L;
                         this.method_1057(var11, var12);
                         this.field_1256 = var11;
                         this.time = Minecraft.getTime();
-                    } else if (par1 >= var14 && par1 <= var9 && var10 < 0) {
-                        this.clickedHeader(par1 - var14, par2 - this.yStart + (int)this.scrollAmount - 4);
+                    } else if (par1 >= var8 && par1 <= var9 && var10 < 0) {
+                        this.clickedHeader(par1 - var8, par2 - this.yStart + (int)this.scrollAmount - 4);
                         var7 = false;
                     }
 
                     if (par1 >= var5 && par1 <= var6) {
                         this.field_1254 = -1.0F;
-                        var19 = this.getMaxScroll();
+                        int var19 = this.getMaxScroll();
                         if (var19 < 1) {
                             var19 = 1;
                         }
 
-                        var13 = (int)((float)((this.yEnd - this.yStart) * (this.yEnd - this.yStart)) / (float)this.getMaxPosition());
+                        int var13 = (int)((float)((this.yEnd - this.yStart) * (this.yEnd - this.yStart)) / (float)this.getMaxPosition());
                         if (var13 < 32) {
                             var13 = 32;
                         }
@@ -131,12 +132,7 @@ public abstract class ListWidgetMixin /*implements IListWidget*/ {
                 this.field_1253 = (float)par2;
             }
         } else {
-            while(true) {
-                if (!Mouse.next()) {
-                    this.field_1253 = -1.0F;
-                    break;
-                }
-
+            while(Mouse.next()) {
                 int var16 = Mouse.getEventDWheel();
                 if (var16 != 0) {
                     if (var16 > 0) {
@@ -148,6 +144,8 @@ public abstract class ListWidgetMixin /*implements IListWidget*/ {
                     this.scrollAmount += (float)(var16 * this.entryHeight / 2);
                 }
             }
+
+            this.field_1253 = -1.0F;
         }
 
         this.capYPosition();
@@ -155,18 +153,18 @@ public abstract class ListWidgetMixin /*implements IListWidget*/ {
         GL11.glDisable(2912);
         Tessellator var18 = Tessellator.INSTANCE;
         this.drawContainerBackground(var18);
-        var9 = this.field_1247 / 2 - 92 - 16;
-        var10 = this.yStart + 4 - (int)this.scrollAmount;
+        int var9 = this.field_1247 / 2 - 92 - 16;
+        int var10 = this.yStart + 4 - (int)this.scrollAmount;
         if (this.renderHeader) {
             this.renderHeader(var9, var10, var18);
         }
 
-        for(var11 = 0; var11 < var4; ++var11) {
-            var19 = var10 + var11 * this.entryHeight + this.headerHeight;
-            var13 = this.entryHeight - 4;
+        for(int var11 = 0; var11 < var4; ++var11) {
+            int var19 = var10 + var11 * this.entryHeight + this.headerHeight;
+            int var13 = this.entryHeight - 4;
             if (var19 <= this.yEnd && var19 + var13 >= this.yStart) {
                 if (this.field_1258 && this.isEntrySelected(var11)) {
-                    var14 = this.field_1247 / 2 - 110;
+                    int var14 = this.field_1247 / 2 - 110;
                     int var15 = this.field_1247 / 2 + 110;
                     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
                     GL11.glDisable(3553);
@@ -214,9 +212,9 @@ public abstract class ListWidgetMixin /*implements IListWidget*/ {
         var18.method_1399((double)this.xEnd, (double)(this.yEnd - var20), 0.0, 1.0, 0.0);
         var18.method_1399((double)this.field_1250, (double)(this.yEnd - var20), 0.0, 0.0, 0.0);
         var18.method_1396();
-        var19 = this.getMaxScroll();
+        int var19 = this.getMaxScroll();
         if (var19 > 0) {
-            var13 = (this.yEnd - this.yStart) * (this.yEnd - this.yStart) / this.getMaxPosition();
+            int var13 = (this.yEnd - this.yStart) * (this.yEnd - this.yStart) / this.getMaxPosition();
             if (var13 < 32) {
                 var13 = 32;
             }
@@ -225,7 +223,7 @@ public abstract class ListWidgetMixin /*implements IListWidget*/ {
                 var13 = this.yEnd - this.yStart - 8;
             }
 
-            var14 = (int)this.scrollAmount * (this.yEnd - this.yStart - var13) / var19 + this.yStart;
+            int var14 = (int)this.scrollAmount * (this.yEnd - this.yStart - var13) / var19 + this.yStart;
             if (var14 < this.yStart) {
                 var14 = this.yStart;
             }
@@ -260,37 +258,38 @@ public abstract class ListWidgetMixin /*implements IListWidget*/ {
         GL11.glDisable(3042);
     }
 
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    public void renderHoleBackground(int par1, int par2, int par3, int par4) {
-        Tessellator var5 = Tessellator.INSTANCE;
-        GL11.glBindTexture(3553, this.field_1241.field_3813.getTextureFromPath(this.BACKGROUND_IMAGE));
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        float var6 = 32.0F;
-        var5.method_1405();
-        var5.method_1402(4210752, par4);
-        var5.method_1399(0.0, (double)par2, 0.0, 0.0, (double)((float)par2 / var6));
-        var5.method_1399((double)this.field_1247, (double)par2, 0.0, (double)((float)this.field_1247 / var6), (double)((float)par2 / var6));
-        var5.method_1402(4210752, par3);
-        var5.method_1399((double)this.field_1247, (double)par1, 0.0, (double)((float)this.field_1247 / var6), (double)((float)par1 / var6));
-        var5.method_1399(0.0, (double)par1, 0.0, 0.0, (double)((float)par1 / var6));
-        var5.method_1396();
+    @ModifyArg(method = "renderHoleBackground", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/class_534;getTextureFromPath(Ljava/lang/String;)I"))
+    private String setBackgroundImageInFunction(String path) {
+        return this.BACKGROUND_IMAGE;
     }
 
-    @Unique
+    @Override
     public void drawContainerBackground(Tessellator tess) {
         GL11.glBindTexture(3553, this.field_1241.field_3813.getTextureFromPath(this.BACKGROUND_IMAGE));
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         float height = 32.0F;
         tess.method_1405();
         tess.method_1413(2105376);
-        tess.method_1399((double)this.field_1250, (double)this.yEnd, 0.0, (double)((float)this.field_1250 / height), (double)((float)(this.yEnd + (int)this.scrollAmount) / height));
-        tess.method_1399((double)this.xEnd, (double)this.yEnd, 0.0, (double)((float)this.xEnd / height), (double)((float)(this.yEnd + (int)this.scrollAmount) / height));
-        tess.method_1399((double)this.xEnd, (double)this.yStart, 0.0, (double)((float)this.xEnd / height), (double)((float)(this.yStart + (int)this.scrollAmount) / height));
-        tess.method_1399((double)this.field_1250, (double)this.yStart, 0.0, (double)((float)this.field_1250 / height), (double)((float)(this.yStart + (int)this.scrollAmount) / height));
+        tess.method_1399(
+                (double)this.field_1250,
+                (double)this.yEnd,
+                0.0,
+                (double)((float)this.field_1250 / height),
+                (double)((float)(this.yEnd + (int)this.scrollAmount) / height)
+        );
+        tess.method_1399(
+                (double)this.xEnd, (double)this.yEnd, 0.0, (double)((float)this.xEnd / height), (double)((float)(this.yEnd + (int)this.scrollAmount) / height)
+        );
+        tess.method_1399(
+                (double)this.xEnd, (double)this.yStart, 0.0, (double)((float)this.xEnd / height), (double)((float)(this.yStart + (int)this.scrollAmount) / height)
+        );
+        tess.method_1399(
+                (double)this.field_1250,
+                (double)this.yStart,
+                0.0,
+                (double)((float)this.field_1250 / height),
+                (double)((float)(this.yStart + (int)this.scrollAmount) / height)
+        );
         tess.method_1396();
     }
 }

@@ -76,7 +76,8 @@
       "net/minecraft/class_1160": ["fr/catcore/fabricatedforge/mixininterface/ILevelGeneratorType"],
       "net/minecraft/class_701": ["fr/catcore/fabricatedforge/mixininterface/IPacketListener"],
       "net/minecraft/class_469": ["fr/catcore/fabricatedforge/mixininterface/Iclass_469"],
-      "net/minecraft/client/MinecraftApplet": ["fr/catcore/fabricatedforge/mixininterface/IMinecraftApplet"]
+      "net/minecraft/client/MinecraftApplet": ["fr/catcore/fabricatedforge/mixininterface/IMinecraftApplet"],
+      "net/minecraft/class_390": ["fr/catcore/fabricatedforge/mixininterface/IListWidget"]
     }
   }
 }

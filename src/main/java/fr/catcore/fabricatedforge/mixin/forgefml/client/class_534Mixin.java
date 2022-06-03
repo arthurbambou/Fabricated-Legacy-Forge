@@ -1,7 +1,7 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.client;
 
 import cpw.mods.fml.client.TextureFXManager;
-import fr.catcore.fabricatedforge.forged.ReflectionUtils;
+import fr.catcore.fabricatedforge.forged.ClientReflectionUtils;
 import net.minecraft.client.class_534;
 import net.minecraft.client.class_584;
 import net.minecraft.client.options.GameOptions;
@@ -91,7 +91,7 @@ public abstract class class_534Mixin {
                 this.field_1974.put(par1Str, var7);
                 return var7;
             } catch (Exception var7) {
-                ReflectionUtils.class_534_log.log(Level.INFO, String.format("An error occured reading texture file %s (getTexture)", par1Str), var7);
+                ClientReflectionUtils.class_534_log.log(Level.INFO, String.format("An error occured reading texture file %s (getTexture)", par1Str), var7);
                 var7.printStackTrace();
                 int[] var5 = this.method_1427(this.missingTexture);
                 this.field_1974.put(par1Str, var5);
@@ -312,7 +312,7 @@ public abstract class class_534Mixin {
                 this.field_1972 = false;
                 this.field_1971 = false;
             } catch (Exception var81) {
-                ReflectionUtils.class_534_log.log(Level.INFO, String.format("An error occured reading texture file %s (refreshTexture)", var9), var81);
+                ClientReflectionUtils.class_534_log.log(Level.INFO, String.format("An error occured reading texture file %s (refreshTexture)", var9), var81);
                 var81.printStackTrace();
             }
         }
@@ -336,7 +336,7 @@ public abstract class class_534Mixin {
                 this.field_1972 = false;
                 this.field_1971 = false;
             } catch (Exception var7) {
-                ReflectionUtils.class_534_log.log(Level.INFO, String.format("An error occured reading texture file data %s (refreshTexture)", var9), var7);
+                ClientReflectionUtils.class_534_log.log(Level.INFO, String.format("An error occured reading texture file data %s (refreshTexture)", var9), var7);
                 var7.printStackTrace();
             }
         }

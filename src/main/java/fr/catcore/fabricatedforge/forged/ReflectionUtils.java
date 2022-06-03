@@ -33,16 +33,4 @@ public class ReflectionUtils {
     }
 
     public static boolean TrapdoorBlock_disableValidation = false;
-
-    private static byte class_469_connectionCompatibilityLevel;
-
-    public static void class_469_setConnectionCompatibilityLevel(byte connectionCompatibilityLevel) {
-        ReflectionUtils.class_469_connectionCompatibilityLevel = connectionCompatibilityLevel;
-    }
-
-    public static byte class_469_getConnectionCompatibilityLevel() {
-        return class_469_connectionCompatibilityLevel;
-    }
-
-    public static Logger class_534_log = FMLLog.getLogger();
 }

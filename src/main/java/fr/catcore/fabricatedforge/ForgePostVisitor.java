@@ -49,7 +49,7 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
         ), new ForgeModRemapper.Entry(
                 "class_469_setConnectionCompatibilityLevel",
                 "(B)V",
-                "fr/catcore/fabricatedforge/forged/ReflectionUtils"
+                "fr/catcore/fabricatedforge/forged/ClientReflectionUtils"
         ));
         METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
                 "getConnectionCompatibilityLevel",
@@ -58,7 +58,7 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
         ), new ForgeModRemapper.Entry(
                 "class_469_getConnectionCompatibilityLevel",
                 "()B",
-                "fr/catcore/fabricatedforge/forged/ReflectionUtils"
+                "fr/catcore/fabricatedforge/forged/ClientReflectionUtils"
         ));
 //        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
 //                "<init>",
@@ -193,13 +193,13 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                                 break;
                             case "net/minecraft/class_469":
                                 if (fieldName.equals("connectionCompatibilityLevel")) {
-                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ClientReflectionUtils";
                                     fieldName = "class_469_connectionCompatibilityLevel";
                                 }
                                 break;
                             case "net/minecraft/class_534":
                                 if (fieldName.equals("log")) {
-                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ClientReflectionUtils";
                                     fieldName = "class_534_log";
                                 }
                                 break;

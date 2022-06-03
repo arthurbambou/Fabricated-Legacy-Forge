@@ -47,34 +47,38 @@ public abstract class TitleScreenMixin extends Screen {
     @Overwrite
     public void init() {
         this.field_2278 = this.field_1229.field_3813.method_1417(new BufferedImage(256, 256, 2));
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        if (calendar.get(Calendar.MONTH) + 1 == 11 && calendar.get(Calendar.DATE) == 9) {
+        Calendar var1 = Calendar.getInstance();
+        var1.setTime(new Date());
+        if (var1.get(2) + 1 == 11 && var1.get(5) == 9) {
             this.splashText = "Happy birthday, ez!";
-        } else if (calendar.get(Calendar.MONTH) + 1 == 6 && calendar.get(Calendar.DATE) == 1) {
+        } else if (var1.get(2) + 1 == 6 && var1.get(5) == 1) {
             this.splashText = "Happy birthday, Notch!";
-        } else if (calendar.get(Calendar.MONTH) + 1 == 12 && calendar.get(Calendar.DATE) == 24) {
+        } else if (var1.get(2) + 1 == 12 && var1.get(5) == 24) {
             this.splashText = "Merry X-mas!";
-        } else if (calendar.get(Calendar.MONTH) + 1 == 1 && calendar.get(Calendar.DATE) == 1) {
+        } else if (var1.get(2) + 1 == 1 && var1.get(5) == 1) {
             this.splashText = "Happy new year!";
-        }
-        Language language = Language.getInstance();
-        int n = this.height / 4 + 48;
-        if (this.field_1229.isDemo()) {
-            this.method_1726(n, 24, language);
-        } else {
-            this.method_1724(n, 24, language);
+        } else if (var1.get(2) + 1 == 10 && var1.get(5) == 31) {
+            this.splashText = "OOoooOOOoooo! Spooky!";
         }
 
-        this.buttons.add(new ButtonWidget(6, this.width / 2 + 2, n + 48, 98, 20, "Mods"));
-        this.buttons.add(new ButtonWidget(3, this.width / 2 - 100, n + 48, 98, 20, language.translate("menu.mods")));
-        if (this.field_1229.isApplet) {
-            this.buttons.add(new ButtonWidget(0, this.width / 2 - 100, n + 72, language.translate("menu.options")));
+        Language var2 = Language.getInstance();
+        int var4 = this.height / 4 + 48;
+        if (this.field_1229.isDemo()) {
+            this.method_1726(var4, 24, var2);
         } else {
-            this.buttons.add(new ButtonWidget(0, this.width / 2 - 100, n + 72 + 12, 98, 20, language.translate("menu.options")));
-            this.buttons.add(new ButtonWidget(4, this.width / 2 + 2, n + 72 + 12, 98, 20, language.translate("menu.quit")));
+            this.method_1724(var4, 24, var2);
         }
-        this.buttons.add(new LanguageButton(5, this.width / 2 - 124, n + 72 + 12));
+
+        this.buttons.add(new ButtonWidget(3, this.width / 2 - 100, var4 + 48, 98, 20, var2.translate("menu.mods")));
+        this.buttons.add(new ButtonWidget(6, this.width / 2 + 2, var4 + 48, 98, 20, "Mods"));
+        if (this.field_1229.isApplet) {
+            this.buttons.add(new ButtonWidget(0, this.width / 2 - 100, var4 + 72, var2.translate("menu.options")));
+        } else {
+            this.buttons.add(new ButtonWidget(0, this.width / 2 - 100, var4 + 72 + 12, 98, 20, var2.translate("menu.options")));
+            this.buttons.add(new ButtonWidget(4, this.width / 2 + 2, var4 + 72 + 12, 98, 20, var2.translate("menu.quit")));
+        }
+
+        this.buttons.add(new LanguageButton(5, this.width / 2 - 124, var4 + 72 + 12));
     }
 
     @Inject(method = "buttonClicked", at = @At("RETURN"))
@@ -100,30 +104,34 @@ public abstract class TitleScreenMixin extends Screen {
         GL11.glBindTexture(3553, this.field_1229.field_3813.getTextureFromPath("/title/mclogo.png"));
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         if ((double)this.minceraftRandomNumber < 1.0E-4) {
-            this.drawTexture(var6, var7, 0, 0, 99, 44);
-            this.drawTexture(var6 + 99, var7, 129, 0, 27, 44);
-            this.drawTexture(var6 + 99 + 26, var7, 126, 0, 3, 44);
-            this.drawTexture(var6 + 99 + 26 + 3, var7, 99, 0, 26, 44);
-            this.drawTexture(var6 + 155, var7, 0, 45, 155, 44);
+            this.drawTexture(var6 + 0, var7 + 0, 0, 0, 99, 44);
+            this.drawTexture(var6 + 99, var7 + 0, 129, 0, 27, 44);
+            this.drawTexture(var6 + 99 + 26, var7 + 0, 126, 0, 3, 44);
+            this.drawTexture(var6 + 99 + 26 + 3, var7 + 0, 99, 0, 26, 44);
+            this.drawTexture(var6 + 155, var7 + 0, 0, 45, 155, 44);
         } else {
-            this.drawTexture(var6, var7, 0, 0, 155, 44);
-            this.drawTexture(var6 + 155, var7, 0, 45, 155, 44);
+            this.drawTexture(var6 + 0, var7 + 0, 0, 0, 155, 44);
+            this.drawTexture(var6 + 155, var7 + 0, 0, 45, 155, 44);
         }
 
         var4.method_1413(16777215);
         GL11.glPushMatrix();
         GL11.glTranslatef((float)(this.width / 2 + 90), 70.0F, 0.0F);
         GL11.glRotatef(-20.0F, 0.0F, 0.0F, 1.0F);
-        float var8 = 1.8F - MathHelper.abs(MathHelper.sin((float)(Minecraft.getTime() % 1000L) / 1000.0F * 3.1415927F * 2.0F) * 0.1F);
+        float var8 = 1.8F - MathHelper.abs(MathHelper.sin((float)(Minecraft.getTime() % 1000L) / 1000.0F * (float) Math.PI * 2.0F) * 0.1F);
         var8 = var8 * 100.0F / (float)(this.textRenderer.getStringWidth(this.splashText) + 32);
         GL11.glScalef(var8, var8, var8);
         this.drawCenteredString(this.textRenderer, this.splashText, 0, -8, 16776960);
         GL11.glPopMatrix();
+        String var9 = "Minecraft 1.4";
+        if (this.field_1229.isDemo()) {
+            var9 = var9 + " Demo";
+        }
 
         List<String> brandings = Lists.reverse(FMLCommonHandler.instance().getBrandings());
 
         for(int i = 0; i < brandings.size(); ++i) {
-            String brd = brandings.get(i);
+            String brd = (String)brandings.get(i);
             if (!Strings.isNullOrEmpty(brd)) {
                 this.drawWithShadow(this.textRenderer, brd, 2, this.height - (10 + i * (this.textRenderer.fontHeight + 1)), 16777215);
             }

@@ -1,6 +1,5 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.client.gui.screen.ingame;
 
-import fr.catcore.fabricatedforge.mixininterface.IItemGroup;
 import net.minecraft.client.class_416;
 import net.minecraft.client.class_417;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
@@ -20,6 +19,7 @@ import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -43,7 +43,10 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
     @Shadow private boolean field_1379;
     @Shadow private boolean field_1378;
 
+    // Forge Fields
+    @Unique
     private int tabPage = 0;
+    @Unique
     private int maxPages = 0;
 
     public CreativeInventoryScreenMixin(ScreenHandler screenHandler) {
@@ -68,10 +71,10 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
      * @reason none
      */
     @Overwrite
-    public void method_1135() {
-        ItemGroup var1 = ItemGroup.itemGroups[selectedTab];
-        if (var1 != null && var1.hasTooltip()) {
-            this.textRenderer.method_964(var1.getTranslationKey(), 8, 6, 4210752);
+    protected void drawForeground(int par1, int par2) {
+        ItemGroup var3 = ItemGroup.itemGroups[selectedTab];
+        if (var3 != null && var3.hasTooltip()) {
+            this.textRenderer.method_4247(var3.getTranslationKey(), 8, 6, 4210752);
         }
 
     }
@@ -81,13 +84,12 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
      * @reason none
      */
     @Overwrite
-    public void mouseClicked(int par1, int par2, int par3) {
+    protected void mouseClicked(int par1, int par2, int par3) {
         if (par3 == 0) {
             int var4 = par1 - this.x;
             int var5 = par2 - this.y;
-            ItemGroup[] var6 = ItemGroup.itemGroups;
 
-            for (ItemGroup var9 : var6) {
+            for(ItemGroup var9 : ItemGroup.itemGroups) {
                 if (var9 != null && this.isClickInTab(var9, var4, var5)) {
                     this.setSelectedTab(var9);
                     return;
@@ -107,7 +109,9 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
         if (ItemGroup.itemGroups[selectedTab] == null) {
             return false;
         } else {
-            return selectedTab != ItemGroup.INVENTORY.getIndex() && ItemGroup.itemGroups[selectedTab].hasScrollbar() && ((class_416)this.screenHandler).method_1153();
+            return selectedTab != ItemGroup.INVENTORY.getIndex()
+                    && ItemGroup.itemGroups[selectedTab].hasScrollbar()
+                    && ((class_416)this.screenHandler).method_1153();
         }
     }
 
@@ -129,27 +133,24 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
                     this.slots = var3.slots;
                 }
 
-                var3.slots = new ArrayList<>();
+                var3.slots = new ArrayList();
 
                 for(int var5 = 0; var5 < var4.slots.size(); ++var5) {
                     class_417 var6 = new class_417((CreativeInventoryScreen)(Object) this, (Slot)var4.slots.get(var5), var5);
                     var3.slots.add(var6);
-                    int var7;
-                    int var8;
-                    int var9;
                     if (var5 >= 5 && var5 < 9) {
-                        var7 = var5 - 5;
-                        var8 = var7 / 2;
-                        var9 = var7 % 2;
+                        int var7 = var5 - 5;
+                        int var8 = var7 / 2;
+                        int var9 = var7 % 2;
                         var6.xPosition = 9 + var8 * 54;
                         var6.yPosition = 6 + var9 * 27;
                     } else if (var5 >= 0 && var5 < 5) {
                         var6.yPosition = -2000;
                         var6.xPosition = -2000;
                     } else if (var5 < var4.slots.size()) {
-                        var7 = var5 - 9;
-                        var8 = var7 % 9;
-                        var9 = var7 / 9;
+                        int var7 = var5 - 9;
+                        int var8 = var7 % 9;
+                        int var9 = var7 / 9;
                         var6.xPosition = 9 + var8 * 18;
                         if (var5 >= 36) {
                             var6.yPosition = 112;
@@ -242,7 +243,9 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
             this.renderTabTooltipIfHovered(ItemGroup.INVENTORY, par1, par2);
         }
 
-        if (this.deleteItemSlot != null && selectedTab == ItemGroup.INVENTORY.getIndex() && this.isPointWithinBounds(this.deleteItemSlot.xPosition, this.deleteItemSlot.yPosition, 16, 16, par1, par2)) {
+        if (this.deleteItemSlot != null
+                && selectedTab == ItemGroup.INVENTORY.getIndex()
+                && this.isPointWithinBounds(this.deleteItemSlot.xPosition, this.deleteItemSlot.yPosition, 16, 16, par1, par2)) {
             this.method_1128(Language.getInstance().translate("inventory.binSlot"), par1, par2);
         }
 
@@ -252,7 +255,7 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
             GL11.glDisable(2896);
             this.zOffset = 300.0F;
             field_1346.zOffset = 300.0F;
-            this.textRenderer.method_964(page, this.x + this.backgroundWidth / 2 - width / 2, this.y - 44, -1);
+            this.textRenderer.method_4247(page, this.x + this.backgroundWidth / 2 - width / 2, this.y - 44, -1);
             this.zOffset = 0.0F;
             field_1346.zOffset = 0.0F;
         }
@@ -266,22 +269,21 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
      * @reason none
      */
     @Overwrite
-    public void drawBackground(float par1, int par2, int par3) {
+    protected void drawBackground(float par1, int par2, int par3) {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         DiffuseLighting.enable();
         int var4 = this.field_1229.field_3813.getTextureFromPath("/gui/allitems.png");
         ItemGroup var5 = ItemGroup.itemGroups[selectedTab];
         int var6 = this.field_1229.field_3813.getTextureFromPath("/gui/creative_inv/" + var5.getTexture());
         ItemGroup[] var7 = ItemGroup.itemGroups;
-        int var8;
+        int var8 = var7.length;
         int start = this.tabPage * 10;
         var8 = Math.min(var7.length, (this.tabPage + 1) * 10 + 2);
         if (this.tabPage != 0) {
             start += 2;
         }
 
-        int var9;
-        for(var9 = start; var9 < var8; ++var9) {
+        for(int var9 = start; var9 < var8; ++var9) {
             ItemGroup var10 = var7[var9];
             this.field_1229.field_3813.method_1426(var4);
             if (var10 != null && var10.getIndex() != selectedTab) {
@@ -307,16 +309,18 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         int var11 = this.x + 175;
         var8 = this.y + 18;
-        var9 = var8 + 112;
+        int var14 = var8 + 112;
         this.field_1229.field_3813.method_1426(var4);
-        if (var5 != null && ((IItemGroup)var5).getTabPage() == this.tabPage || var5 == ItemGroup.SEARCH || var5 == ItemGroup.INVENTORY) {
+        if (var5 != null && var5.getTabPage() == this.tabPage || var5 == ItemGroup.SEARCH || var5 == ItemGroup.INVENTORY) {
             if (var5.hasScrollbar()) {
-                this.drawTexture(var11, var8 + (int)((float)(var9 - var8 - 17) * this.scrollPosition), 232 + (this.hasScrollbar() ? 0 : 12), 0, 12, 15);
+                this.drawTexture(var11, var8 + (int)((float)(var14 - var8 - 17) * this.scrollPosition), 232 + (this.hasScrollbar() ? 0 : 12), 0, 12, 15);
             }
 
             this.renderTabIcon(var5);
             if (var5 == ItemGroup.INVENTORY) {
-                SurvivalInventoryScreen.method_1159(this.field_1229, this.x + 43, this.y + 45, 20, (float)(this.x + 43 - par2), (float)(this.y + 45 - 30 - par3));
+                SurvivalInventoryScreen.method_1159(
+                        this.field_1229, this.x + 43, this.y + 45, 20, (float)(this.x + 43 - par2), (float)(this.y + 45 - 30 - par3)
+                );
             }
 
         }
@@ -327,8 +331,8 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
      * @reason none
      */
     @Overwrite
-    public boolean isClickInTab(ItemGroup par1CreativeTabs, int par2, int par3) {
-        if (((IItemGroup)par1CreativeTabs).getTabPage() != this.tabPage && par1CreativeTabs != ItemGroup.SEARCH && par1CreativeTabs != ItemGroup.INVENTORY) {
+    protected boolean isClickInTab(ItemGroup par1CreativeTabs, int par2, int par3) {
+        if (par1CreativeTabs.getTabPage() != this.tabPage && par1CreativeTabs != ItemGroup.SEARCH && par1CreativeTabs != ItemGroup.INVENTORY) {
             return false;
         } else {
             int var4 = par1CreativeTabs.getColumn();
@@ -356,7 +360,7 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
      * @reason none
      */
     @Overwrite
-    public boolean renderTabTooltipIfHovered(ItemGroup par1CreativeTabs, int par2, int par3) {
+    protected boolean renderTabTooltipIfHovered(ItemGroup par1CreativeTabs, int par2, int par3) {
         int var4 = par1CreativeTabs.getColumn();
         int var5 = 28 * var4;
         byte var6 = 0;
@@ -386,7 +390,7 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
      * @reason none
      */
     @Overwrite
-    public void renderTabIcon(ItemGroup par1CreativeTabs) {
+    protected void renderTabIcon(ItemGroup par1CreativeTabs) {
         boolean var2 = par1CreativeTabs.getIndex() == selectedTab;
         boolean var3 = par1CreativeTabs.isTopRow();
         int var4 = par1CreativeTabs.getColumn();
@@ -420,8 +424,8 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
         var8 += 8 + (var3 ? 1 : -1);
         GL11.glEnable(2896);
         GL11.glEnable(32826);
-        ItemStack var10 = ((IItemGroup)par1CreativeTabs).getIconItemStack();
-        field_1346.method_1546(this.textRenderer, this.field_1229.field_3813, var10, var7, var8);
+        ItemStack var10 = par1CreativeTabs.getIconItemStack();
+        field_1346.method_4336(this.textRenderer, this.field_1229.field_3813, var10, var7, var8);
         field_1346.method_1549(this.textRenderer, this.field_1229.field_3813, var10, var7, var8);
         GL11.glDisable(2896);
         field_1346.zOffset = 0.0F;
@@ -436,4 +440,9 @@ public abstract class CreativeInventoryScreenMixin extends InventoryScreen {
             this.tabPage = Math.min(this.tabPage + 1, this.maxPages);
         }
     }
+
+    // How?
+//    static SimpleInventory method_1149() {
+//        return inventory;
+//    }
 }
