@@ -1,13 +1,8 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.client.options;
 
 import cpw.mods.fml.client.FMLClientHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.options.GameOption;
 import net.minecraft.client.options.GameOptions;
 import net.minecraft.client.options.KeyBinding;
-import net.minecraft.network.class_651;
-import net.minecraft.util.Language;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,34 +26,15 @@ public abstract class GameOptionsMixin {
 
     @Shadow public float chatOpacity;
 
-    @Shadow public abstract boolean gteIntOption(GameOption option);
-
-    @Shadow @Final private static String[] RENDER_DISTANCE;
-
-    @Shadow
-    private static String translateArrayElement(String[] array, int index) {
-        return null;
-    }
-
     @Shadow public int renderDistance;
-
-    @Shadow @Final private static String[] DIFFICULTY;
 
     @Shadow public int difficultyLevel;
 
-    @Shadow @Final private static String[] GUI_SCALE;
-
     @Shadow public int guiScale;
-
-    @Shadow @Final private static String[] CHAT_VISIBILITY;
 
     @Shadow public int chatVisibility;
 
-    @Shadow @Final private static String[] PARTICLES;
-
     @Shadow public int particle;
-
-    @Shadow @Final private static String[] STREAM_CHAT_USERFILTER;
 
     @Shadow public int maxFramerate;
 
@@ -102,35 +78,13 @@ public abstract class GameOptionsMixin {
 
     @Shadow public KeyBinding[] keysAll;
 
-    @Shadow protected Minecraft field_946;
+    @Shadow public abstract void onPlayerModelPartChange();
 
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    public float getFLoatOption(GameOption par1EnumOptions) {
-        return par1EnumOptions == GameOption.FOV ? this.fov : (par1EnumOptions == GameOption.GAMMA ? this.gamma : (par1EnumOptions == GameOption.MUSIC ? this.musicVolume : (par1EnumOptions == GameOption.SOUND ? this.soundVolume : (par1EnumOptions == GameOption.SENSITIVITY ? this.sensitivity : (par1EnumOptions == GameOption.CHAT_OPACITY ? this.chatOpacity : 0.0F)))));
-    }
+    @Shadow public boolean advancedItemTooltips;
 
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    public String getStringOption(GameOption par1EnumOptions) {
-        Language var2 = Language.getInstance();
-        String var3 = var2.translate(par1EnumOptions.getTranslationKey()) + ": ";
-        if (par1EnumOptions.method_879()) {
-            float var5 = this.getFLoatOption(par1EnumOptions);
-            return par1EnumOptions == GameOption.SENSITIVITY ? (var5 == 0.0F ? var3 + var2.translate("options.sensitivity.min") : (var5 == 1.0F ? var3 + var2.translate("options.sensitivity.max") : var3 + (int)(var5 * 200.0F) + "%")) : (par1EnumOptions == GameOption.FOV ? (var5 == 0.0F ? var3 + var2.translate("options.fov.min") : (var5 == 1.0F ? var3 + var2.translate("options.fov.max") : var3 + (int)(70.0F + var5 * 40.0F))) : (par1EnumOptions == GameOption.GAMMA ? (var5 == 0.0F ? var3 + var2.translate("options.gamma.min") : (var5 == 1.0F ? var3 + var2.translate("options.gamma.max") : var3 + "+" + (int)(var5 * 100.0F) + "%")) : (par1EnumOptions == GameOption.CHAT_OPACITY ? var3 + (int)(var5 * 90.0F + 10.0F) + "%" : (var5 == 0.0F ? var3 + var2.translate("options.off") : var3 + (int)(var5 * 100.0F) + "%"))));
-        } else if (par1EnumOptions.method_881()) {
-            boolean var4 = this.gteIntOption(par1EnumOptions);
-            return var4 ? var3 + var2.translate("options.on") : var3 + var2.translate("options.off");
-        } else {
-            return par1EnumOptions == GameOption.RENDER_DISTANCE ? var3 + translateArrayElement(RENDER_DISTANCE, this.renderDistance) : (par1EnumOptions == GameOption.DIFFICULTY ? var3 + translateArrayElement(DIFFICULTY, this.difficultyLevel) : (par1EnumOptions == GameOption.GUI_SCALE ? var3 + translateArrayElement(GUI_SCALE, this.guiScale) : (par1EnumOptions == GameOption.CHAT_VISIBILITY ? var3 + translateArrayElement(CHAT_VISIBILITY, this.chatVisibility) : (par1EnumOptions == GameOption.PARTICLES ? var3 + translateArrayElement(PARTICLES, this.particle) : (par1EnumOptions == GameOption.FRAMERATE_LIMIT ? var3 + translateArrayElement(STREAM_CHAT_USERFILTER, this.maxFramerate) : (par1EnumOptions == GameOption.GRAPHICS ? (this.fancyGraphics ? var3 + var2.translate("options.graphics.fancy") : var3 + var2.translate("options.graphics.fast")) : var3))))));
-        }
-    }
+    @Shadow public boolean pauseOnLostFocus;
+
+    @Shadow public boolean field_5053;
 
     /**
      * @author Minecraft Forge
@@ -171,22 +125,21 @@ public abstract class GameOptionsMixin {
                 var1.println("fullscreen:" + this.fullscreen);
                 var1.println("enableVsync:" + this.vsync);
                 var1.println("hideServerAddress:" + this.hideServerAddress);
-                KeyBinding[] var2 = this.keysAll;
+                var1.println("advancedItemTooltips:" + this.advancedItemTooltips);
+                var1.println("pauseOnLostFocus:" + this.pauseOnLostFocus);
+                var1.println("showCape:" + this.field_5053);
 
-                for (KeyBinding var5 : var2) {
+                for(KeyBinding var5 : this.keysAll) {
                     var1.println("key_" + var5.translationKey + ":" + var5.code);
                 }
 
                 var1.close();
-            } catch (Exception var6) {
+            } catch (Exception var61) {
                 System.out.println("Failed to save options");
-                var6.printStackTrace();
+                var61.printStackTrace();
             }
 
-            if (this.field_946.playerEntity != null) {
-                this.field_946.playerEntity.field_1667.sendPacket(new class_651(this.language, this.renderDistance, this.chatVisibility, this.chatColor, this.difficultyLevel));
-            }
-
+            this.onPlayerModelPartChange();
         }
     }
 }

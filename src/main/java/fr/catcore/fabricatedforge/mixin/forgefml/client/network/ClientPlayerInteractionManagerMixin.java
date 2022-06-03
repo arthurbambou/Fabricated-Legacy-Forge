@@ -1,7 +1,5 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.client.network;
 
-import fr.catcore.fabricatedforge.mixininterface.IBlock;
-import fr.catcore.fabricatedforge.mixininterface.IItem;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.class_469;
@@ -10,7 +8,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.packet.c2s.play.PlayerAction_C2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractBlockC2SPacket;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
@@ -31,29 +28,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
 
     @Shadow protected abstract void syncSelectedSlot();
 
-    @Shadow private int blockBreakingCooldown;
-
     @Shadow @Final private class_469 field_1647;
-
-    @Shadow
-    public static void method_1225(Minecraft minecraft, ClientPlayerInteractionManager clientPlayerInteractionManager, int i, int j, int k, int l) {
-    }
-
-    @Shadow private int field_1648;
-
-    @Shadow private int field_1649;
-
-    @Shadow private int field_1650;
-
-    @Shadow private boolean breakingBlock;
-
-    @Shadow private float currentBreakingProgress;
-
-    @Shadow private float blockBreakingSoundCooldown;
-
-    @Shadow private float field_1652;
-
-    @Shadow public abstract void method_1235(int i, int j, int k, int l);
 
     /**
      * @author Minecraft Forge
@@ -62,9 +37,9 @@ public abstract class ClientPlayerInteractionManagerMixin {
     @Overwrite
     public boolean method_1223(int par1, int par2, int par3, int par4) {
         ItemStack stack = this.field_1646.playerEntity.getMainHandStack();
-        if (stack != null && stack.getItem() != null && ((IItem)stack.getItem()).onBlockStartBreak(stack, par1, par2, par3, this.field_1646.playerEntity)) {
+        if (stack != null && stack.getItem() != null && stack.getItem().onBlockStartBreak(stack, par1, par2, par3, this.field_1646.playerEntity)) {
             return false;
-        } else if (this.field_1656.isAdventure()) {
+        } else if (this.field_1656.isAdventure() && !this.field_1646.playerEntity.method_4579(par1, par2, par3)) {
             return false;
         } else {
             ClientWorld var5 = this.field_1646.world;
@@ -74,7 +49,7 @@ public abstract class ClientPlayerInteractionManagerMixin {
             } else {
                 var5.playSound(2001, par1, par2, par3, var6.id + (var5.getBlockData(par1, par2, par3) << 12));
                 int var7 = var5.getBlockData(par1, par2, par3);
-                boolean var8 = ((IBlock)var6).removeBlockByPlayer(var5, this.field_1646.playerEntity, par1, par2, par3);
+                boolean var8 = var6.removeBlockByPlayer(var5, this.field_1646.playerEntity, par1, par2, par3);
                 if (var8) {
                     var6.method_451(var5, par1, par2, par3, var7);
                 }
@@ -99,50 +74,6 @@ public abstract class ClientPlayerInteractionManagerMixin {
      * @reason none
      */
     @Overwrite
-    public void method_1239(int par1, int par2, int par3, int par4) {
-        this.syncSelectedSlot();
-        if (this.blockBreakingCooldown > 0) {
-            --this.blockBreakingCooldown;
-        } else if (this.field_1656.isCreative()) {
-            this.blockBreakingCooldown = 5;
-            this.field_1647.sendPacket(new PlayerAction_C2SPacket(0, par1, par2, par3, par4));
-            method_1225(this.field_1646, (ClientPlayerInteractionManager)(Object) this, par1, par2, par3, par4);
-        } else if (par1 == this.field_1648 && par2 == this.field_1649 && par3 == this.field_1650) {
-            int var5 = this.field_1646.world.getBlock(par1, par2, par3);
-            if (var5 == 0) {
-                this.breakingBlock = false;
-                return;
-            }
-
-            Block var6 = Block.BLOCKS[var5];
-            this.currentBreakingProgress += var6.method_405(this.field_1646.playerEntity, this.field_1646.playerEntity.world, par1, par2, par3);
-            if (this.blockBreakingSoundCooldown % 4.0F == 0.0F && var6 != null) {
-                this.field_1646.soundSystem.playSound(var6.soundGroup.method_487(), (float)par1 + 0.5F, (float)par2 + 0.5F, (float)par3 + 0.5F, (var6.soundGroup.method_485() + 1.0F) / 8.0F, var6.soundGroup.method_486() * 0.5F);
-            }
-
-            ++this.blockBreakingSoundCooldown;
-            if (this.currentBreakingProgress >= 1.0F) {
-                this.breakingBlock = false;
-                this.field_1647.sendPacket(new PlayerAction_C2SPacket(2, par1, par2, par3, par4));
-                this.method_1223(par1, par2, par3, par4);
-                this.currentBreakingProgress = 0.0F;
-                this.field_1652 = 0.0F;
-                this.blockBreakingSoundCooldown = 0.0F;
-                this.blockBreakingCooldown = 5;
-            }
-
-            this.field_1646.world.method_3698(this.field_1646.playerEntity.id, this.field_1648, this.field_1649, this.field_1650, (int)(this.currentBreakingProgress * 10.0F) - 1);
-        } else {
-            this.method_1235(par1, par2, par3, par4);
-        }
-
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
     public boolean method_1229(PlayerEntity par1EntityPlayer, World par2World, ItemStack par3ItemStack, int par4, int par5, int par6, int par7, Vec3d par8Vec3) {
         this.syncSelectedSlot();
         float var9 = (float)par8Vec3.x - (float)par4;
@@ -150,7 +81,9 @@ public abstract class ClientPlayerInteractionManagerMixin {
         float var11 = (float)par8Vec3.z - (float)par6;
         boolean var12 = false;
         int var13 = par2World.getBlock(par4, par5, par6);
-        if (par3ItemStack != null && par3ItemStack.getItem() != null && ((IItem)par3ItemStack.getItem()).onItemUseFirst(par3ItemStack, par1EntityPlayer, par2World, par4, par5, par6, par7, var9, var10, var11)) {
+        if (par3ItemStack != null
+                && par3ItemStack.getItem() != null
+                && par3ItemStack.getItem().onItemUseFirst(par3ItemStack, par1EntityPlayer, par2World, par4, par5, par6, par7, var9, var10, var11)) {
             return true;
         } else {
             if (var13 > 0 && Block.BLOCKS[var13].method_421(par2World, par4, par5, par6, par1EntityPlayer, par7, var9, var10, var11)) {
@@ -164,7 +97,8 @@ public abstract class ClientPlayerInteractionManagerMixin {
                 }
             }
 
-            this.field_1647.sendPacket(new PlayerInteractBlockC2SPacket(par4, par5, par6, par7, par1EntityPlayer.inventory.getMainHandStack(), var9, var10, var11));
+            this.field_1647
+                    .sendPacket(new PlayerInteractBlockC2SPacket(par4, par5, par6, par7, par1EntityPlayer.inventory.getMainHandStack(), var9, var10, var11));
             if (var12) {
                 return true;
             } else if (par3ItemStack == null) {
