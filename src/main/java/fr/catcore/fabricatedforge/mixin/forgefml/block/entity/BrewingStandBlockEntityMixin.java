@@ -1,9 +1,7 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.block.entity;
 
-import fr.catcore.fabricatedforge.mixininterface.IItem;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BrewingStandBlockEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.PotionItem;
@@ -16,7 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import java.util.List;
 
 @Mixin(BrewingStandBlockEntity.class)
-public abstract class BrewingStandBlockEntityMixin extends BlockEntity implements Inventory, ISidedInventory {
+public abstract class BrewingStandBlockEntityMixin extends BlockEntity implements ISidedInventory {
 
     @Shadow protected abstract boolean method_508();
 
@@ -50,7 +48,7 @@ public abstract class BrewingStandBlockEntityMixin extends BlockEntity implement
             }
 
             if (Item.ITEMS[var1.id].isFood()) {
-                this.field_513[3] = ((IItem)Item.ITEMS[var1.id]).getContainerItemStack(this.field_513[3]);
+                this.field_513[3] = Item.ITEMS[var1.id].getContainerItemStack(this.field_513[3]);
             } else {
                 --this.field_513[3].count;
                 if (this.field_513[3].count <= 0) {
@@ -58,6 +56,7 @@ public abstract class BrewingStandBlockEntityMixin extends BlockEntity implement
                 }
             }
         }
+
     }
 
     @Override

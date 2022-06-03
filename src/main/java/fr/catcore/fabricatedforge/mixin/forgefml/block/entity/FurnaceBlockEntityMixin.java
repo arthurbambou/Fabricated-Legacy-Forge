@@ -1,15 +1,11 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.block.entity;
 
 import cpw.mods.fml.common.registry.GameRegistry;
-import fr.catcore.fabricatedforge.mixininterface.IItem;
-import fr.catcore.fabricatedforge.mixininterface.ISmeltingRecipeRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.FurnaceBlock;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.FurnaceBlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventory;
 import net.minecraft.item.*;
 import net.minecraft.recipe.SmeltingRecipeRegistry;
 import net.minecraftforge.common.ForgeDirection;
@@ -19,7 +15,7 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(FurnaceBlockEntity.class)
-public abstract class FurnaceBlockEntityMixin extends BlockEntity implements Inventory, ISidedInventory {
+public abstract class FurnaceBlockEntityMixin extends BlockEntity implements ISidedInventory {
 
     @Shadow public int fuelTime;
 
@@ -51,7 +47,7 @@ public abstract class FurnaceBlockEntityMixin extends BlockEntity implements Inv
                     if (this.stacks[1] != null) {
                         --this.stacks[1].count;
                         if (this.stacks[1].count == 0) {
-                            this.stacks[1] = ((IItem)this.stacks[1].getItem()).getContainerItemStack(this.stacks[1]);
+                            this.stacks[1] = this.stacks[1].getItem().getContainerItemStack(this.stacks[1]);
                         }
                     }
                 }
@@ -89,7 +85,7 @@ public abstract class FurnaceBlockEntityMixin extends BlockEntity implements Inv
         if (this.stacks[0] == null) {
             return false;
         } else {
-            ItemStack var1 = ((ISmeltingRecipeRegistry)SmeltingRecipeRegistry.getInstance()).getSmeltingResult(this.stacks[0]);
+            ItemStack var1 = SmeltingRecipeRegistry.getInstance().getSmeltingResult(this.stacks[0]);
             if (var1 == null) {
                 return false;
             } else if (this.stacks[2] == null) {
@@ -110,12 +106,11 @@ public abstract class FurnaceBlockEntityMixin extends BlockEntity implements Inv
     @Overwrite
     public void method_524() {
         if (this.method_525()) {
-            ItemStack var1 = ((ISmeltingRecipeRegistry)SmeltingRecipeRegistry.getInstance()).getSmeltingResult(this.stacks[0]);
+            ItemStack var1 = SmeltingRecipeRegistry.getInstance().getSmeltingResult(this.stacks[0]);
             if (this.stacks[2] == null) {
                 this.stacks[2] = var1.copy();
             } else if (this.stacks[2].equalsIgnoreNbt(var1)) {
-                ItemStack var10000 = this.stacks[2];
-                var10000.count += var1.count;
+                this.stacks[2].count += var1.count;
             }
 
             --this.stacks[0].count;
@@ -166,11 +161,6 @@ public abstract class FurnaceBlockEntityMixin extends BlockEntity implements Inv
                 return var1 == Item.BLAZE_ROD.id ? 2400 : GameRegistry.getFuelValue(par0ItemStack);
             }
         }
-    }
-
-    @Override
-    public boolean canPlayerUseInv(PlayerEntity par1EntityPlayer) {
-        return this.world.method_3781(this.x, this.y, this.z) != this ? false : par1EntityPlayer.squaredDistanceTo((double)this.x + 0.5, (double)this.y + 0.5, (double)this.z + 0.5) <= 64.0;
     }
 
     @Override

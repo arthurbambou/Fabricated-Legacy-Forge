@@ -21,9 +21,4 @@ public abstract class BlockEntityMixin implements IBlockEntity {
     @Override
     public void onChunkUnload() {
     }
-
-    @Override
-    public double getRenderDistance() {
-        return 64.0;
-    }
 }

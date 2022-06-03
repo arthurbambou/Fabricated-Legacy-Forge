@@ -10,6 +10,4 @@ public interface IBlockEntity {
     void onDataPacket(Connection net, BlockEntityUpdate_S2CPacket pkt);
 
     void onChunkUnload();
-
-    double getRenderDistance();
 }
