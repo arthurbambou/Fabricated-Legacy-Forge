@@ -169,7 +169,6 @@
     "client.render.TessellatorAccessor",
     "client.render.TessellatorMixin",
     "client.render.WorldRendererMixin",
-    "client.render.block.entity.BlockEntityRenderDispatcherMixin",
     "client.render.block.entity.PistonBlockEntityRendererMixin",
     "client.render.entity.BipedEntityRendererMixin",
     "client.render.entity.EntityRenderDispatcherMixin",

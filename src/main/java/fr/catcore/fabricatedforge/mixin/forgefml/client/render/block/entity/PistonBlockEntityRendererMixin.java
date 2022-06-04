@@ -42,15 +42,30 @@ public abstract class PistonBlockEntityRendererMixin extends BlockEntityRenderer
 
             ForgeHooksClient.beforeBlockRender(var9, this.field_2185);
             var10.method_1405();
-            var10.method_1406((double)((float)par2 - (float)par1TileEntityPiston.x + par1TileEntityPiston.method_573(par8)), (double)((float)par4 - (float)par1TileEntityPiston.y + par1TileEntityPiston.method_575(par8)), (double)((float)par6 - (float)par1TileEntityPiston.z + par1TileEntityPiston.method_576(par8)));
+            var10.method_1406(
+                    (double)((float)par2 - (float)par1TileEntityPiston.x + par1TileEntityPiston.method_573(par8)),
+                    (double)((float)par4 - (float)par1TileEntityPiston.y + par1TileEntityPiston.method_575(par8)),
+                    (double)((float)par6 - (float)par1TileEntityPiston.z + par1TileEntityPiston.method_576(par8))
+            );
             var10.method_1403(1, 1, 1);
             if (var9 == Block.PISTON_HEAD && par1TileEntityPiston.getAmountExtended(par8) < 0.5F) {
                 this.field_2185.method_1452(var9, par1TileEntityPiston.x, par1TileEntityPiston.y, par1TileEntityPiston.z, false);
             } else if (par1TileEntityPiston.isSource() && !par1TileEntityPiston.isExtending()) {
                 Block.PISTON_HEAD.method_563(((PistonBlock)var9).method_562());
-                this.field_2185.method_1452(Block.PISTON_HEAD, par1TileEntityPiston.x, par1TileEntityPiston.y, par1TileEntityPiston.z, par1TileEntityPiston.getAmountExtended(par8) < 0.5F);
+                this.field_2185
+                        .method_1452(
+                                Block.PISTON_HEAD,
+                                par1TileEntityPiston.x,
+                                par1TileEntityPiston.y,
+                                par1TileEntityPiston.z,
+                                par1TileEntityPiston.getAmountExtended(par8) < 0.5F
+                        );
                 Block.PISTON_HEAD.method_565();
-                var10.method_1406((double)((float)par2 - (float)par1TileEntityPiston.x), (double)((float)par4 - (float)par1TileEntityPiston.y), (double)((float)par6 - (float)par1TileEntityPiston.z));
+                var10.method_1406(
+                        (double)((float)par2 - (float)par1TileEntityPiston.x),
+                        (double)((float)par4 - (float)par1TileEntityPiston.y),
+                        (double)((float)par6 - (float)par1TileEntityPiston.z)
+                );
                 this.field_2185.method_1466(var9, par1TileEntityPiston.x, par1TileEntityPiston.y, par1TileEntityPiston.z);
             } else {
                 this.field_2185.method_1449(var9, par1TileEntityPiston.x, par1TileEntityPiston.y, par1TileEntityPiston.z);

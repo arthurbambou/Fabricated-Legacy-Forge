@@ -203,6 +203,12 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                                     fieldName = "class_534_log";
                                 }
                                 break;
+                            case "net/minecraft/class_533":
+                                if (fieldName.equals("renderingWorldRenderer")) {
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ClientReflectionUtils";
+                                    fieldName = "Tessellator_renderingWorldRenderer";
+                                }
+                                break;
 //                            // Mystcraft
 //                            case "xcompwiz/mystcraft/Mystcraft":
 //                                if (fieldName.equals("registeredDims")) {

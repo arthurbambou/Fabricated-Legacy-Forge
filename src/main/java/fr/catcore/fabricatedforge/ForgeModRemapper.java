@@ -54,41 +54,41 @@ public class ForgeModRemapper implements ModRemapper {
         mappings.add("TradeEntry", "net/minecraft/TradeEntry");
 
         // Forge cursed overwrites mappings
-//        mappings.add("axf", "fr/catcore/fabricatedforge/forged/class_585Forged")
-//                .field("g", "field_2158", "[F")
-//                .field("h", "field_2159", "[F");
-//
-//        mappings.add("axg", "fr/catcore/fabricatedforge/forged/class_586Forged")
-//                .field("g", "field_2160", "[F")
-//                .field("h", "field_2161", "[F")
-//                .field("i", "field_2162", "[F")
-//                .field("j", "field_2163", "[F")
-//                .field("k", "field_2164", "I");
-//
-//        mappings.add("axh", "fr/catcore/fabricatedforge/forged/class_587Forged")
-//                .field("g", "field_2165", "[F")
-//                .field("h", "field_2166", "[F")
-//                .field("i", "field_2167", "[F")
-//                .field("j", "field_2168", "[F");
-//
-//        mappings.add("axi", "fr/catcore/fabricatedforge/forged/class_588Forged")
-//                .field("g", "field_2169", "I")
-//                .field("h", "field_2170", "[[B");
-//
-//        mappings.add("axj", "fr/catcore/fabricatedforge/forged/class_589Forged")
-//                .field("g", "field_2171", "[F")
-//                .field("h", "field_2172", "[F")
-//                .field("i", "field_2173", "[F")
-//                .field("j", "field_2174", "[F")
-//                .field("k", "field_2175", "I");
-//
-//        mappings.add("axk", "fr/catcore/fabricatedforge/forged/class_590Forged")
-//                .field("g", "field_2176", "[F")
-//                .field("h", "field_2177", "[F")
-//                .field("i", "field_2178", "[F")
-//                .field("j", "field_2179", "[F")
-//                .field("k", "field_2180", "I");
-//
+        mappings.add("bbi", "fr/catcore/fabricatedforge/forged/class_585Forged")
+                .field("a", "field_2158", "[F")
+                .field("b", "field_2159", "[F");
+
+        mappings.add("bbj", "fr/catcore/fabricatedforge/forged/class_586Forged")
+                .field("a", "field_2160", "[F")
+                .field("b", "field_2161", "[F")
+                .field("c", "field_2162", "[F")
+                .field("j", "field_2163", "[F")
+                .field("k", "field_2164", "I");
+
+        mappings.add("bbk", "fr/catcore/fabricatedforge/forged/class_587Forged")
+                .field("a", "field_2165", "[F")
+                .field("b", "field_2166", "[F")
+                .field("c", "field_2167", "[F")
+                .field("j", "field_2168", "[F");
+
+        mappings.add("bbl", "fr/catcore/fabricatedforge/forged/class_588Forged")
+                .field("a", "field_2169", "I")
+                .field("b", "field_2170", "[[B");
+
+        mappings.add("bbm", "fr/catcore/fabricatedforge/forged/class_589Forged")
+                .field("a", "field_2171", "[F")
+                .field("b", "field_2172", "[F")
+                .field("c", "field_2173", "[F")
+                .field("j", "field_2174", "[F")
+                .field("k", "field_2175", "I");
+
+        mappings.add("bbn", "fr/catcore/fabricatedforge/forged/class_590Forged")
+                .field("a", "field_2176", "[F")
+                .field("b", "field_2177", "[F")
+                .field("c", "field_2178", "[F")
+                .field("j", "field_2179", "[F")
+                .field("k", "field_2180", "I");
+
 //        mappings.add("axc", "fr/catcore/fabricatedforge/forged/ClockSpriteForged")
 //                .field("g", "field_2143", "Lnet/minecraft/client/Minecraft;")
 //                .field("h", "field_2144", "[I")

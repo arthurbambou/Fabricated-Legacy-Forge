@@ -31,12 +31,6 @@ loom {
 	setIntermediaryUrl('https://maven.legacyfabric.net/net/fabricmc/intermediary/%1$s/intermediary-%1$s-v2.jar');
 
 	accessWidenerPath = file("src/main/resources/fabricated-forge.accesswidener")
-
-	runs {
-		client {
-			vmArgs "-Dmixin.debug.export=true"
-		}
-	}
 }
 
 dependencies {
@@ -44,7 +38,7 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	modApi("maven.modrinth:mod-remapping-api:1.0.0")
+	modApi("maven.modrinth:mod-remapping-api:1.1.0")
 
 	modImplementation("net.legacyfabric.legacy-fabric-api:legacy-fabric-logger-api-v1:1.0.3+509c77a039")
 

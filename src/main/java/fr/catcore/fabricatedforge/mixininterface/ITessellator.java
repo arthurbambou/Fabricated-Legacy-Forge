@@ -2,10 +2,9 @@ package fr.catcore.fabricatedforge.mixininterface;
 
 public interface ITessellator {
 
-    boolean defaultTexture();
+    void setDefaultTexture(boolean defaultTexture);
 
-    boolean renderingWorldRenderer();
-    void renderingWorldRenderer(boolean bool);
+    boolean defaultTexture();
 
     int getTextureID();
 

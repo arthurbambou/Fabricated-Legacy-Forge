@@ -13,7 +13,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.nio.ByteBuffer;
@@ -55,25 +54,47 @@ public abstract class TessellatorMixin implements ITessellator {
     @Shadow public double field_1967;
     @Shadow public double field_1968;
     @Shadow public static Tessellator INSTANCE;
-    @Shadow private static boolean field_1947;
     @Shadow private int field_1944;
-    private static int nativeBufferSize = 0x200000;
+    @Shadow private static boolean field_1947;
+    // Forge Fields
+    @Unique
+    private static int nativeBufferSize = 2097152;
+    @Unique
     private static int trivertsInBuffer = nativeBufferSize / 48 * 6;
-    // Should be public
-    private static boolean renderingWorldRenderer = false;
+    @Unique
     public boolean defaultTexture = false;
+    @Unique
     private int rawBufferSize = 0;
+    @Unique
     public int textureID = 0;
-    @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/GlAllocationUtils;allocateByteBuffer(I)Ljava/nio/ByteBuffer;"))
-    private void ctr(int par1, CallbackInfo ci) {
-        this.defaultTexture = true;
-        this.field_1943 = 10;
-        this.field_1940 = false;
-    }
+
+    @Unique
+    private static ByteBuffer forged_field_1948 = GlAllocationUtils.allocateByteBuffer(nativeBufferSize * 4);
+    @Unique
+    private static IntBuffer forged_field_1949 = forged_field_1948.asIntBuffer();
+    @Unique
+    private static FloatBuffer forged_field_1950 = forged_field_1948.asFloatBuffer();
+    @Unique
+    private static ShortBuffer forged_field_1951 = forged_field_1948.asShortBuffer();
+
+    @Unique
+    private static boolean forged_field_1940 = false;
+    @Unique
+    private static IntBuffer forged_field_1941;
+    @Unique
+    private static int forged_field_1943 = 10;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void ctr2(int par1, CallbackInfo ci) {
-        this.field_1952 = null;
+        this.field_1944 = nativeBufferSize * 4;
+        this.field_1948 = forged_field_1948;
+        this.field_1949 = forged_field_1949;
+        this.field_1950 = forged_field_1950;
+        this.field_1951 = forged_field_1951;
+        this.field_1952 = new int[this.field_1944];
+        this.field_1940 = forged_field_1940;
+        this.field_1941 = forged_field_1941;
+        this.field_1943 = forged_field_1943;
     }
 
     /**
@@ -88,8 +109,8 @@ public abstract class TessellatorMixin implements ITessellator {
             this.field_1970 = false;
             int offs = 0;
 
-            int vtc;
             while(offs < this.field_1953) {
+                int vtc = 0;
                 if (this.field_1965 == 7 && field_1946) {
                     vtc = Math.min(this.field_1953 - offs, trivertsInBuffer);
                 } else {
@@ -192,9 +213,9 @@ public abstract class TessellatorMixin implements ITessellator {
                 this.field_1952 = null;
             }
 
-            vtc = this.field_1962 * 4;
+            int var1 = this.field_1962 * 4;
             this.method_1412();
-            return vtc;
+            return var1;
         }
     }
 
@@ -276,22 +297,22 @@ public abstract class TessellatorMixin implements ITessellator {
 
     @Inject(method = "<clinit>", at = @At("RETURN"))
     private static void classInit(CallbackInfo ci) {
+        INSTANCE.setDefaultTexture(true);
+        forged_field_1940 = field_1947 && GLContext.getCapabilities().GL_ARB_vertex_buffer_object;
+        if (forged_field_1940) {
+            forged_field_1941 = GlAllocationUtils.allocateIntBuffer(forged_field_1943);
+            ARBVertexBufferObject.glGenBuffersARB(forged_field_1941);
+        }
+    }
 
+    @Override
+    public void setDefaultTexture(boolean defaultTexture) {
+        this.defaultTexture = defaultTexture;
     }
 
     @Override
     public boolean defaultTexture() {
         return this.defaultTexture;
-    }
-
-    @Override
-    public boolean renderingWorldRenderer() {
-        return renderingWorldRenderer;
-    }
-
-    @Override
-    public void renderingWorldRenderer(boolean bool) {
-        renderingWorldRenderer = bool;
     }
 
     @Override

@@ -6,7 +6,6 @@ import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.render.entity.SnowGolemEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.SnowmanEntityModel;
-import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.SnowGolemEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -30,7 +29,7 @@ public class SnowGolemEntityRendererMixin extends MobEntityRenderer {
      * @reason none
      */
     @Overwrite
-    public void method_1569(SnowGolemEntity par1EntitySnowman, float par2) {
+    protected void method_1569(SnowGolemEntity par1EntitySnowman, float par2) {
         super.method_1569(par1EntitySnowman, par2);
         ItemStack var3 = new ItemStack(Block.PUMPKIN, 1);
         if (var3 != null && var3.getItem() instanceof BlockItem) {
