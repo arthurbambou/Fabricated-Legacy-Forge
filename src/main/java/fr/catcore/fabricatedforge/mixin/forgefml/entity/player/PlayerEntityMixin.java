@@ -3,8 +3,6 @@ package fr.catcore.fabricatedforge.mixin.forgefml.entity.player;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.FMLNetworkHandler;
 import cpw.mods.fml.common.network.Player;
-import fr.catcore.fabricatedforge.mixininterface.IBlock;
-import fr.catcore.fabricatedforge.mixininterface.IItem;
 import fr.catcore.fabricatedforge.mixininterface.IPlayerEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -114,9 +112,11 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
 
     @Shadow protected abstract void method_3203();
 
-    @Shadow public abstract void method_3161(BlockPos blockPos);
-
     @Shadow public FishingBobberEntity fishHook;
+
+    @Shadow public abstract void method_4573(BlockPos blockPos, boolean bl);
+
+    @Shadow public abstract ItemEntity dropStack(ItemStack stack, boolean bl);
 
     public PlayerEntityMixin(World world) {
         super(world);
@@ -132,7 +132,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
         if (this.useItem != null) {
             ItemStack var1 = this.inventory.getMainHandStack();
             if (var1 == this.useItem) {
-                ((IItem)this.useItem.getItem()).onUsingItemTick(this.useItem, (PlayerEntity)(Object) this, this.itemUseTicks);
+                this.useItem.getItem().onUsingItemTick(this.useItem, (PlayerEntity)(Object) this, this.itemUseTicks);
                 if (this.itemUseTicks <= 25 && this.itemUseTicks % 4 == 0) {
                     this.drink(var1, 5);
                 }
@@ -234,27 +234,30 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
         super.dropInventory(par1DamageSource);
         this.setBounds(0.2F, 0.2F);
         this.updatePosition(this.x, this.y, this.z);
-        this.velocityY = 0.10000000149011612;
+        this.velocityY = 0.1F;
         this.captureDrops(true);
         this.getCapturedDrops().clear();
         if (this.username.equals("Notch")) {
             this.dropStack(new ItemStack(Item.APPLE, 1), true);
         }
 
-        this.inventory.dropAll();
+        if (!this.world.getGameRules().getBoolean("keepInventory")) {
+            this.inventory.dropAll();
+        }
+
         this.captureDrops(false);
         if (!this.world.isClient) {
             PlayerDropsEvent event = new PlayerDropsEvent((PlayerEntity)(Object) this, par1DamageSource, this.getCapturedDrops(), this.field_3332 > 0);
             if (!MinecraftForge.EVENT_BUS.post(event)) {
-                for (ItemEntity item : this.getCapturedDrops()) {
+                for(ItemEntity item : this.getCapturedDrops()) {
                     this.spawnItemEntity(item);
                 }
             }
         }
 
         if (par1DamageSource != null) {
-            this.velocityX = (double)(-MathHelper.cos((this.field_3299 + this.yaw) * 3.1415927F / 180.0F) * 0.1F);
-            this.velocityZ = (double)(-MathHelper.sin((this.field_3299 + this.yaw) * 3.1415927F / 180.0F) * 0.1F);
+            this.velocityX = (double)(-MathHelper.cos((this.field_3299 + this.yaw) * (float) Math.PI / 180.0F) * 0.1F);
+            this.velocityZ = (double)(-MathHelper.sin((this.field_3299 + this.yaw) * (float) Math.PI / 180.0F) * 0.1F);
         } else {
             this.velocityX = this.velocityZ = 0.0;
         }
@@ -268,12 +271,14 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
      * @reason none
      */
     @Overwrite
-    public ItemEntity dropSelectedStack() {
+    public ItemEntity method_4580() {
         ItemStack stack = this.inventory.getMainHandStack();
         if (stack == null) {
             return null;
         } else {
-            return ((IItem)stack.getItem()).onDroppedByPlayer(stack, (PlayerEntity)(Object) this) ? ForgeHooks.onPlayerTossEvent((PlayerEntity)(Object) this, this.inventory.takeInvStack(this.inventory.selectedSlot, 1)) : null;
+            return stack.getItem().onDroppedByPlayer(stack, (PlayerEntity)(Object) this)
+                    ? ForgeHooks.onPlayerTossEvent((PlayerEntity)(Object) this, this.inventory.takeInvStack(this.inventory.selectedSlot, 1))
+                    : null;
         }
     }
 
@@ -291,50 +296,13 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
      * @reason none
      */
     @Overwrite
-    public ItemEntity dropStack(ItemStack par1ItemStack, boolean par2) {
-        if (par1ItemStack == null) {
-            return null;
-        } else {
-            ItemEntity var3 = new ItemEntity(this.world, this.x, this.y - 0.30000001192092896 + (double)this.getEyeHeight(), this.z, par1ItemStack);
-            var3.pickupDelay = 40;
-            float var4;
-            float var5;
-            if (par2) {
-                var5 = this.random.nextFloat() * 0.5F;
-                float var6 = this.random.nextFloat() * 3.1415927F * 2.0F;
-                var3.velocityX = (double)(-MathHelper.sin(var6) * var5);
-                var3.velocityZ = (double)(MathHelper.cos(var6) * var5);
-                var3.velocityY = 0.20000000298023224;
-            } else {
-                var4 = 0.3F;
-                var3.velocityX = (double)(-MathHelper.sin(this.yaw / 180.0F * 3.1415927F) * MathHelper.cos(this.pitch / 180.0F * 3.1415927F) * var4);
-                var3.velocityZ = (double)(MathHelper.cos(this.yaw / 180.0F * 3.1415927F) * MathHelper.cos(this.pitch / 180.0F * 3.1415927F) * var4);
-                var3.velocityY = (double)(-MathHelper.sin(this.pitch / 180.0F * 3.1415927F) * var4 + 0.1F);
-                var4 = 0.02F;
-                var5 = this.random.nextFloat() * 3.1415927F * 2.0F;
-                var4 *= this.random.nextFloat();
-                var3.velocityX += Math.cos((double)var5) * (double)var4;
-                var3.velocityY += (double)((this.random.nextFloat() - this.random.nextFloat()) * 0.1F);
-                var3.velocityZ += Math.sin((double)var5) * (double)var4;
-            }
-
-            this.spawnItemEntity(var3);
-            this.incrementStat(Stats.DROPS, 1);
-            return var3;
-        }
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
     public void spawnItemEntity(ItemEntity par1EntityItem) {
         if (this.captureDrops()) {
             this.getCapturedDrops().add(par1EntityItem);
         } else {
             this.world.spawnEntity(par1EntityItem);
         }
+
     }
 
     /**
@@ -349,8 +317,8 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
     @Override
     public float getCurrentPlayerStrVsBlock(Block par1Block, int meta) {
         ItemStack stack = this.inventory.getMainHandStack();
-        float var2 = stack == null ? 1.0F : ((IItem)stack.getItem()).getStrVsBlock(stack, par1Block, meta);
-        int var3 = EnchantmentHelper.method_3530(this.inventory);
+        float var2 = stack == null ? 1.0F : stack.getItem().getStrVsBlock(stack, par1Block, meta);
+        int var3 = EnchantmentHelper.method_4652(this);
         if (var3 > 0 && ForgeHooks.canHarvestBlock(par1Block, (PlayerEntity)(Object) this, meta)) {
             var2 += (float)(var3 * var3 + 1);
         }
@@ -363,7 +331,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
             var2 *= 1.0F - (float)(this.method_2627(StatusEffect.MINING_FATIGUE).getAmplifier() + 1) * 0.2F;
         }
 
-        if (this.isSubmergedIn(Material.WATER) && !EnchantmentHelper.method_3537(this.inventory)) {
+        if (this.isSubmergedIn(Material.WATER) && !EnchantmentHelper.method_4656(this)) {
             var2 /= 5.0F;
         }
 
@@ -372,7 +340,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
         }
 
         var2 = ForgeEventFactory.getBreakSpeed((PlayerEntity)(Object) this, par1Block, meta, var2);
-        return Math.max(var2, 0.0F);
+        return var2 < 0.0F ? 0.0F : var2;
     }
 
     /**
@@ -389,7 +357,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
      * @reason none
      */
     @Overwrite
-    public void method_2653(DamageSource par1DamageSource, int par2) {
+    protected void method_2653(DamageSource par1DamageSource, int par2) {
         LivingHurtEvent event = new LivingHurtEvent(this, par1DamageSource, par2);
         if (!MinecraftForge.EVENT_BUS.post(event) && event.ammount != 0) {
             par2 = event.ammount;
@@ -455,7 +423,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
     public void method_3216(Entity par1Entity) {
         if (!MinecraftForge.EVENT_BUS.post(new AttackEntityEvent((PlayerEntity)(Object) this, par1Entity))) {
             ItemStack stack = this.getMainHandStack();
-            if (stack == null || !((IItem)stack.getItem()).onLeftClickEntity(stack, (PlayerEntity)(Object) this, par1Entity)) {
+            if (stack == null || !stack.getItem().onLeftClickEntity(stack, (PlayerEntity)(Object) this, par1Entity)) {
                 if (par1Entity.isAttackable()) {
                     int var2 = this.inventory.method_3127(par1Entity);
                     if (this.method_2581(StatusEffect.STRENGTH)) {
@@ -469,8 +437,8 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
                     int var3 = 0;
                     int var4 = 0;
                     if (par1Entity instanceof MobEntity) {
-                        var4 = EnchantmentHelper.method_3525(this.inventory, (MobEntity)par1Entity);
-                        var3 += EnchantmentHelper.method_3531(this.inventory, (MobEntity)par1Entity);
+                        var4 = EnchantmentHelper.method_4647(this, (MobEntity)par1Entity);
+                        var3 += EnchantmentHelper.method_4651(this, (MobEntity)par1Entity);
                     }
 
                     if (this.isSprinting()) {
@@ -478,7 +446,13 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
                     }
 
                     if (var2 > 0 || var4 > 0) {
-                        boolean var5 = this.fallDistance > 0.0F && !this.onGround && !this.method_2660() && !this.isTouchingWater() && !this.method_2581(StatusEffect.BLINDNESS) && this.vehicle == null && par1Entity instanceof MobEntity;
+                        boolean var5 = this.fallDistance > 0.0F
+                                && !this.onGround
+                                && !this.method_2660()
+                                && !this.isTouchingWater()
+                                && !this.method_2581(StatusEffect.BLINDNESS)
+                                && this.vehicle == null
+                                && par1Entity instanceof MobEntity;
                         if (var5) {
                             var2 += this.random.nextInt(var2 / 2 + 2);
                         }
@@ -487,7 +461,11 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
                         boolean var6 = par1Entity.damage(DamageSource.player((PlayerEntity)(Object) this), var2);
                         if (var6) {
                             if (var3 > 0) {
-                                par1Entity.addVelocity((double)(-MathHelper.sin(this.yaw * 3.1415927F / 180.0F) * (float)var3 * 0.5F), 0.1, (double)(MathHelper.cos(this.yaw * 3.1415927F / 180.0F) * (float)var3 * 0.5F));
+                                par1Entity.addVelocity(
+                                        (double)(-MathHelper.sin(this.yaw * (float) Math.PI / 180.0F) * (float)var3 * 0.5F),
+                                        0.1,
+                                        (double)(MathHelper.cos(this.yaw * (float) Math.PI / 180.0F) * (float)var3 * 0.5F)
+                                );
                                 this.velocityX *= 0.6;
                                 this.velocityZ *= 0.6;
                                 this.setSprinting(false);
@@ -522,8 +500,8 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
                             }
 
                             this.incrementStat(Stats.DAMAGE_DEALT, var2);
-                            int var8 = EnchantmentHelper.method_3533(this.inventory, (MobEntity)par1Entity);
-                            if (var8 > 0) {
+                            int var8 = EnchantmentHelper.method_4646(this, (MobEntity)par1Entity);
+                            if (var8 > 0 && var6) {
                                 par1Entity.setOnFireFor(var8 * 4);
                             }
                         }
@@ -566,7 +544,14 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
 
                 double var4 = 8.0;
                 double var6 = 5.0;
-                List var8 = this.world.getEntitiesInBox(HostileEntity.class, Box.getLocalPool().getOrCreate((double)par1 - var4, (double)par2 - var6, (double)par3 - var4, (double)par1 + var4, (double)par2 + var6, (double)par3 + var4));
+                List var8 = this.world
+                        .getEntitiesInBox(
+                                HostileEntity.class,
+                                Box.getLocalPool()
+                                        .getOrCreate(
+                                                (double)par1 - var4, (double)par2 - var6, (double)par3 - var4, (double)par1 + var4, (double)par2 + var6, (double)par3 + var4
+                                        )
+                        );
                 if (!var8.isEmpty()) {
                     return CanSleepEnum.NOT_SAFE;
                 }
@@ -579,12 +564,12 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
                 int var5 = BedBlock.method_297(var9);
                 Block block = Block.BLOCKS[this.world.getBlock(par1, par2, par3)];
                 if (block != null) {
-                    var5 = ((IBlock)block).getBedDirection(this.world, par1, par2, par3);
+                    var5 = block.getBedDirection(this.world, par1, par2, par3);
                 }
 
                 float var10 = 0.5F;
                 float var7 = 0.5F;
-                switch (var5) {
+                switch(var5) {
                     case 0:
                         var7 = 0.9F;
                         break;
@@ -627,9 +612,9 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
         BlockPos var4 = this.field_3992;
         BlockPos var5 = this.field_3992;
         Block block = var4 == null ? null : Block.BLOCKS[this.world.getBlock(var4.x, var4.y, var4.z)];
-        if (var4 != null && block != null && ((IBlock)block).isBed(this.world, var4.x, var4.y, var4.z, this)) {
-            ((IBlock)block).setBedOccupied(this.world, var4.x, var4.y, var4.z, (PlayerEntity)(Object) this, false);
-            var5 = ((IBlock)block).getBedSpawnPosition(this.world, var4.x, var4.y, var4.z, (PlayerEntity)(Object) this);
+        if (var4 != null && block != null && block.isBed(this.world, var4.x, var4.y, var4.z, this)) {
+            block.setBedOccupied(this.world, var4.x, var4.y, var4.z, (PlayerEntity)(Object) this, false);
+            var5 = block.getBedSpawnPosition(this.world, var4.x, var4.y, var4.z, (PlayerEntity)(Object) this);
             if (var5 == null) {
                 var5 = new BlockPos(var4.x, var4.y + 1, var4.z);
             }
@@ -649,7 +634,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
         }
 
         if (par3) {
-            this.method_3161(this.field_3992);
+            this.method_4573(this.field_3992, false);
         }
 
     }
@@ -662,7 +647,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
     private boolean method_3213() {
         BlockPos c = this.field_3992;
         int blockID = this.world.getBlock(c.x, c.y, c.z);
-        return Block.BLOCKS[blockID] != null && ((IBlock)Block.BLOCKS[blockID]).isBed(this.world, c.x, c.y, c.z, this);
+        return Block.BLOCKS[blockID] != null && Block.BLOCKS[blockID].isBed(this.world, c.x, c.y, c.z, this);
     }
 
     /**
@@ -670,17 +655,21 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
      * @reason none
      */
     @Overwrite
-    public static BlockPos method_3169(World par0World, BlockPos par1ChunkCoordinates) {
-        ChunkProvider var2 = par0World.getChunkProvider();
-        var2.method_3871(par1ChunkCoordinates.x - 3 >> 4, par1ChunkCoordinates.z - 3 >> 4);
-        var2.method_3871(par1ChunkCoordinates.x + 3 >> 4, par1ChunkCoordinates.z - 3 >> 4);
-        var2.method_3871(par1ChunkCoordinates.x - 3 >> 4, par1ChunkCoordinates.z + 3 >> 4);
-        var2.method_3871(par1ChunkCoordinates.x + 3 >> 4, par1ChunkCoordinates.z + 3 >> 4);
+    public static BlockPos method_3169(World par0World, BlockPos par1ChunkCoordinates, boolean par2) {
+        ChunkProvider var3 = par0World.getChunkProvider();
+        var3.method_3871(par1ChunkCoordinates.x - 3 >> 4, par1ChunkCoordinates.z - 3 >> 4);
+        var3.method_3871(par1ChunkCoordinates.x + 3 >> 4, par1ChunkCoordinates.z - 3 >> 4);
+        var3.method_3871(par1ChunkCoordinates.x - 3 >> 4, par1ChunkCoordinates.z + 3 >> 4);
+        var3.method_3871(par1ChunkCoordinates.x + 3 >> 4, par1ChunkCoordinates.z + 3 >> 4);
         Block block = Block.BLOCKS[par0World.getBlock(par1ChunkCoordinates.x, par1ChunkCoordinates.y, par1ChunkCoordinates.z)];
-        if (block != null && ((IBlock)block).isBed(par0World, par1ChunkCoordinates.x, par1ChunkCoordinates.y, par1ChunkCoordinates.z, (MobEntity)null)) {
-            return ((IBlock)block).getBedSpawnPosition(par0World, par1ChunkCoordinates.x, par1ChunkCoordinates.y, par1ChunkCoordinates.z, (PlayerEntity)null);
+        if (block != null && block.isBed(par0World, par1ChunkCoordinates.x, par1ChunkCoordinates.y, par1ChunkCoordinates.z, null)) {
+            return block.getBedSpawnPosition(par0World, par1ChunkCoordinates.x, par1ChunkCoordinates.y, par1ChunkCoordinates.z, null);
         } else {
-            return null;
+            return par2
+                    && par0World.isAir(par1ChunkCoordinates.x, par1ChunkCoordinates.y, par1ChunkCoordinates.z)
+                    && par0World.isAir(par1ChunkCoordinates.x, par1ChunkCoordinates.y + 1, par1ChunkCoordinates.z)
+                    ? par1ChunkCoordinates
+                    : null;
         }
     }
 
@@ -696,8 +685,8 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
             int y = this.field_3992.y;
             int z = this.field_3992.z;
             Block block = Block.BLOCKS[this.world.getBlock(x, y, z)];
-            int var2 = block == null ? 0 : ((IBlock)block).getBedDirection(this.world, x, y, z);
-            switch (var2) {
+            int var2 = block == null ? 0 : block.getBedDirection(this.world, x, y, z);
+            switch(var2) {
                 case 0:
                     return 90.0F;
                 case 1:
@@ -719,8 +708,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
     @Environment(EnvType.CLIENT)
     @Overwrite
     public int method_2630(ItemStack par1ItemStack, int par2) {
-        super.method_2630(par1ItemStack, par2);
-        int var3;
+        int var3 = super.method_2630(par1ItemStack, par2);
         if (par1ItemStack.id == Item.field_4253.id && this.fishHook != null) {
             var3 = par1ItemStack.method_3429() + 16;
         } else {
@@ -743,7 +731,7 @@ public abstract class PlayerEntityMixin extends MobEntity implements CommandSour
                 }
             }
 
-            var3 = ((IItem)par1ItemStack.getItem()).getIconIndex(par1ItemStack, par2, (PlayerEntity)(Object) this, this.useItem, this.itemUseTicks);
+            var3 = par1ItemStack.getItem().getIconIndex(par1ItemStack, par2, (PlayerEntity)(Object) this, this.useItem, this.itemUseTicks);
         }
 
         return var3;

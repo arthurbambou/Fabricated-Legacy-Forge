@@ -245,7 +245,7 @@ accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientYVelo
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity clientZVelocity D
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity field_5383 Lnet/minecraft/util/Tickable;
 accessible field net/minecraft/entity/vehicle/AbstractMinecartEntity field_5384 Z
-extendable method net/minecraft/entity/vehicle/AbstractMinecartEntity method_3063 ()Z
+accessible method net/minecraft/entity/vehicle/AbstractMinecartEntity method_3063 ()Z
 
 accessible method net/minecraft/block/Block <init> (ILnet/minecraft/block/Material;)V
 accessible method net/minecraft/block/Block <init> (IILnet/minecraft/block/Material;)V

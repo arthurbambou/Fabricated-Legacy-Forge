@@ -3,7 +3,7 @@ package fr.catcore.fabricatedforge.mixininterface;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.hit.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -14,7 +14,7 @@ public interface IEntity {
 
     public boolean shouldRiderSit();
 
-    public ItemStack getPickedResult(HitResult target);
+    public ItemStack getPickedResult(BlockHitResult target);
 
     public UUID getPersistentID();
 

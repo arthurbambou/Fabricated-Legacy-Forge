@@ -25,6 +25,20 @@ public interface IAbstractMinecartEntity {
 
     int getMinecartType();
 
+    double getDrag();
+
+    void applyDragAndPushForces();
+
+    void updatePushForces();
+
+    void moveMinecartOnRail(int i, int j, int k);
+
+    void moveMinecartOffRail(int i, int j, int k);
+
+    void updateFuel();
+
+    void adjustSlopeVelocities(int metadata);
+
     float getMaxSpeedRail();
 
     void setMaxSpeedRail(float value);

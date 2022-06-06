@@ -5,14 +5,11 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ChatMessage_S2CPacket;
 import net.minecraft.network.packet.s2c.play.DestroyEntityS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdate_S2CPacket;
 import net.minecraft.network.packet.s2c.play.class_687;
 import net.minecraft.screen.ScreenHandlerListener;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
 import net.minecraft.server.ServerPacketListener;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -41,12 +38,6 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sc
     @Shadow public ServerPlayerInteractionManager interactionManager;
 
     @Shadow private int spawnProtectionTicks;
-
-    @Shadow public abstract ItemStack method_2155(int i);
-
-    @Shadow private ItemStack[] field_2835;
-
-    @Shadow public abstract ServerWorld getServerWorld();
 
     @Shadow @Final public List loadedChunks;
 
@@ -82,52 +73,41 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sc
         this.interactionManager.update();
         --this.spawnProtectionTicks;
         this.openScreenHandler.sendContentUpdates();
-
-        int var1;
-        for(var1 = 0; var1 < 5; ++var1) {
-            ItemStack var2 = this.method_2155(var1);
-            if (var2 != this.field_2835[var1]) {
-                this.getServerWorld().getEntityTracker().sendToOtherTrackingEntities(this, new EntityEquipmentUpdate_S2CPacket(this.id, var1, var2));
-                this.field_2835[var1] = var2;
-            }
-        }
-
-        Iterator var9;
         if (!this.loadedChunks.isEmpty()) {
-            ArrayList var6 = new ArrayList<>();
-            var9 = this.loadedChunks.iterator();
-            ArrayList var3 = new ArrayList<>();
+            ArrayList var1 = new ArrayList();
+            Iterator var2 = this.loadedChunks.iterator();
+            ArrayList var3 = new ArrayList();
 
-            while(var9.hasNext() && var6.size() < 5) {
-                ChunkPos var4 = (ChunkPos)var9.next();
-                var9.remove();
+            while(var2.hasNext() && var1.size() < 5) {
+                ChunkPos var4 = (ChunkPos)var2.next();
+                var2.remove();
                 if (var4 != null && this.world.isPosLoaded(var4.x << 4, 0, var4.z << 4)) {
-                    var6.add(this.world.getChunk(var4.x, var4.z));
+                    var1.add(this.world.getChunk(var4.x, var4.z));
                     var3.addAll(((ServerWorld)this.world).method_2134(var4.x * 16, 0, var4.z * 16, var4.x * 16 + 15, 256, var4.z * 16 + 15));
                 }
             }
 
-            if (!var6.isEmpty()) {
-                this.field_2823.sendPacket(new class_687(var6));
-                for (Object o : var3) {
-                    BlockEntity var5 = (BlockEntity) o;
+            if (!var1.isEmpty()) {
+                this.field_2823.sendPacket(new class_687(var1));
+
+                for(BlockEntity var5 : (ArrayList<BlockEntity>) var3) {
                     this.updateBlockEntity(var5);
                 }
             }
         }
 
         if (!this.removedEntities.isEmpty()) {
-            var1 = Math.min(this.removedEntities.size(), 127);
-            int[] var8 = new int[var1];
-            var9 = this.removedEntities.iterator();
-            int var11 = 0;
+            int var6 = Math.min(this.removedEntities.size(), 127);
+            int[] var7 = new int[var6];
+            Iterator var8 = this.removedEntities.iterator();
+            int var10 = 0;
 
-            while(var9.hasNext() && var11 < var1) {
-                var8[var11++] = (Integer)var9.next();
-                var9.remove();
+            while(var8.hasNext() && var10 < var6) {
+                var7[var10++] = (Integer) var8.next();
+                var8.remove();
             }
 
-            this.field_2823.sendPacket(new DestroyEntityS2CPacket(var8));
+            this.field_2823.sendPacket(new DestroyEntityS2CPacket(var7));
         }
 
     }
@@ -140,17 +120,19 @@ public abstract class ServerPlayerEntityMixin extends PlayerEntity implements Sc
     public void dropInventory(DamageSource par1DamageSource) {
         if (!ForgeHooks.onLivingDeath(this, par1DamageSource)) {
             this.server.getPlayerManager().sendToAll(new ChatMessage_S2CPacket(par1DamageSource.method_2420(this)));
-            PlayerManager._LOGGER.info(par1DamageSource.method_2420(this));
-            this.captureDrops(true);
-            this.getCapturedDrops().clear();
-            this.inventory.dropAll();
-            this.captureDrops(false);
-            PlayerDropsEvent event = new PlayerDropsEvent(this, par1DamageSource, this.getCapturedDrops(), this.field_3332 > 0);
-            if (!MinecraftForge.EVENT_BUS.post(event)) {
-                for (ItemEntity item : this.getCapturedDrops()) {
-                    this.spawnItemEntity(item);
+            if (!this.world.getGameRules().getBoolean("keepInventory")) {
+                this.captureDrops(true);
+                this.getCapturedDrops().clear();
+                this.inventory.dropAll();
+                this.captureDrops(false);
+                PlayerDropsEvent event = new PlayerDropsEvent(this, par1DamageSource, this.getCapturedDrops(), this.field_3332 > 0);
+                if (!MinecraftForge.EVENT_BUS.post(event)) {
+                    for(ItemEntity item : this.getCapturedDrops()) {
+                        this.spawnItemEntity(item);
+                    }
                 }
             }
+
         }
     }
 }

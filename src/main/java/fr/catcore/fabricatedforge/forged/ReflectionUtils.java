@@ -4,6 +4,7 @@ import fr.catcore.fabricatedforge.mixin.forgefml.block.class_174Accessor;
 import fr.catcore.fabricatedforge.mixininterface.IRailBlock;
 import net.minecraft.block.RailBlock;
 import net.minecraft.block.class_174;
+import net.minecraftforge.common.IMinecartCollisionHandler;
 
 public class ReflectionUtils {
 //    public static final Biome[] LevelGeneratorType_base11Biomes = new Biome[]{Biome.DESERT, Biome.FOREST, Biome.EXTREME_HILLS, Biome.SWAMPLAND, Biome.PLAINS, Biome.TAIGA};
@@ -29,4 +30,21 @@ public class ReflectionUtils {
     public static boolean TrapdoorBlock_disableValidation = false;
 
     public static double World_MAX_ENTITY_RADIUS = 2.0;
+
+    public static float AbstractMinecartEntity_defaultMaxSpeedRail = 0.4F;
+    public static float AbstractMinecartEntity_defaultMaxSpeedGround = 0.4F;
+    public static float AbstractMinecartEntity_defaultMaxSpeedAirLateral = 0.4F;
+    public static float AbstractMinecartEntity_defaultMaxSpeedAirVertical = -1.0F;
+    public static double AbstractMinecartEntity_defaultDragRidden = 0.997F;
+    public static double AbstractMinecartEntity_defaultDragEmpty = 0.96F;
+    public static double AbstractMinecartEntity_defaultDragAir = 0.95F;
+    private static IMinecartCollisionHandler AbstractMinecartEntity_collisionHandler = null;
+
+    public static IMinecartCollisionHandler AbstractMinecartEntity_getCollisionHandler() {
+        return AbstractMinecartEntity_collisionHandler;
+    }
+
+    public static void AbstractMinecartEntity_setCollisionHandler(IMinecartCollisionHandler handler) {
+        AbstractMinecartEntity_collisionHandler = handler;
+    }
 }

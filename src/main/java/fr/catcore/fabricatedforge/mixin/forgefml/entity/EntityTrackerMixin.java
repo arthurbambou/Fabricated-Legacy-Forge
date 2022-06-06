@@ -2,8 +2,11 @@ package fr.catcore.fabricatedforge.mixin.forgefml.entity;
 
 import cpw.mods.fml.common.registry.EntityRegistry;
 import net.minecraft.entity.*;
+import net.minecraft.entity.boss.WitherEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.entity.decoration.PaintingEntity;
+import net.minecraft.entity.passive.BatEntity;
 import net.minecraft.entity.passive.SquidEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.AbstractArrowEntity;
@@ -39,8 +42,7 @@ public abstract class EntityTrackerMixin {
                 this.startTracking(par1Entity, 512, 2);
                 ServerPlayerEntity var2 = (ServerPlayerEntity)par1Entity;
 
-                for (Object trackedEntity : this.trackedEntities) {
-                    TrackedEntityInstance var4 = (TrackedEntityInstance) trackedEntity;
+                for(TrackedEntityInstance var4 : (Set<TrackedEntityInstance>) this.trackedEntities) {
                     if (var4.trackedEntity != var2) {
                         var4.method_2184(var2);
                     }
@@ -73,6 +75,10 @@ public abstract class EntityTrackerMixin {
                 this.startTracking(par1Entity, 80, 3, true);
             } else if (par1Entity instanceof SquidEntity) {
                 this.startTracking(par1Entity, 64, 3, true);
+            } else if (par1Entity instanceof WitherEntity) {
+                this.startTracking(par1Entity, 80, 3, false);
+            } else if (par1Entity instanceof BatEntity) {
+                this.startTracking(par1Entity, 80, 3, false);
             } else if (par1Entity instanceof EntityCategoryProvider) {
                 this.startTracking(par1Entity, 80, 3, true);
             } else if (par1Entity instanceof EnderDragonEntity) {
@@ -87,6 +93,8 @@ public abstract class EntityTrackerMixin {
                 this.startTracking(par1Entity, 160, 20, true);
             } else if (par1Entity instanceof EndCrystalEntity) {
                 this.startTracking(par1Entity, 256, Integer.MAX_VALUE, false);
+            } else if (par1Entity instanceof ItemFrameEntity) {
+                this.startTracking(par1Entity, 160, Integer.MAX_VALUE, false);
             }
 
         }

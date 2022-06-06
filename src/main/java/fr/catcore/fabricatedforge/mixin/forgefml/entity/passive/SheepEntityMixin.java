@@ -41,7 +41,7 @@ public abstract class SheepEntityMixin extends AnimalEntity implements IShearabl
 
     @Override
     public ArrayList<ItemStack> onSheared(ItemStack item, World world, int X, int Y, int Z, int fortune) {
-        ArrayList<ItemStack> ret = new ArrayList<>();
+        ArrayList<ItemStack> ret = new ArrayList();
         this.setSheared(true);
         int i = 1 + this.random.nextInt(3);
 
@@ -49,6 +49,7 @@ public abstract class SheepEntityMixin extends AnimalEntity implements IShearabl
             ret.add(new ItemStack(Block.WOOL.id, 1, this.method_2866()));
         }
 
+        this.world.playSound(this, "mob.sheep.shear", 1.0F, 1.0F);
         return ret;
     }
 }

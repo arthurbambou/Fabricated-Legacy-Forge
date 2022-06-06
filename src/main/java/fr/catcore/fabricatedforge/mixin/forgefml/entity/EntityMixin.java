@@ -1,12 +1,13 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.entity;
 
-import fr.catcore.fabricatedforge.mixininterface.IAbstractMinecartEntity;
 import fr.catcore.fabricatedforge.mixininterface.IEntity;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.decoration.ItemFrameEntity;
 import net.minecraft.entity.decoration.PaintingEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
@@ -16,9 +17,10 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtDouble;
 import net.minecraft.nbt.NbtFloat;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.*;
 
 import java.util.ArrayList;
@@ -76,6 +78,11 @@ public abstract class EntityMixin implements IEntity {
     @Shadow protected abstract boolean getFlag(int index);
 
     @Shadow protected Random random;
+
+    @Shadow public abstract float getEyeHeight();
+
+    @Shadow public int dimension;
+    // Forge Fields
     @Unique
     private NbtCompound customEntityData;
     @Unique
@@ -91,7 +98,7 @@ public abstract class EntityMixin implements IEntity {
      */
     @Environment(EnvType.CLIENT)
     @Overwrite
-    public void afterSpawn() {
+    protected void afterSpawn() {
         if (this.world != null) {
             while(true) {
                 if (this.y > 0.0) {
@@ -123,6 +130,7 @@ public abstract class EntityMixin implements IEntity {
         par1NBTTagCompound.putShort("Fire", (short)this.fireTicks);
         par1NBTTagCompound.putShort("Air", (short)this.getAir());
         par1NBTTagCompound.putBoolean("OnGround", this.onGround);
+        par1NBTTagCompound.putInt("Dimension", this.dimension);
         if (this.persistentID != null) {
             par1NBTTagCompound.putLong("PersistentIDMSB", this.persistentID.getMostSignificantBits());
             par1NBTTagCompound.putLong("PersistentIDLSB", this.persistentID.getLeastSignificantBits());
@@ -168,6 +176,7 @@ public abstract class EntityMixin implements IEntity {
         this.fireTicks = par1NBTTagCompound.getShort("Fire");
         this.setAir(par1NBTTagCompound.getShort("Air"));
         this.onGround = par1NBTTagCompound.getBoolean("OnGround");
+        this.dimension = par1NBTTagCompound.getInt("Dimension");
         this.updatePosition(this.x, this.y, this.z);
         this.setRotation(this.yaw, this.pitch);
         if (par1NBTTagCompound.contains("ForgeData")) {
@@ -208,6 +217,15 @@ public abstract class EntityMixin implements IEntity {
         return this.vehicle != null && this.vehicle.shouldRiderSit() || this.getFlag(2);
     }
 
+    /**
+     * @author Minecraft Forge
+     * @reason none
+     */
+    @Overwrite
+    public float method_4444(Explosion par1Explosion, Block par2Block, int par3, int par4, int par5) {
+        return par2Block.getExplosionResistance((Entity)(Object) this, this.world, par3, par4, par5, this.x, this.y + (double)this.getEyeHeight(), this.z);
+    }
+
     @Override
     public NbtCompound getEntityData() {
         if (this.customEntityData == null) {
@@ -223,15 +241,18 @@ public abstract class EntityMixin implements IEntity {
     }
 
     @Override
-    public ItemStack getPickedResult(HitResult target) {
-        if ((Object)this instanceof PaintingEntity) {
+    public ItemStack getPickedResult(BlockHitResult target) {
+        if ((Entity)(Object) this instanceof PaintingEntity) {
             return new ItemStack(Item.PAINTING);
-        } else if ((Object)this instanceof AbstractMinecartEntity) {
-            return ((IAbstractMinecartEntity) this).getCartItem();
-        } else if ((Object)this instanceof BoatEntity) {
+        } else if ((Entity)(Object) this instanceof AbstractMinecartEntity) {
+            return ((AbstractMinecartEntity) (Object) this).getCartItem();
+        } else if ((Entity)(Object) this instanceof BoatEntity) {
             return new ItemStack(Item.BOAT);
+        } else if ((Entity)(Object) this instanceof ItemFrameEntity) {
+            ItemStack held = ((ItemFrameEntity) (Object) this).getHeldItemStack();
+            return held == null ? new ItemStack(Item.ITEM_FRAME) : held.copy();
         } else {
-            int id = EntityType.getIdByEntity((Entity) (Object)this);
+            int id = EntityType.getIdByEntity((Entity)(Object) this);
             return id > 0 && EntityType.field_3267.containsKey(id) ? new ItemStack(Item.SPAWN_EGG, 1, id) : null;
         }
     }
@@ -246,6 +267,7 @@ public abstract class EntityMixin implements IEntity {
         if (this.persistentID == null) {
             this.persistentID = UUID.randomUUID();
         }
+
     }
 
     @Override

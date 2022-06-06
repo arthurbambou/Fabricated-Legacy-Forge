@@ -1,7 +1,6 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.entity.mob;
 
 import fr.catcore.fabricatedforge.mixininterface.IMobEntity;
-import fr.catcore.fabricatedforge.mixininterface.IStatusEffectInstance;
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -14,6 +13,8 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.EntityEquipmentUpdate_S2CPacket;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
@@ -27,11 +28,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 @Mixin(MobEntity.class)
 public abstract class MobEntityMixin extends Entity implements IMobEntity {
-    @Shadow public int field_3333;
 
     @Shadow public int field_3334;
 
@@ -103,57 +102,26 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
 
     @Shadow protected abstract void method_2672(int i);
 
-    @Shadow public abstract float method_2622();
-
-    @Shadow public float field_3289;
-
-    @Shadow public float field_3290;
-
-    @Shadow public float field_3308;
-
-    @Shadow public float field_3330;
-
-    @Shadow private int field_3327;
-
-    @Shadow protected int field_3338;
-
-    @Shadow protected double field_3339;
-
-    @Shadow protected double field_3340;
-
-    @Shadow protected double field_3341;
-
-    @Shadow protected double field_3342;
-
-    @Shadow protected double field_3343;
-
-    @Shadow protected abstract boolean method_2610();
-
-    @Shadow public boolean field_3350;
-
-    @Shadow protected float field_3347;
-
-    @Shadow protected float field_3348;
-
-    @Shadow protected float field_3349;
-
-    @Shadow protected abstract boolean method_2609();
-
-    @Shadow protected abstract void mobTick();
-
-    @Shadow protected abstract void method_2635();
-
-    @Shadow protected abstract float method_2646();
-
     @Shadow public abstract StatusEffectInstance method_2627(StatusEffect statusEffect);
 
     @Shadow protected HashMap field_3335;
 
     @Shadow protected abstract void method_2649(StatusEffectInstance statusEffectInstance);
 
+    @Shadow
+    float field_3344;
+
+    @Shadow public abstract ItemStack method_4484(int i);
+
+    @Shadow private ItemStack[] field_5336;
+
+    @Shadow public int field_23096;
+
+    @Shadow public abstract void method_2651();
+
     @Shadow protected abstract boolean method_2608();
 
-    @Shadow private float field_3344;
+    @Shadow protected abstract void method_4472(boolean bl, int i);
 
     public MobEntityMixin(World world) {
         super(world);
@@ -172,21 +140,33 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
     public void tick() {
         if (!ForgeHooks.onLivingUpdate((MobEntity)(Object) this)) {
             super.tick();
-            if (this.field_3333 > 0) {
+            if (!this.world.isClient) {
+                for(int var1 = 0; var1 < 5; ++var1) {
+                    ItemStack var2 = this.method_4484(var1);
+                    if (!ItemStack.equalsAll(var2, this.field_5336[var1])) {
+                        ((ServerWorld)this.world)
+                                .getEntityTracker()
+                                .sendToOtherTrackingEntities(this, new EntityEquipmentUpdate_S2CPacket(this.id, var1, var2));
+                        this.field_5336[var1] = var2 == null ? null : var2.copy();
+                    }
+                }
+            }
+
+            if (this.field_23096 > 0) {
                 if (this.field_3334 <= 0) {
                     this.field_3334 = 60;
                 }
 
                 --this.field_3334;
                 if (this.field_3334 <= 0) {
-                    --this.field_3333;
+                    --this.field_23096;
                 }
             }
 
             this.method_2651();
-            double var1 = this.x - this.prevX;
+            double var12 = this.x - this.prevX;
             double var3 = this.z - this.prevZ;
-            float var5 = (float)(var1 * var1 + var3 * var3);
+            float var5 = (float)(var12 * var12 + var3 * var3);
             float var6 = this.field_3313;
             float var7 = 0.0F;
             this.field_3317 = this.field_3318;
@@ -194,7 +174,7 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
             if (var5 > 0.0025000002F) {
                 var8 = 1.0F;
                 var7 = (float)Math.sqrt((double)var5) * 3.0F;
-                var6 = (float)Math.atan2(var3, var1) * 180.0F / 3.1415927F - 90.0F;
+                var6 = (float)Math.atan2(var3, var12) * 180.0F / (float) Math.PI - 90.0F;
             }
 
             if (this.field_3293 > 0.0F) {
@@ -289,6 +269,10 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
             } else if (par1DamageSource.isFire() && this.method_2581(StatusEffect.FIRE_RESISTANCE)) {
                 return false;
             } else {
+                if ((par1DamageSource == DamageSource.ANVIL || par1DamageSource == DamageSource.FALLING_BLOCK) && this.method_4484(4) != null) {
+                    par2 = (int)((float)par2 * 0.55F);
+                }
+
                 this.field_3309 = 1.5F;
                 boolean var3 = true;
                 if ((float)this.field_3223 > (float)this.field_3310 / 2.0F) {
@@ -367,7 +351,7 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
      * @reason none
      */
     @Overwrite
-    public void method_2653(DamageSource par1DamageSource, int par2) {
+    protected void method_2653(DamageSource par1DamageSource, int par2) {
         par2 = ForgeHooks.onLivingHurt((MobEntity)(Object) this, par1DamageSource, par2);
         if (par2 > 0) {
             par2 = this.method_2626(par1DamageSource, par2);
@@ -396,14 +380,15 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
             if (!this.world.isClient) {
                 int var3 = 0;
                 if (var2 instanceof PlayerEntity) {
-                    var3 = EnchantmentHelper.method_3536(((PlayerEntity)var2).inventory);
+                    var3 = EnchantmentHelper.method_4655((MobEntity)var2);
                 }
 
                 this.captureDrops(true);
                 this.getCapturedDrops().clear();
                 int var4 = 0;
-                if (!this.method_2662()) {
+                if (!this.method_2662() && this.world.getGameRules().getBoolean("doMobLoot")) {
                     this.method_2587(this.field_3332 > 0, var3);
+                    this.method_4472(this.field_3332 > 0, var3);
                     if (this.field_3332 > 0) {
                         var4 = this.random.nextInt(200) - var3;
                         if (var4 < 5) {
@@ -414,7 +399,7 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
 
                 this.captureDrops(false);
                 if (!ForgeHooks.onLivingDrops((MobEntity)(Object) this, par1DamageSource, this.getCapturedDrops(), var3, this.field_3332 > 0, var4)) {
-                    for (ItemEntity item : this.getCapturedDrops()) {
+                    for(ItemEntity item : this.getCapturedDrops()) {
                         this.world.spawnEntity(item);
                     }
                 }
@@ -429,7 +414,7 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
      * @reason none
      */
     @Overwrite
-    public void method_2490(float par1) {
+    protected void method_2490(float par1) {
         par1 = ForgeHooks.onLivingFall((MobEntity)(Object) this, par1);
         if (!(par1 <= 0.0F)) {
             super.method_2490(par1);
@@ -442,7 +427,7 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
                 }
 
                 this.damage(DamageSource.FALL, var2);
-                int var3 = this.world.getBlock(MathHelper.floor(this.x), MathHelper.floor(this.y - 0.20000000298023224 - (double)this.heightOffset), MathHelper.floor(this.z));
+                int var3 = this.world.getBlock(MathHelper.floor(this.x), MathHelper.floor(this.y - 0.2F - (double)this.heightOffset), MathHelper.floor(this.z));
                 if (var3 > 0) {
                     BlockSoundGroup var4 = Block.BLOCKS[var3].soundGroup;
                     this.world.playSound(this, var4.method_487(), var4.method_485() * 0.5F, var4.method_486() * 0.75F);
@@ -450,121 +435,6 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
             }
 
         }
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    public void method_2657(float par1, float par2) {
-        double var9;
-        float var5;
-        if (this.isTouchingWater() && (!((Object)this instanceof PlayerEntity) || !((PlayerEntity)(Object)this).abilities.flying)) {
-            var9 = this.y;
-            this.updateVelocity(par1, par2, this.method_2608() ? 0.04F : 0.02F);
-            this.move(this.velocityX, this.velocityY, this.velocityZ);
-            this.velocityX *= 0.800000011920929;
-            this.velocityY *= 0.800000011920929;
-            this.velocityZ *= 0.800000011920929;
-            this.velocityY -= 0.02;
-            if (this.horizontalCollision && this.doesNotCollide(this.velocityX, this.velocityY + 0.6000000238418579 - this.y + var9, this.velocityZ)) {
-                this.velocityY = 0.30000001192092896;
-            }
-        } else if (this.method_2469() && (!((Object)this instanceof PlayerEntity) || !((PlayerEntity)(Object)this).abilities.flying)) {
-            var9 = this.y;
-            this.updateVelocity(par1, par2, 0.02F);
-            this.move(this.velocityX, this.velocityY, this.velocityZ);
-            this.velocityX *= 0.5;
-            this.velocityY *= 0.5;
-            this.velocityZ *= 0.5;
-            this.velocityY -= 0.02;
-            if (this.horizontalCollision && this.doesNotCollide(this.velocityX, this.velocityY + 0.6000000238418579 - this.y + var9, this.velocityZ)) {
-                this.velocityY = 0.30000001192092896;
-            }
-        } else {
-            float var3 = 0.91F;
-            if (this.onGround) {
-                var3 = 0.54600006F;
-                int var4 = this.world.getBlock(MathHelper.floor(this.x), MathHelper.floor(this.boundingBox.minY) - 1, MathHelper.floor(this.z));
-                if (var4 > 0) {
-                    var3 = Block.BLOCKS[var4].slipperiness * 0.91F;
-                }
-            }
-
-            float var8 = 0.16277136F / (var3 * var3 * var3);
-            if (this.onGround) {
-                if (this.method_2608()) {
-                    var5 = this.method_2622();
-                } else {
-                    var5 = this.field_3289;
-                }
-
-                var5 *= var8;
-            } else {
-                var5 = this.field_3290;
-            }
-
-            this.updateVelocity(par1, par2, var5);
-            var3 = 0.91F;
-            if (this.onGround) {
-                var3 = 0.54600006F;
-                int var6 = this.world.getBlock(MathHelper.floor(this.x), MathHelper.floor(this.boundingBox.minY) - 1, MathHelper.floor(this.z));
-                if (var6 > 0) {
-                    var3 = Block.BLOCKS[var6].slipperiness * 0.91F;
-                }
-            }
-
-            if (this.method_2660()) {
-                float var10 = 0.15F;
-                if (this.velocityX < (double)(-var10)) {
-                    this.velocityX = (double)(-var10);
-                }
-
-                if (this.velocityX > (double)var10) {
-                    this.velocityX = (double)var10;
-                }
-
-                if (this.velocityZ < (double)(-var10)) {
-                    this.velocityZ = (double)(-var10);
-                }
-
-                if (this.velocityZ > (double)var10) {
-                    this.velocityZ = (double)var10;
-                }
-
-                this.fallDistance = 0.0F;
-                if (this.velocityY < -0.15) {
-                    this.velocityY = -0.15;
-                }
-
-                boolean var7 = this.isSneaking() && (Object)this instanceof PlayerEntity;
-                if (var7 && this.velocityY < 0.0) {
-                    this.velocityY = 0.0;
-                }
-            }
-
-            this.move(this.velocityX, this.velocityY, this.velocityZ);
-            if (this.horizontalCollision && this.method_2660()) {
-                this.velocityY = 0.2;
-            }
-
-            this.velocityY -= 0.08;
-            this.velocityY *= 0.9800000190734863;
-            this.velocityX *= (double)var3;
-            this.velocityZ *= (double)var3;
-        }
-
-        this.field_3308 = this.field_3309;
-        var9 = this.x - this.prevX;
-        double var12 = this.z - this.prevZ;
-        var5 = MathHelper.sqrt(var9 * var9 + var12 * var12) * 4.0F;
-        if (var5 > 1.0F) {
-            var5 = 1.0F;
-        }
-
-        this.field_3309 += (var5 - this.field_3309) * 0.4F;
-        this.field_3330 += this.field_3309;
     }
 
     /**
@@ -585,108 +455,14 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
      * @reason none
      */
     @Overwrite
-    public void method_2651() {
-        if (this.field_3327 > 0) {
-            --this.field_3327;
-        }
-
-        if (this.field_3338 > 0) {
-            double var1 = this.x + (this.field_3339 - this.x) / (double)this.field_3338;
-            double var3 = this.y + (this.field_3340 - this.y) / (double)this.field_3338;
-            double var5 = this.z + (this.field_3341 - this.z) / (double)this.field_3338;
-            double var7 = MathHelper.wrapDegrees(this.field_3342 - (double)this.yaw);
-            this.yaw = (float)((double)this.yaw + var7 / (double)this.field_3338);
-            this.pitch = (float)((double)this.pitch + (this.field_3343 - (double)this.pitch) / (double)this.field_3338);
-            --this.field_3338;
-            this.updatePosition(var1, var3, var5);
-            this.setRotation(this.yaw, this.pitch);
-        }
-
-        if (Math.abs(this.velocityX) < 0.005) {
-            this.velocityX = 0.0;
-        }
-
-        if (Math.abs(this.velocityY) < 0.005) {
-            this.velocityY = 0.0;
-        }
-
-        if (Math.abs(this.velocityZ) < 0.005) {
-            this.velocityZ = 0.0;
-        }
-
-        this.world.profiler.push("ai");
-        if (this.method_2610()) {
-            this.field_3350 = false;
-            this.field_3347 = 0.0F;
-            this.field_3348 = 0.0F;
-            this.field_3349 = 0.0F;
-        } else if (this.method_2609()) {
-            if (this.method_2608()) {
-                this.world.profiler.push("newAi");
-                this.mobTick();
-                this.world.profiler.pop();
-            } else {
-                this.world.profiler.push("oldAi");
-                this.method_2635();
-                this.world.profiler.pop();
-                this.field_3315 = this.yaw;
-            }
-        }
-
-        this.world.profiler.pop();
-        this.world.profiler.push("jump");
-        if (this.field_3350) {
-            if (!this.isTouchingWater() && !this.method_2469()) {
-                if (this.onGround && this.field_3327 == 0) {
-                    this.method_2612();
-                    this.field_3327 = 10;
-                }
-            } else {
-                this.velocityY += 0.03999999910593033;
-            }
-        } else {
-            this.field_3327 = 0;
-        }
-
-        this.world.profiler.pop();
-        this.world.profiler.push("travel");
-        this.field_3347 *= 0.98F;
-        this.field_3348 *= 0.98F;
-        this.field_3349 *= 0.9F;
-        float var9 = this.field_3289;
-        this.field_3289 *= this.method_2646();
-        this.method_2657(this.field_3347, this.field_3348);
-        this.field_3289 = var9;
-        this.world.profiler.pop();
-        this.world.profiler.push("push");
-        if (!this.world.isClient) {
-            List var2 = this.world.getEntitiesIn(this, this.boundingBox.expand(0.20000000298023224, 0.0, 0.20000000298023224));
-            if (var2 != null && !var2.isEmpty()) {
-                for (Object o : var2) {
-                    Entity var4 = (Entity) o;
-                    if (var4.isPushable()) {
-                        var4.pushAwayFrom(this);
-                    }
-                }
-            }
-        }
-
-        this.world.profiler.pop();
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    public void method_2612() {
-        this.velocityY = 0.41999998688697815;
+    protected void method_2612() {
+        this.velocityY = 0.42F;
         if (this.method_2581(StatusEffect.JUMP_BOOST)) {
             this.velocityY += (double)((float)(this.method_2627(StatusEffect.JUMP_BOOST).getAmplifier() + 1) * 0.1F);
         }
 
         if (this.isSprinting()) {
-            float var1 = this.yaw * 0.017453292F;
+            float var1 = this.yaw * (float) (Math.PI / 180.0);
             this.velocityX -= (double)(MathHelper.sin(var1) * 0.2F);
             this.velocityZ += (double)(MathHelper.cos(var1) * 0.2F);
         }
@@ -707,7 +483,7 @@ public abstract class MobEntityMixin extends Entity implements IMobEntity {
             while(potionKey.hasNext()) {
                 Integer key = (Integer)potionKey.next();
                 StatusEffectInstance effect = (StatusEffectInstance)this.field_3335.get(key);
-                if (((IStatusEffectInstance)effect).isCurativeItem(curativeItem)) {
+                if (effect.isCurativeItem(curativeItem)) {
                     potionKey.remove();
                     this.method_2649(effect);
                 }

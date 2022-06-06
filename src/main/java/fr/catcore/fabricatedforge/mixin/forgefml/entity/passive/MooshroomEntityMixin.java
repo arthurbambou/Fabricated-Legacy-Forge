@@ -56,7 +56,7 @@ public abstract class MooshroomEntityMixin extends CowEntity implements IShearab
         entitycow.field_3313 = this.field_3313;
         this.world.spawnEntity(entitycow);
         this.world.method_3621("largeexplode", this.x, this.y + (double)(this.height / 2.0F), this.z, 0.0, 0.0, 0.0);
-        ArrayList<ItemStack> ret = new ArrayList<>();
+        ArrayList<ItemStack> ret = new ArrayList();
 
         for(int x = 0; x < 5; ++x) {
             ret.add(new ItemStack(Block.RED_MUSHROOM));

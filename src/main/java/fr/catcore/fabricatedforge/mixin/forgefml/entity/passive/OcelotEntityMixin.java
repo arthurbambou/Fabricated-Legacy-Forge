@@ -1,6 +1,5 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.entity.passive;
 
-import fr.catcore.fabricatedforge.mixininterface.IBlock;
 import net.minecraft.block.Block;
 import net.minecraft.entity.passive.OcelotEntity;
 import net.minecraft.entity.passive.TameableEntity;
@@ -21,8 +20,12 @@ public abstract class OcelotEntityMixin extends TameableEntity {
      */
     @Overwrite
     public boolean canSpawn() {
-        if (this.world.random.nextInt(3) != 0) {
-            if (this.world.hasEntityIn(this.boundingBox) && this.world.doesBoxCollide(this, this.boundingBox).isEmpty() && !this.world.containsFluid(this.boundingBox)) {
+        if (this.world.random.nextInt(3) == 0) {
+            return false;
+        } else {
+            if (this.world.hasEntityIn(this.boundingBox)
+                    && this.world.doesBoxCollide(this, this.boundingBox).isEmpty()
+                    && !this.world.containsFluid(this.boundingBox)) {
                 int var1 = MathHelper.floor(this.x);
                 int var2 = MathHelper.floor(this.boundingBox.minY);
                 int var3 = MathHelper.floor(this.z);
@@ -32,10 +35,12 @@ public abstract class OcelotEntityMixin extends TameableEntity {
 
                 int var4 = this.world.getBlock(var1, var2 - 1, var3);
                 Block block = Block.BLOCKS[var4];
-                return var4 == Block.GRASS_BLOCK.id || block != null && ((IBlock)block).isLeaves(this.world, var1, var2 - 1, var3);
+                if (var4 == Block.GRASS_BLOCK.id || block != null && block.isLeaves(this.world, var1, var2 - 1, var3)) {
+                    return true;
+                }
             }
 
+            return false;
         }
-        return false;
     }
 }

@@ -43,6 +43,25 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                 "fr/catcore/fabricatedforge/forged/ReflectionUtils"
         ));
         METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+                "setCollisionHandler",
+                "(Lnet/minecraftforge/common/IMinecartCollisionHandler;)V",
+                "net/minecraft/class_965"
+        ), new ForgeModRemapper.Entry(
+                "AbstractMinecartEntity_setCollisionHandler",
+                "(Lnet/minecraftforge/common/IMinecartCollisionHandler;)V",
+                "fr/catcore/fabricatedforge/forged/ReflectionUtils"
+        ));
+        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+                "getCollisionHandler",
+                "()Lnet/minecraftforge/common/IMinecartCollisionHandler;",
+                "net/minecraft/class_965"
+        ), new ForgeModRemapper.Entry(
+                "AbstractMinecartEntity_getCollisionHandler",
+                "()Lnet/minecraftforge/common/IMinecartCollisionHandler;",
+                "fr/catcore/fabricatedforge/forged/ReflectionUtils"
+        ));
+
+        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
                 "setConnectionCompatibilityLevel",
                 "(B)V",
                 "net/minecraft/class_469"
@@ -59,6 +78,34 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                 "class_469_getConnectionCompatibilityLevel",
                 "()B",
                 "fr/catcore/fabricatedforge/forged/ClientReflectionUtils"
+        ));
+
+        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+                "<init>",
+                "(Lnet/minecraft/class_1150;)V",
+                "net/minecraft/class_965"
+        ), new ForgeModRemapper.Entry(
+                "<init>",
+                "(Lnet/minecraft/class_1150;)V",
+                "fr/catcore/fabricatedforge/forged/AbstractMinecartEntityForged"
+        ));
+        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+                "<init>",
+                "(Lnet/minecraft/class_1150;I)V",
+                "net/minecraft/class_965"
+        ), new ForgeModRemapper.Entry(
+                "<init>",
+                "(Lnet/minecraft/class_1150;I)V",
+                "fr/catcore/fabricatedforge/forged/AbstractMinecartEntityForged"
+        ));
+        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
+                "<init>",
+                "(Lnet/minecraft/class_1150;DDDD)V",
+                "net/minecraft/class_965"
+        ), new ForgeModRemapper.Entry(
+                "<init>",
+                "(Lnet/minecraft/class_1150;DDDD)V",
+                "fr/catcore/fabricatedforge/forged/AbstractMinecartEntityForged"
         ));
 //        METHOD_OVERWRITES.put(new ForgeModRemapper.Entry(
 //                "<init>",
@@ -155,6 +202,9 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
 
                                 switch (type) {
                                     // Forge
+                                    case "net/minecraft/class_965":
+                                        type = "fr/catcore/fabricatedforge/forged/AbstractMinecartEntityForged";
+                                        break;
 //                                    case "net/minecraft/class_1041":
 //                                        type = "fr/catcore/fabricatedforge/forged/ItemGroupForged";
 //                                        break;
@@ -195,6 +245,21 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                                 if (fieldName.equals("MAX_ENTITY_RADIUS")) {
                                     fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
                                     fieldName = "World_MAX_ENTITY_RADIUS";
+                                }
+                                break;
+                            case "net/minecraft/class_965":
+                                switch (fieldName) {
+                                    case "defaultMaxSpeedRail":
+                                    case "defaultMaxSpeedGround":
+                                    case "defaultMaxSpeedAirLateral":
+                                    case "defaultMaxSpeedAirVertical":
+                                    case "defaultDragRidden":
+                                    case "defaultDragEmpty":
+                                    case "defaultDragAir":
+                                    case "collisionHandler":
+                                        fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                        fieldName = "AbstractMinecartEntity_" + fieldName;
+                                        break;
                                 }
                                 break;
 
