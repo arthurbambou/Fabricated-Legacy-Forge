@@ -55,18 +55,20 @@ public class ClockSpriteForged extends FMLTextureFX {
         double var1 = 0.0;
         if (this.field_2143.world != null && this.field_2143.playerEntity != null) {
             float var3 = this.field_2143.world.getSkyAngle(1.0F);
-            var1 = (double)(-var3 * 3.1415927F * 2.0F);
+            var1 = (double)(-var3 * (float) Math.PI * 2.0F);
             if (!this.field_2143.world.dimension.canPlayersSleep()) {
                 var1 = Math.random() * Math.PI * 2.0;
             }
         }
 
-        double var22;
-        for(var22 = var1 - this.field_2146; var22 < -3.141592653589793; var22 += 6.283185307179586) {
+        double var22 = var1 - this.field_2146;
+
+        while(var22 < -Math.PI) {
+            var22 += Math.PI * 2;
         }
 
         while(var22 >= Math.PI) {
-            var22 -= 6.283185307179586;
+            var22 -= Math.PI * 2;
         }
 
         if (var22 < -1.0) {
@@ -84,10 +86,10 @@ public class ClockSpriteForged extends FMLTextureFX {
         double var7 = Math.cos(this.field_2146);
 
         for(int var9 = 0; var9 < this.tileSizeSquare; ++var9) {
-            int var10 = this.field_2144[var9] >> 24 & 255;
-            int var11 = this.field_2144[var9] >> 16 & 255;
-            int var12 = this.field_2144[var9] >> 8 & 255;
-            int var13 = this.field_2144[var9] >> 0 & 255;
+            int var10 = this.field_2144[var9] >> 24 & 0xFF;
+            int var11 = this.field_2144[var9] >> 16 & 0xFF;
+            int var12 = this.field_2144[var9] >> 8 & 0xFF;
+            int var13 = this.field_2144[var9] >> 0 & 0xFF;
             if (var11 == var13 && var12 == 0 && var13 > 0) {
                 double var14 = -((double)(var9 % this.tileSizeBase) / (double)this.tileSizeMask - 0.5);
                 double var16 = (double)(var9 / this.tileSizeBase) / (double)this.tileSizeMask - 0.5;
@@ -95,10 +97,10 @@ public class ClockSpriteForged extends FMLTextureFX {
                 int var19 = (int)((var14 * var7 + var16 * var5 + 0.5) * (double)this.tileSizeBase);
                 int var20 = (int)((var16 * var7 - var14 * var5 + 0.5) * (double)this.tileSizeBase);
                 int var21 = (var19 & this.tileSizeMask) + (var20 & this.tileSizeMask) * this.tileSizeBase;
-                var10 = this.field_2145[var21] >> 24 & 255;
-                var11 = (this.field_2145[var21] >> 16 & 255) * var11 / 255;
-                var12 = (this.field_2145[var21] >> 8 & 255) * var18 / 255;
-                var13 = (this.field_2145[var21] >> 0 & 255) * var18 / 255;
+                var10 = this.field_2145[var21] >> 24 & 0xFF;
+                var11 = (this.field_2145[var21] >> 16 & 0xFF) * var11 / 255;
+                var12 = (this.field_2145[var21] >> 8 & 0xFF) * var18 / 255;
+                var13 = (this.field_2145[var21] >> 0 & 0xFF) * var18 / 255;
             }
 
             if (this.field_2154) {

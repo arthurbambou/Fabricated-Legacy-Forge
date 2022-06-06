@@ -1,6 +1,6 @@
 package fr.catcore.fabricatedforge.mixin.forgefml.client.sound;
 
-import fr.catcore.fabricatedforge.mixininterface.ISoundSystem;
+import fr.catcore.fabricatedforge.forged.ClientReflectionUtils;
 import net.minecraft.client.options.GameOptions;
 import net.minecraft.client.sound.Sound;
 import net.minecraft.client.sound.SoundLoader;
@@ -19,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Random;
 
 @Mixin(SoundSystem.class)
-public class SoundSystemMixin implements ISoundSystem {
+public class SoundSystemMixin {
 
     @Shadow private static boolean started;
     @Shadow private GameOptions options;
@@ -31,12 +31,9 @@ public class SoundSystemMixin implements ISoundSystem {
     @Shadow public SoundLoader soundsLoader;
     @Shadow private int field_2263;
 
-    // This should be public.
-    private static int MUSIC_INTERVAL = 12000;
-
     @ModifyArg(method = "<init>", index = 0, at = @At(value = "INVOKE", target = "Ljava/util/Random;nextInt(I)I", remap = false))
     private int ctr(int i) {
-        return MUSIC_INTERVAL;
+        return ClientReflectionUtils.SoundSystem_MUSIC_INTERVAL;
     }
 
     @Inject(method = "method_1709", at = @At("RETURN"))
@@ -67,7 +64,7 @@ public class SoundSystemMixin implements ISoundSystem {
             var1 = ModCompatibilityClient.audioModPickBackgroundMusic((SoundSystem)(Object) this, var1);
             var1 = SoundEvent.getResult(new PlayBackgroundMusicEvent((SoundSystem)(Object) this, var1));
             if (var1 != null) {
-                this.field_2267 = this.rnd.nextInt(MUSIC_INTERVAL) + MUSIC_INTERVAL;
+                this.field_2267 = this.rnd.nextInt(ClientReflectionUtils.SoundSystem_MUSIC_INTERVAL) + ClientReflectionUtils.SoundSystem_MUSIC_INTERVAL;
                 soundSystem.backgroundMusic("BgMusic", var1.field_2258, var1.field_2257, false);
                 soundSystem.setVolume("BgMusic", this.options.musicVolume);
                 soundSystem.play("BgMusic");
@@ -81,26 +78,26 @@ public class SoundSystemMixin implements ISoundSystem {
      * @reason none
      */
     @Overwrite
-    public void playBackgroundMusic(String par1Str, float par2, float par3, float par4, float par5, float par6) {
+    public void method_1711(String par1Str, float par2, float par3, float par4) {
         if (started && (this.options.soundVolume != 0.0F || par1Str == null)) {
-            String var7 = "streaming";
-            if (soundSystem.playing("streaming")) {
-                soundSystem.stop("streaming");
+            String var5 = "streaming";
+            if (soundSystem.playing(var5)) {
+                soundSystem.stop(var5);
             }
 
             if (par1Str != null) {
-                Sound var8 = this.bgmusicLoader.getSound(par1Str);
-                var8 = SoundEvent.getResult(new PlayStreamingEvent((SoundSystem)(Object) this, var8, par1Str, par2, par3, par4));
-                if (var8 != null && par5 > 0.0F) {
+                Sound var6 = this.bgmusicLoader.getSound(par1Str);
+                var6 = SoundEvent.getResult(new PlayStreamingEvent((SoundSystem)(Object) this, var6, par1Str, par2, par3, par4));
+                if (var6 != null) {
                     if (soundSystem.playing("BgMusic")) {
                         soundSystem.stop("BgMusic");
                     }
 
-                    float var9 = 16.0F;
-                    soundSystem.newStreamingSource(true, var7, var8.field_2258, var8.field_2257, false, par2, par3, par4, 2, var9 * 4.0F);
-                    soundSystem.setVolume(var7, 0.5F * this.options.soundVolume);
-                    MinecraftForge.EVENT_BUS.post(new PlayStreamingSourceEvent((SoundSystem)(Object) this, var7, par2, par3, par4));
-                    soundSystem.play(var7);
+                    float var7 = 16.0F;
+                    soundSystem.newStreamingSource(true, var5, var6.field_2258, var6.field_2257, false, par2, par3, par4, 2, var7 * 4.0F);
+                    soundSystem.setVolume(var5, 0.5F * this.options.soundVolume);
+                    MinecraftForge.EVENT_BUS.post(new PlayStreamingSourceEvent((SoundSystem)(Object) this, var5, par2, par3, par4));
+                    soundSystem.play(var5);
                 }
             }
         }
@@ -163,15 +160,5 @@ public class SoundSystemMixin implements ISoundSystem {
             }
         }
 
-    }
-
-    @Override
-    public int getMUSIC_INTERVAL() {
-        return MUSIC_INTERVAL;
-    }
-
-    @Override
-    public void setMUSIC_INTERVAL(int interval) {
-        MUSIC_INTERVAL = interval;
     }
 }

@@ -89,18 +89,19 @@ public class ForgeModRemapper implements ModRemapper {
                 .field("j", "field_2179", "[F")
                 .field("k", "field_2180", "I");
 
-//        mappings.add("axc", "fr/catcore/fabricatedforge/forged/ClockSpriteForged")
-//                .field("g", "field_2143", "Lnet/minecraft/client/Minecraft;")
-//                .field("h", "field_2144", "[I")
-//                .field("i", "field_2145", "[I")
-//                .field("j", "field_2146", "D")
-//                .field("k", "field_2147", "D");
-//
-//        mappings.add("axd", "fr/catcore/fabricatedforge/forged/CompassSpriteForged")
-//                .field("g", "field_2148", "Lnet/minecraft/client/Minecraft;")
-//                .field("h", "field_2149", "[I")
-//                .field("i", "field_2150", "D")
-//                .field("j", "field_2151", "D");
+        mappings.add("bbf", "fr/catcore/fabricatedforge/forged/ClockSpriteForged")
+                .field("a", "field_2143", "Lnet/minecraft/client/Minecraft;")
+                .field("b", "field_2144", "[I")
+                .field("c", "field_2145", "[I")
+                .field("j", "field_2146", "D")
+                .field("k", "field_2147", "D");
+
+        mappings.add("bbg", "fr/catcore/fabricatedforge/forged/CompassSpriteForged")
+                .field("a", "field_2150", "D")
+                .field("b", "field_2151", "D")
+                .field("c", "field_5222", "Lbbg;")
+                .field("j", "field_2148", "Lnet/minecraft/client/Minecraft;")
+                .field("k", "field_2149", "[I");
     }
 
     @Override

@@ -42,7 +42,6 @@ public class SoundLoaderMixin implements ISoundLoader {
     @Override
     public Sound addSound(String par1Str, URL url) {
         try {
-            String var3 = par1Str;
             par1Str = par1Str.substring(0, par1Str.indexOf("."));
             if (this.field_2269) {
                 while(Character.isDigit(par1Str.charAt(par1Str.length() - 1))) {
@@ -55,7 +54,7 @@ public class SoundLoaderMixin implements ISoundLoader {
                 this.soundMap.put(par1Str, new ArrayList());
             }
 
-            Sound var4 = new Sound(var3, url);
+            Sound var4 = new Sound(par1Str, url);
             ((List)this.soundMap.get(par1Str)).add(var4);
             this.soundList.add(var4);
             ++this.soundCount;

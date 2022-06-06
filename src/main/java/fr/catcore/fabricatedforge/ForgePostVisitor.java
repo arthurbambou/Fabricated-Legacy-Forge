@@ -191,6 +191,13 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                                     fieldName = "TrapdoorBlock_disableValidation";
                                 }
                                 break;
+                            case "net/minecraft/class_1150":
+                                if (fieldName.equals("MAX_ENTITY_RADIUS")) {
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ReflectionUtils";
+                                    fieldName = "World_MAX_ENTITY_RADIUS";
+                                }
+                                break;
+
                             case "net/minecraft/class_469":
                                 if (fieldName.equals("connectionCompatibilityLevel")) {
                                     fieldOwner = "fr/catcore/fabricatedforge/forged/ClientReflectionUtils";
@@ -209,12 +216,12 @@ public class ForgePostVisitor implements TinyRemapper.ApplyVisitorProvider {
                                     fieldName = "Tessellator_renderingWorldRenderer";
                                 }
                                 break;
-//                            // Mystcraft
-//                            case "xcompwiz/mystcraft/Mystcraft":
-//                                if (fieldName.equals("registeredDims")) {
-//                                    fieldOwner = "fr/catcore/fabricatedforge/compat/MystcraftCompat";
-//                                }
-//                                break;
+                            case "net/minecraft/class_622":
+                                if (fieldName.equals("MUSIC_INTERVAL")) {
+                                    fieldOwner = "fr/catcore/fabricatedforge/forged/ClientReflectionUtils";
+                                    fieldName = "SoundSystem_MUSIC_INTERVAL";
+                                }
+                                break;
                         }
 
                         super.visitFieldInsn(opcode, fieldOwner, fieldName, fieldDescriptor);

@@ -80,7 +80,8 @@
       "net/minecraft/class_390": ["fr/catcore/fabricatedforge/mixininterface/IListWidget"],
       "net/minecraft/class_503": ["fr/catcore/fabricatedforge/mixininterface/IParticleManager"],
       "net/minecraft/class_533": ["fr/catcore/fabricatedforge/mixininterface/ITessellator"],
-      "net/minecraft/class_530": ["fr/catcore/fabricatedforge/mixininterface/IWorldRenderer"]
+      "net/minecraft/class_530": ["fr/catcore/fabricatedforge/mixininterface/IWorldRenderer"],
+      "net/minecraft/class_623": ["fr/catcore/fabricatedforge/mixininterface/ISoundLoader"]
     }
   }
 }

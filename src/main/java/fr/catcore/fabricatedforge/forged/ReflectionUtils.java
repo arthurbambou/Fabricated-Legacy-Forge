@@ -1,17 +1,11 @@
 package fr.catcore.fabricatedforge.forged;
 
-import cpw.mods.fml.common.FMLLog;
 import fr.catcore.fabricatedforge.mixin.forgefml.block.class_174Accessor;
 import fr.catcore.fabricatedforge.mixininterface.IRailBlock;
 import net.minecraft.block.RailBlock;
 import net.minecraft.block.class_174;
-import net.minecraft.client.class_469;
-
-import java.util.logging.Logger;
 
 public class ReflectionUtils {
-//    public static double World_MAX_ENTITY_RADIUS = 2.0;
-//
 //    public static final Biome[] LevelGeneratorType_base11Biomes = new Biome[]{Biome.DESERT, Biome.FOREST, Biome.EXTREME_HILLS, Biome.SWAMPLAND, Biome.PLAINS, Biome.TAIGA};
 //    public static final Biome[] LevelGeneratorType_base12Biomes = ObjectArrays.concat(LevelGeneratorType_base11Biomes, Biome.JUNGLE);
 
@@ -33,4 +27,6 @@ public class ReflectionUtils {
     }
 
     public static boolean TrapdoorBlock_disableValidation = false;
+
+    public static double World_MAX_ENTITY_RADIUS = 2.0;
 }

@@ -5,28 +5,18 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.SaveHandler;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ClientChunkProvider;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.level.LevelInfo;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.Set;
-
 @Mixin(ClientWorld.class)
 public abstract class ClientWorldMixin extends World {
-
-    @Shadow private ClientChunkProvider clientChunkCache;
-
-    @Shadow private Set world;
-
-    @Shadow private Set field_1658;
 
     public ClientWorldMixin(SaveHandler saveHandler, String string, Dimension dimension, LevelInfo levelInfo, Profiler profiler) {
         super(saveHandler, string, dimension, levelInfo, profiler);
@@ -34,7 +24,6 @@ public abstract class ClientWorldMixin extends World {
 
     @Inject(method = "<init>", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;method_3578(III)V"))
     private void ctrFix1(class_469 par1NetClientHandler, LevelInfo par2WorldSettings, int par3, int par4, Profiler par5Profiler, CallbackInfo ci) {
-        this.persistentStateManager = par1NetClientHandler.stateManager;
         this.isClient = true;
         this.finishSetup();
     }
@@ -49,33 +38,15 @@ public abstract class ClientWorldMixin extends World {
      * @reason none
      */
     @Overwrite
-    public void method_1252(int par1, int par2, boolean par3) {
-        if (par3) {
-            this.clientChunkCache.method_3871(par1, par2);
-        } else {
-            this.clientChunkCache.unloadChunk(par1, par2);
-        }
-
-        if (!par3) {
-            this.onRenderRegionUpdate(par1 * 16, 0, par2 * 16, par1 * 16 + 15, 256, par2 * 16 + 15);
-        }
-
-    }
-
-    /**
-     * @author Minecraft Forge
-     * @reason none
-     */
-    @Overwrite
-    public void tickWeather() {
+    protected void tickWeather() {
         super.tickWeather();
     }
 
     @Override
     public void updateWeatherBody() {
         if (!this.dimension.isNether) {
-            if (this.field_4553 > 0) {
-                --this.field_4553;
+            if (this.field_23088 > 0) {
+                --this.field_23088;
             }
 
             this.rainGradientPrev = this.rainGradient;

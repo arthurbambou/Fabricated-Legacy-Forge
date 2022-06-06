@@ -18,4 +18,6 @@ public class ClientReflectionUtils {
     public static Logger class_534_log = FMLLog.getLogger();
 
     public static boolean Tessellator_renderingWorldRenderer = false;
+
+    public static int SoundSystem_MUSIC_INTERVAL = 12000;
 }
